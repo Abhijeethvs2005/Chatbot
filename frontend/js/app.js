@@ -519,6 +519,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const toggleHandBtn = document.getElementById("act-toggle-hand-btn");
+  if (toggleHandBtn) {
+    toggleHandBtn.addEventListener("click", () => {
+      if (robot) {
+        const newHand = robot.toggleHand();
+        toggleHandBtn.textContent = newHand === "left" ? "🔄 Hand: Left (Reversed)" : "🔄 Hand: Right (Standard)";
+        if (newHand === "left") toggleHandBtn.classList.add("active");
+        else toggleHandBtn.classList.remove("active");
+        robot.doAction("hello");
+      }
+    });
+  }
+
   const waveBtn = document.getElementById("wave-btn");
   if (waveBtn) {
     waveBtn.addEventListener("click", () => {
@@ -643,10 +656,36 @@ document.addEventListener("DOMContentLoaded", () => {
     // Render User Message
     appendMessage("user", text);
 
-    // Robot Reacts: Thinking & Overdrive State
+    // Robot Reacts: Thinking & Overdrive State or Gesture Trigger
+    const lower = text.toLowerCase();
     if (robot) {
-      robot.setExpression("thinking");
-      robot.triggerOverdrive(2200);
+      if (lower.includes("change hand") || lower.includes("reverse hand") || lower.includes("change the hand") || lower.includes("reverse the hand") || lower.includes("revsre") || lower.includes("switch hand") || lower.includes("swap hand")) {
+        const newHand = robot.toggleHand();
+        const handLabel = newHand === "left" ? "Left Hand (Reversed)" : "Right Hand (Standard)";
+        const toggleBtn = document.getElementById("act-toggle-hand-btn");
+        if (toggleBtn) {
+          toggleBtn.textContent = newHand === "left" ? "🔄 Hand: Left (Reversed)" : "🔄 Hand: Right (Standard)";
+          if (newHand === "left") toggleBtn.classList.add("active");
+          else toggleBtn.classList.remove("active");
+        }
+        setTimeout(() => robot.hello(), 400);
+        const msgHtml = `<p>🔄 <strong>Action Hand Reversal Activated!</strong></p><p>I have reversed my active action hand to my <strong>${handLabel}</strong>! Watch me wave with it right now.</p><p>All physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute, and conversational speaking gestures) will now be performed with my <strong>${handLabel}</strong>.</p><p style="margin-top:8px; font-size:12px; color:var(--text-dim);">💡 You can also tap the <strong>🔄 Hand: ${newHand === "left" ? "Left (Reversed)" : "Right (Standard)"}</strong> button in the 3D action bar below the robot anytime to swap hands instantly!</p>`;
+        appendMessage("bot", msgHtml);
+        return;
+      } else if (lower.includes("high five") || lower.includes("hifi") || lower.includes("high-five")) {
+        robot.hifi();
+      } else if (lower.includes("salute")) {
+        robot.salute();
+      } else if (lower.includes("flying kiss") || lower.includes("blow kiss") || lower === "kiss") {
+        robot.kiss();
+      } else if (lower.includes("bye") || lower.includes("goodbye") || lower.includes("see you")) {
+        robot.bye();
+      } else if (lower.includes("hello") || lower.includes("hey") || lower === "hi" || lower.startsWith("hi ") || lower.startsWith("hello ")) {
+        robot.hello();
+      } else {
+        robot.setExpression("thinking");
+        robot.triggerOverdrive(2200);
+      }
     }
     window.AudioEngine.playThinking();
 

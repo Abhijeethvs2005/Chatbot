@@ -966,6 +966,25 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
         "confidence": "100% Core Identity Verified"
     }),
 
+    # 1B. 3D ROBOT ACTION HAND CONFIGURATION / REVERSE HAND
+    (r'(?:(?:change|reverse|swap|switch|revsre)\s+(?:the\s+)?(?:hand|arm)(?:\s+(?:for\s+)?(?:action|gesture|movement))?|(?:hand\s+action\s+reverse)|(?:revsre\s+the\s+hand))', {
+        "title": "3D Humanoid Robot: Action Hand Reversal & Kinematic Mirroring",
+        "core": "The active arm and hand for all 3D physical gestures and conversational animations can be dynamically reversed between **Left Hand** and **Right Hand**.",
+        "formulas": [
+            r"\theta_{\text{left}}(t) = \mathcal{M}(\theta_{\text{right}}(t)) \quad \text{(Bilateral Symmetrical Kinematic Mirroring)}",
+            r"\begin{pmatrix} x' \\ y' \\ z' \end{pmatrix} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & -1 \end{pmatrix} \begin{pmatrix} x \\ y \\ z \end{pmatrix}"
+        ],
+        "steps": [
+            "1. **Reversed Hand Mode Active**: By default, the robot's action hand is reversed to the **Left Hand**, allowing the humanoid avatar to lead all waving, saluting, and greeting motions from the viewer's perspective.",
+            "2. **Supported Interactive Actions**: All gestures—**✋ High-Five**, **👋 Hello (wave)**, **👋 Bye (farewell)**, **💋 Flying Kiss (3D floating hearts)**, **🫡 Salute**, **Thinking (chin rest)**, and **Conversational Explaining gestures**—automatically adapt their kinematics to the active hand.",
+            "3. **Real-Time Toggle Button**: Use the **🔄 Hand: Left (Reversed)** / **🔄 Hand: Right (Standard)** pill in the 3D HUD action bar to instantly reverse or swap hands at any time.",
+            "4. **Dynamic Stance Compensation**: Leg kinematics and hip weight distribution automatically shift to the opposite leg to ground the posture authentically during gestures."
+        ],
+        "analogy": "Like an ambidextrous presenter or conductor who effortlessly switches their conducting or gesturing baton from right hand to left hand on demand!",
+        "pitfalls": "All 5 articulated fingers, knuckles, and wrist rotations mirror along the coronal anatomical axis so the gesture remains 100% natural and never inverted backward.",
+        "confidence": "100% Kinematic Geometry Verified"
+    }),
+
     # 2. AERODYNAMICS: HOW PLANES FLY
     (r'(?:how\s+(?:do\s+)?(?:air)?planes?\s+fly|how\s+(?:do\s+)?airplanes?\s+stay\s+in\s+the\s+air|mechanism\s+of\s+flight)', {
         "title": "Aerodynamics & Fluid Dynamics: How Airplanes Fly",
