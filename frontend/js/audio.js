@@ -159,6 +159,50 @@ class AudioEngine {
     osc.stop(now + 0.18);
   }
 
+  playClap() {
+    if (!this.soundEnabled) return;
+    this.ensureContext();
+    if (!this.audioCtx) return;
+
+    const now = this.audioCtx.currentTime;
+    // White noise clap burst
+    const bufferSize = this.audioCtx.sampleRate * 0.12;
+    const buffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (this.audioCtx.sampleRate * 0.025));
+    }
+    const noise = this.audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const gain = this.audioCtx.createGain();
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    noise.connect(gain);
+    gain.connect(this.audioCtx.destination);
+    noise.start(now);
+  }
+
+  playChime() {
+    if (!this.soundEnabled) return;
+    this.ensureContext();
+    if (!this.audioCtx) return;
+
+    const now = this.audioCtx.currentTime;
+    [659.25, 880, 1046.5].forEach((freq, i) => {
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      const startTime = now + i * 0.08;
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, startTime);
+      gain.gain.setValueAtTime(0.08, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.25);
+    });
+  }
+
   playQuizSuccess() {
     if (!this.soundEnabled) return;
     this.ensureContext();
