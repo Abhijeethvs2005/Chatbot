@@ -48,6 +48,12 @@ class Robot3D {
     this.legsGroup = null;
     this.faceNose = null;
     this.faceLips = null;
+    this.upperLip = null;
+    this.lowerMouth = null;
+    this.lowerLip = null;
+    this.upperTeeth = null;
+    this.lowerTeeth = null;
+    this.tongue = null;
     this.speechLED = null;
     this.leftEye = null;
     this.rightEye = null;
@@ -65,8 +71,41 @@ class Robot3D {
 
     // Wardrobe Outfits Container & Active Outfit
     this.wardrobeGroup = null;
-    this.currentOutfit = "cyber"; // 'cyber', 'student', 'scientist', 'hoodie', 'astronaut'
+    this.currentOutfit = "suit"; // 'suit', 'cyber', 'student', 'scientist', 'hoodie', 'astronaut', 'physique'
     this.outfitMeshes = {};
+
+    // Dynamic Muscle Hypertrophy System
+    this.muscleLevel = 1.0; // 0.75: Lean, 1.0: Athletic, 1.38: Muscular, 1.75: Bodybuilder
+    this.targetMuscleLevel = 1.0;
+    this.currentMuscleLevel = 1.0;
+    this.muscleContraction = 0.0; // Dynamic extra peak contraction during flex
+    this.targetMuscleContraction = 0.0;
+
+    this.muscleGroups = {
+      pecs: [],
+      deltoids: [],
+      biceps: [],
+      triceps: [],
+      upperArmCores: [],
+      forearmCores: [],
+      brachioradialis: [],
+      veins: [],
+      ribcages: [],
+      lats: [],
+      traps: [],
+      abs: [],
+      obliques: [],
+      serratus: [],
+      quads: [],
+      hamstrings: [],
+      calves: [],
+      glutes: [],
+      thighCores: [],
+      calfCores: [],
+      wardrobeTorso: [],
+      wardrobeArms: [],
+      wardrobeLegs: []
+    };
 
     // Camera Orbit & Cursor Zoom Parameters (Framed to show head, torso, arms AND two full legs)
     this.cameraDistance = 4.85;
@@ -326,17 +365,39 @@ class Robot3D {
       metalness: 0.98
     });
 
-    // --- HUMAN ANATOMY & FACIAL MATERIALS ---
+    // --- REALISTIC HUMAN DERMAL & MUSCLE SHADING ---
+    // Primary human skin: Warm masculine undertones, subtle hemoglobin subsurface warmth
     this.matSkin = new THREE.MeshStandardMaterial({
       color: 0xdfaa8b, // Healthy, warm masculine human skin tone
-      roughness: 0.58,
+      roughness: 0.52,
+      metalness: 0.02,
+      emissive: 0x2e1208, // Subtle subsurface scattering glow (blood warmth)
+      emissiveIntensity: 0.16
+    });
+
+    // Muscle highlight: specular dermal sheen on muscle peaks (deltoid, bicep peak, upper chest, abs)
+    this.matSkinHighlight = new THREE.MeshStandardMaterial({
+      color: 0xefbe9b,
+      roughness: 0.42,
+      metalness: 0.03,
+      emissive: 0x3a180b,
+      emissiveIntensity: 0.14
+    });
+
+    // Muscle shadow/separation: deep anatomical grooves (linea alba, intercostal cuts, serratus, inframammary fold)
+    this.matSkinShadow = new THREE.MeshStandardMaterial({
+      color: 0xb87353,
+      roughness: 0.68,
       metalness: 0.02
     });
 
-    this.matSkinShadow = new THREE.MeshStandardMaterial({
-      color: 0xc89274,
-      roughness: 0.65,
-      metalness: 0.02
+    // Subtle natural masculine vascularity (veins on pumped biceps/forearms)
+    this.matVein = new THREE.MeshStandardMaterial({
+      color: 0x668599,
+      roughness: 0.35,
+      metalness: 0.04,
+      transparent: true,
+      opacity: 0.0 // Ramped up dynamically when muscle level is high
     });
 
     this.matHair = new THREE.MeshStandardMaterial({
@@ -382,6 +443,49 @@ class Robot3D {
     this.matEyelash = new THREE.MeshStandardMaterial({
       color: 0x0f0e0d, // Ultra-fine dark lash margin
       roughness: 0.85
+    });
+
+    // --- BIOLOGICAL ORAL ANATOMY & LIVING EYE MATERIALS ---
+    this.matTongue = new THREE.MeshStandardMaterial({
+      color: 0xd46468, // Natural warm muscular tongue pink-red
+      roughness: 0.42,
+      metalness: 0.02
+    });
+
+    this.matTongueSulcus = new THREE.MeshStandardMaterial({
+      color: 0xb54c52, // Deeper cleft tone for median longitudinal sulcus
+      roughness: 0.50,
+      metalness: 0.02
+    });
+
+    this.matGingiva = new THREE.MeshStandardMaterial({
+      color: 0xc45c66, // Healthy pink gingival mucosa (gums)
+      roughness: 0.46,
+      metalness: 0.02
+    });
+
+    this.matOralCavity = new THREE.MeshStandardMaterial({
+      color: 0x220c10, // Deep warm mucosal shadow of the oral pharynx
+      roughness: 0.90,
+      metalness: 0.04
+    });
+
+    this.matHumanIris = new THREE.MeshStandardMaterial({
+      color: 0x2e5984, // Rich handsome deep cerulean/slate blue human iris
+      roughness: 0.24,
+      metalness: 0.08
+    });
+
+    this.matHumanIrisCollarette = new THREE.MeshStandardMaterial({
+      color: 0x4a7c9f, // Pupillary collarette & ciliary striae ring
+      roughness: 0.30,
+      metalness: 0.06
+    });
+
+    this.matHumanIrisFibers = new THREE.MeshStandardMaterial({
+      color: 0x6ba4c8, // Radial ciliary fibers
+      roughness: 0.28,
+      metalness: 0.05
     });
 
     // --- REFINED HUMAN MENSWEAR CLOTHING MATERIALS ---
@@ -504,6 +608,12 @@ class Robot3D {
     if (this.matIris) {
       this.matIris.color.setHex(p.eyeColor || p.accent);
       this.matIris.emissive.setHex(p.glow);
+    }
+    if (this.matHumanIris) {
+      this.matHumanIris.color.setHex(p.eyeColor || p.accent);
+    }
+    if (this.matHumanIrisCollarette) {
+      this.matHumanIrisCollarette.color.setHex(p.glow || p.accent);
     }
     if (this.leftEye && this.leftEye.userData.aperture) {
       this.leftEye.userData.aperture.material.color.setHex(p.accent);
@@ -703,28 +813,85 @@ class Robot3D {
     });
 
     // ==========================================
-    // 5. NATURAL MASCULINE EARS WITH COMM NODES
+    // 5. AUTHENTIC ANATOMICAL HUMAN EARS
     // ==========================================
-    [-0.46, 0.46].forEach((ex) => {
+    [-0.45, 0.45].forEach((ex) => {
       const isLeft = ex < 0;
       const earGroup = new THREE.Group();
-      earGroup.position.set(ex, 0.02, 0.0);
+      earGroup.position.set(ex, 0.025, -0.02);
+      earGroup.rotation.y = isLeft ? -0.22 : 0.22; // Natural 12-15 degree cranial ear angle
 
-      // Auricle (Ear body)
-      const earBody = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.19, 0.10), this.matSkin);
-      earBody.rotation.y = isLeft ? -0.16 : 0.16;
-      earGroup.add(earBody);
+      // 5a. Auricle Concha Base & Acoustic Meatus Canal Entrance
+      const conchaBase = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045, 0.035, 0.030, 16),
+        this.matSkinShadow
+      );
+      conchaBase.rotation.z = Math.PI / 2;
+      conchaBase.scale.set(1.0, 1.45, 0.85);
+      conchaBase.position.set(isLeft ? -0.008 : 0.008, 0.005, 0.0);
+      earGroup.add(conchaBase);
 
-      // Outer Helix Rim
-      const helix = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.016, 12, 24), this.matSkin);
+      const earCanal = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.010, 0.025, 12),
+        this.matOralCavity
+      );
+      earCanal.rotation.z = Math.PI / 2;
+      earCanal.position.set(isLeft ? -0.018 : 0.018, -0.005, 0.005);
+      earGroup.add(earCanal);
+
+      // 5b. Outer Helix Rim (Cartilaginous superior and posterior rim)
+      const helixGeo = new THREE.TorusGeometry(0.066, 0.0125, 12, 28, Math.PI * 1.25);
+      const helix = new THREE.Mesh(helixGeo, this.matSkin);
       helix.rotation.y = Math.PI / 2;
+      helix.rotation.z = isLeft ? -0.25 : 0.25;
+      helix.position.set(isLeft ? -0.012 : 0.012, 0.015, -0.005);
       earGroup.add(helix);
 
-      // Cybernetic Comms Ring Node
-      const commRing = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.007, 12, 24), this.matAccent);
-      commRing.rotation.y = Math.PI / 2;
-      commRing.position.set(isLeft ? -0.02 : 0.02, -0.02, 0);
-      earGroup.add(commRing);
+      // Crus of Helix (Ascending root of helix entering concha bowl)
+      const crusGeo = new THREE.CylinderGeometry(0.007, 0.008, 0.042, 10);
+      const crus = new THREE.Mesh(crusGeo, this.matSkin);
+      crus.rotation.x = Math.PI / 2;
+      crus.rotation.z = isLeft ? 0.45 : -0.45;
+      crus.position.set(isLeft ? -0.010 : 0.010, 0.012, 0.012);
+      earGroup.add(crus);
+
+      // 5c. Antihelix Y-Fold (Inner cartilage fold with superior & inferior crura)
+      const antihelixGeo = new THREE.TorusGeometry(0.045, 0.009, 10, 22, Math.PI * 0.95);
+      const antihelix = new THREE.Mesh(antihelixGeo, this.matSkin);
+      antihelix.rotation.y = Math.PI / 2;
+      antihelix.rotation.z = isLeft ? -0.15 : 0.15;
+      antihelix.position.set(isLeft ? -0.014 : 0.014, 0.010, -0.012);
+      earGroup.add(antihelix);
+
+      // Scaphoid Fossa (Anatomical groove between helix and antihelix)
+      const scaphoidFossa = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.006, 0.006, 0.075, 8),
+        this.matSkinShadow
+      );
+      scaphoidFossa.rotation.x = isLeft ? -0.25 : 0.25;
+      scaphoidFossa.position.set(isLeft ? -0.016 : 0.016, 0.022, -0.024);
+      earGroup.add(scaphoidFossa);
+
+      // 5d. Tragus (Fleshy prominence anterior to external acoustic meatus)
+      const tragusGeo = new THREE.SphereGeometry(0.014, 10, 10);
+      tragusGeo.scale(0.70, 1.25, 0.95);
+      const tragus = new THREE.Mesh(tragusGeo, this.matSkin);
+      tragus.position.set(isLeft ? -0.006 : 0.006, -0.006, 0.025);
+      earGroup.add(tragus);
+
+      // 5e. Antitragus & Intertragic Notch
+      const antitragusGeo = new THREE.SphereGeometry(0.012, 10, 10);
+      antitragusGeo.scale(0.85, 0.95, 0.90);
+      const antitragus = new THREE.Mesh(antitragusGeo, this.matSkin);
+      antitragus.position.set(isLeft ? -0.012 : 0.012, -0.032, 0.008);
+      earGroup.add(antitragus);
+
+      // 5f. Fleshy Lobule (Natural soft male earlobe at base)
+      const lobuleGeo = new THREE.SphereGeometry(0.022, 12, 12);
+      lobuleGeo.scale(0.88, 1.35, 0.88);
+      const lobule = new THREE.Mesh(lobuleGeo, this.matSkin);
+      lobule.position.set(isLeft ? -0.010 : 0.010, -0.065, -0.002);
+      earGroup.add(lobule);
 
       this.headGroup.add(earGroup);
     });
@@ -838,63 +1005,215 @@ class Robot3D {
     this.headGroup.add(this.rightBrow);
 
     // ==========================================
-    // 10. SCULPTED MASCULINE LIPS & SPEECH CAVITY
+    // 10. ANATOMICAL ORAL CAVITY, TEETH, TONGUE & DYNAMIC LIPS
     // ==========================================
-    const lipsGroup = new THREE.Group();
-    lipsGroup.position.set(0, -0.22, 0.42);
+    const mouthRoot = new THREE.Group();
+    mouthRoot.position.set(0, -0.22, 0.42);
 
-    // Oral Cavity Floor (Gives realistic oral depth)
-    const oralCavity = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.035, 0.025), this.matEyeSocket);
-    oralCavity.position.set(0, 0, -0.005);
-    lipsGroup.add(oralCavity);
+    // 10a. Deep Oral Cavity Pharynx Chamber (Organic mucosal depth)
+    const oralCavity = new THREE.Mesh(
+      new THREE.BoxGeometry(0.155, 0.065, 0.060),
+      this.matOralCavity
+    );
+    oralCavity.position.set(0, 0.0, -0.025);
+    mouthRoot.add(oralCavity);
 
-    // Enamel Teeth Line (Subtly visible between parted lips)
-    const teethLine = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.014, 0.012), this.matTeeth);
-    teethLine.position.set(0, 0.005, 0.008);
-    lipsGroup.add(teethLine);
+    // Buccal Mucosa Walls (Inner cheek tissue framing the oral cavity)
+    [-0.075, 0.075].forEach((bx) => {
+      const isLeft = bx < 0;
+      const cheekWall = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, 0.055, 0.050),
+        this.matSkinShadow
+      );
+      cheekWall.position.set(bx, 0.0, -0.020);
+      cheekWall.rotation.y = isLeft ? 0.25 : -0.25;
+      mouthRoot.add(cheekWall);
+    });
 
-    // Upper Lip (Central Tubercle / Cupid's Bow & Lateral Wings)
-    const upperTubercle = new THREE.Mesh(new THREE.SphereGeometry(0.022, 14, 14), this.matLips);
-    upperTubercle.scale.set(1.2, 0.85, 0.95);
-    upperTubercle.position.set(0, 0.022, 0.020);
-    lipsGroup.add(upperTubercle);
+    // 10b. Maxillary (Upper) Dental Arch & Gingiva
+    const upperJawGroup = new THREE.Group();
+    upperJawGroup.position.set(0, 0.012, 0.004);
 
-    [-0.058, 0.058].forEach((lx) => {
+    // Upper Gingiva (Pink gum arch)
+    const upperGingivaGeo = new THREE.TorusGeometry(0.064, 0.008, 10, 24, Math.PI * 0.82);
+    upperGingivaGeo.scale(1.15, 0.70, 1.0);
+    const upperGingiva = new THREE.Mesh(upperGingivaGeo, this.matGingiva);
+    upperGingiva.rotation.x = Math.PI / 2;
+    upperGingiva.position.set(0, 0.008, -0.008);
+    upperJawGroup.add(upperGingiva);
+
+    // Upper Dental Arch: Individual Sculpted Teeth (Central/Lateral Incisors, Canines, Premolars)
+    const upperTeethGroup = new THREE.Group();
+    const upperTeethSpecs = [
+      // Central Incisors (prominent clean enamel front incisors)
+      { x: -0.008, y: 0.0, z: 0.009, w: 0.0135, h: 0.017, d: 0.010, rotY: 0.05 },
+      { x:  0.008, y: 0.0, z: 0.009, w: 0.0135, h: 0.017, d: 0.010, rotY: -0.05 },
+      // Lateral Incisors (slightly narrower)
+      { x: -0.023, y: 0.001, z: 0.006, w: 0.0115, h: 0.015, d: 0.010, rotY: 0.16 },
+      { x:  0.023, y: 0.001, z: 0.006, w: 0.0115, h: 0.015, d: 0.010, rotY: -0.16 },
+      // Canines (cuspids, subtly longer/curved)
+      { x: -0.037, y: -0.001, z: 0.001, w: 0.011, h: 0.016, d: 0.011, rotY: 0.32 },
+      { x:  0.037, y: -0.001, z: 0.001, w: 0.011, h: 0.016, d: 0.011, rotY: -0.32 },
+      // Premolars (curving backward into arch)
+      { x: -0.050, y: 0.001, z: -0.007, w: 0.011, h: 0.014, d: 0.012, rotY: 0.48 },
+      { x:  0.050, y: 0.001, z: -0.007, w: 0.011, h: 0.014, d: 0.012, rotY: -0.48 }
+    ];
+
+    upperTeethSpecs.forEach(t => {
+      const toothGeo = new THREE.BoxGeometry(t.w, t.h, t.d);
+      const tooth = new THREE.Mesh(toothGeo, this.matTeeth);
+      tooth.position.set(t.x, t.y, t.z);
+      tooth.rotation.y = t.rotY;
+      upperTeethGroup.add(tooth);
+    });
+    upperJawGroup.add(upperTeethGroup);
+    this.upperTeeth = upperTeethGroup;
+    mouthRoot.add(upperJawGroup);
+
+    // 10c. Anatomical Muscular Tongue
+    // Sits on oral floor with median longitudinal sulcus and rounded apex tip
+    const tongueGroup = new THREE.Group();
+    tongueGroup.position.set(0, -0.016, -0.012);
+
+    // Muscular Tongue Dorsum Body
+    const tongueBodyGeo = new THREE.SphereGeometry(0.034, 16, 14);
+    tongueBodyGeo.scale(1.22, 0.48, 1.48);
+    const tongueBody = new THREE.Mesh(tongueBodyGeo, this.matTongue);
+    tongueBody.position.set(0, 0.004, -0.004);
+    tongueGroup.add(tongueBody);
+
+    // Tongue Apex (Rounded Tip pointing toward front teeth)
+    const tongueApexGeo = new THREE.SphereGeometry(0.018, 14, 12);
+    tongApexGeo.scale(1.30, 0.42, 1.10);
+    const tongueApex = new THREE.Mesh(tongueApexGeo, this.matTongue);
+    tongueApex.position.set(0, 0.006, 0.022);
+    tongueGroup.add(tongueApex);
+
+    // Median Longitudinal Sulcus (Anatomical central furrow)
+    const sulcusGeo = new THREE.BoxGeometry(0.0032, 0.006, 0.045);
+    const sulcus = new THREE.Mesh(sulcusGeo, this.matTongueSulcus);
+    sulcus.position.set(0, 0.011, 0.006);
+    tongueGroup.add(sulcus);
+
+    this.tongue = tongueGroup;
+    mouthRoot.add(tongueGroup);
+
+    // 10d. Mandibular (Lower) Dental Arch, Lower Gingiva & Lower Mouth / Jaw
+    // Articulates dynamically on speech visemes, resting breath, and smiles
+    const lowerMouthGroup = new THREE.Group();
+    lowerMouthGroup.position.set(0, -0.006, 0.006);
+
+    // Lower Gingiva (Pink gum arch)
+    const lowerGingivaGeo = new THREE.TorusGeometry(0.058, 0.007, 10, 24, Math.PI * 0.80);
+    lowerGingivaGeo.scale(1.10, 0.65, 1.0);
+    const lowerGingiva = new THREE.Mesh(lowerGingivaGeo, this.matGingiva);
+    lowerGingiva.rotation.x = -Math.PI / 2;
+    lowerGingiva.position.set(0, -0.006, -0.007);
+    lowerMouthGroup.add(lowerGingiva);
+
+    // Lower Dental Arch: Individual Sculpted Teeth (Central/Lateral Incisors, Canines, Premolars)
+    const lowerTeethGroup = new THREE.Group();
+    const lowerTeethSpecs = [
+      // Lower Central Incisors (tucked naturally inside upper overbite)
+      { x: -0.0065, y: -0.001, z: 0.006, w: 0.011, h: 0.014, d: 0.009, rotY: 0.04 },
+      { x:  0.0065, y: -0.001, z: 0.006, w: 0.011, h: 0.014, d: 0.009, rotY: -0.04 },
+      // Lower Lateral Incisors
+      { x: -0.0195, y: -0.001, z: 0.004, w: 0.011, h: 0.014, d: 0.009, rotY: 0.14 },
+      { x:  0.0195, y: -0.001, z: 0.004, w: 0.011, h: 0.014, d: 0.009, rotY: -0.14 },
+      // Lower Canines
+      { x: -0.032,  y: -0.001, z: 0.000, w: 0.010, h: 0.015, d: 0.010, rotY: 0.28 },
+      { x:  0.032,  y: -0.001, z: 0.000, w: 0.010, h: 0.015, d: 0.010, rotY: -0.28 },
+      // Lower Premolars
+      { x: -0.044,  y: -0.002, z: -0.006, w: 0.010, h: 0.013, d: 0.011, rotY: 0.42 },
+      { x:  0.044,  y: -0.002, z: -0.006, w: 0.010, h: 0.013, d: 0.011, rotY: -0.42 }
+    ];
+
+    lowerTeethSpecs.forEach(t => {
+      const toothGeo = new THREE.BoxGeometry(t.w, t.h, t.d);
+      const tooth = new THREE.Mesh(toothGeo, this.matTeeth);
+      tooth.position.set(t.x, t.y, t.z);
+      tooth.rotation.y = t.rotY;
+      lowerTeethGroup.add(tooth);
+    });
+    lowerMouthGroup.add(lowerTeethGroup);
+    this.lowerTeeth = lowerTeethGroup;
+
+    // Lower Lip (Dual Cushioned Muscle Pads & Central Vermilion Cushion)
+    const lowerLipGroup = new THREE.Group();
+    lowerLipGroup.position.set(0, -0.012, 0.018);
+
+    [-0.034, 0.034].forEach((lx) => {
       const isLeft = lx < 0;
-      const upperWing = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.009, 0.075, 12), this.matLips);
-      upperWing.position.set(lx, 0.018, 0.016);
-      upperWing.rotation.z = isLeft ? 1.38 : -1.38;
+      const lowerPadGeo = new THREE.SphereGeometry(0.022, 14, 14);
+      lowerPadGeo.scale(1.24, 0.88, 0.92);
+      const lowerPad = new THREE.Mesh(lowerPadGeo, this.matLips);
+      lowerPad.position.set(lx, 0.0, 0.0);
+      lowerPad.rotation.z = isLeft ? 0.08 : -0.08;
+      lowerLipGroup.add(lowerPad);
+    });
+
+    const lowerCenterCushion = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.011, 0.012, 0.032, 12),
+      this.matLips
+    );
+    lowerCenterCushion.rotation.z = Math.PI / 2;
+    lowerCenterCushion.position.set(0, 0.001, 0.001);
+    lowerLipGroup.add(lowerCenterCushion);
+
+    lowerMouthGroup.add(lowerLipGroup);
+    this.lowerLip = lowerLipGroup;
+
+    this.lowerMouth = lowerMouthGroup;
+    mouthRoot.add(lowerMouthGroup);
+
+    // 10e. Upper Lip (Cupid's Bow, Procheilon Central Tubercle & Lateral Wings)
+    const upperLipGroup = new THREE.Group();
+    upperLipGroup.position.set(0, 0.018, 0.020);
+
+    // Procheilon (Central Upper Tubercle)
+    const upperTubercle = new THREE.Mesh(
+      new THREE.SphereGeometry(0.020, 14, 14),
+      this.matLips
+    );
+    upperTubercle.scale.set(1.18, 0.82, 0.92);
+    upperTubercle.position.set(0, 0.002, 0.0);
+    upperLipGroup.add(upperTubercle);
+
+    // Cupid's Bow Crest Peaks & Lateral Vermilion Wings
+    [-0.054, 0.054].forEach((lx) => {
+      const isLeft = lx < 0;
+      const upperWing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.008, 0.072, 12),
+        this.matLips
+      );
+      upperWing.position.set(lx, -0.002, -0.004);
+      upperWing.rotation.z = isLeft ? 1.36 : -1.36;
       upperWing.rotation.y = isLeft ? 0.22 : -0.22;
-      lipsGroup.add(upperWing);
+      upperLipGroup.add(upperWing);
+    });
+    this.upperLip = upperLipGroup;
+    mouthRoot.add(upperLipGroup);
+
+    // 10f. Oral Commissures (Natural dimple nodes at left and right corners of the mouth)
+    [-0.088, 0.088].forEach((cx) => {
+      const commissure = new THREE.Mesh(
+        new THREE.SphereGeometry(0.010, 10, 10),
+        this.matSkinShadow
+      );
+      commissure.position.set(cx, 0.004, 0.014);
+      mouthRoot.add(commissure);
     });
 
-    // Lower Lip (Dual Cushioned Muscle Pads)
-    [-0.036, 0.036].forEach((lx) => {
-      const lowerPad = new THREE.Mesh(new THREE.SphereGeometry(0.024, 14, 14), this.matLips);
-      lowerPad.scale.set(1.25, 0.90, 0.92);
-      lowerPad.position.set(lx, -0.014, 0.020);
-      lipsGroup.add(lowerPad);
-    });
+    // 10g. Mentolabial Sulcus (Horizontal anatomical depression between lower lip & chin)
+    const mentolabial = new THREE.Mesh(
+      new THREE.BoxGeometry(0.12, 0.012, 0.016),
+      this.matSkinShadow
+    );
+    mentolabial.position.set(0, -0.042, 0.014);
+    mouthRoot.add(mentolabial);
 
-    // Oral Commissures (Natural dimple nodes at corners of mouth)
-    [-0.092, 0.092].forEach((cx) => {
-      const commissure = new THREE.Mesh(new THREE.SphereGeometry(0.010, 10, 10), this.matSkinShadow);
-      commissure.position.set(cx, 0.003, 0.012);
-      lipsGroup.add(commissure);
-    });
-
-    // Mentolabial Sulcus (Horizontal depression between lower lip and chin)
-    const mentolabial = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.016), this.matSkinShadow);
-    mentolabial.position.set(0, -0.040, 0.014);
-    lipsGroup.add(mentolabial);
-
-    // Acoustic Speech Light Bar (Pulses during voice activity)
-    this.speechLED = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.008, 0.016), this.matAccent);
-    this.speechLED.position.set(0, 0, 0.024);
-    lipsGroup.add(this.speechLED);
-
-    this.faceLips = lipsGroup;
-    this.headGroup.add(lipsGroup);
+    this.faceLips = mouthRoot;
+    this.headGroup.add(mouthRoot);
 
     this.robotGroup.add(this.headGroup);
   }
@@ -935,48 +1254,51 @@ class Robot3D {
     eyeball.position.set(0, 0, -0.01);
     eyeGroup.add(eyeball);
 
-    // 3. Moving Gaze Assembly (Iris, Limbal Ring, Aperture, Pupil, Laser Diode, Catchlights)
+    // 3. Moving Gaze Assembly (Biological Human Iris, Limbal Ring, Collarette, Obsidian Pupil, Catchlights)
     const gazeGroup = new THREE.Group();
     gazeGroup.position.set(0, 0, 0.038);
     eyeGroup.add(gazeGroup);
 
-    // 3a. Deep Metallic Limbal Ring (Defines iris boundary for sharp optical contrast)
-    const limbalRing = new THREE.Mesh(new THREE.TorusGeometry(0.076, 0.007, 16, 36), this.matLimbalRing);
+    // 3a. Deep Limbal Ring (Sharply defines the dark biological perimeter of the human cornea/iris)
+    const limbalRing = new THREE.Mesh(new THREE.TorusGeometry(0.073, 0.0055, 16, 36), this.matLimbalRing);
     gazeGroup.add(limbalRing);
 
-    // 3b. Radiant Glowing Cybernetic Iris
-    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.064, 0.012, 20, 36), this.matIris);
-    gazeGroup.add(irisRing);
+    // 3b. Living Biological Iris Stroma Base (Handsome hazel / deep slate-sapphire human iris)
+    const irisDisk = new THREE.Mesh(new THREE.CircleGeometry(0.071, 36), this.matHumanIris);
+    irisDisk.position.set(0, 0, 0.002);
+    gazeGroup.add(irisDisk);
 
-    // 3c. Geometric Micro-Aperture (High-tech cyber eye texture)
-    const apertureMat = new THREE.MeshStandardMaterial({
-      color: this.themes[this.currentTheme].accent,
-      emissive: this.themes[this.currentTheme].glow,
-      emissiveIntensity: 0.9,
-      wireframe: true
-    });
-    const aperture = new THREE.Mesh(new THREE.RingGeometry(0.040, 0.068, 24), apertureMat);
-    aperture.position.set(0, 0, 0.003);
-    gazeGroup.add(aperture);
+    // 3c. Pupillary Collarette (Concentric undulating ring dividing pupillary & ciliary zones)
+    const collarette = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.0035, 12, 32), this.matHumanIrisCollarette);
+    collarette.position.set(0, 0, 0.0035);
+    gazeGroup.add(collarette);
 
-    // 3d. Deep Obsidian Black Pupil Core (Optical center)
-    const pupilBacking = new THREE.Mesh(new THREE.CircleGeometry(0.042, 32), this.matPupilObsidian);
-    pupilBacking.position.set(0, 0, 0.006);
-    gazeGroup.add(pupilBacking);
+    // 3d. Radial Ciliary Striae (12 delicate radial trabeculae fibers giving lifelike biological depth)
+    const fibersGroup = new THREE.Group();
+    fibersGroup.position.set(0, 0, 0.004);
+    for (let f = 0; f < 12; f++) {
+      const angle = (f / 12) * Math.PI * 2;
+      const fiber = new THREE.Mesh(new THREE.BoxGeometry(0.0018, 0.022, 0.001), this.matHumanIrisFibers);
+      const rad = 0.057;
+      fiber.position.set(Math.cos(angle) * rad, Math.sin(angle) * rad, 0);
+      fiber.rotation.z = angle + Math.PI / 2;
+      fibersGroup.add(fiber);
+    }
+    gazeGroup.add(fibersGroup);
 
-    // 3e. Luminous Central Diode (Retina focus core)
-    const pupilCore = new THREE.Mesh(new THREE.SphereGeometry(0.020, 16, 16), this.matPupilCore);
-    pupilCore.position.set(0, 0, 0.014);
-    gazeGroup.add(pupilCore);
+    // 3e. Deep Obsidian Human Pupil (Light-absorbing optical aperture - zero robotic laser diodes!)
+    const pupilObsidian = new THREE.Mesh(new THREE.CircleGeometry(0.034, 32), this.matPupilObsidian);
+    pupilObsidian.position.set(0, 0, 0.006);
+    gazeGroup.add(pupilObsidian);
 
-    // 3f. Primary Crisp Specular Catchlight (Upper right glint for lifelike shine)
-    const catchlight1 = new THREE.Mesh(new THREE.SphereGeometry(0.010, 10, 10), this.matCatchlight);
-    catchlight1.position.set(0.020, 0.020, 0.022);
+    // 3f. Primary Crisp Specular Corneal Catchlight (Glint at 2 o'clock for vibrant lively gaze)
+    const catchlight1 = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 10), this.matCatchlight);
+    catchlight1.position.set(0.018, 0.018, 0.018);
     gazeGroup.add(catchlight1);
 
-    // 3g. Secondary Sub-Specular Catchlight (Lower left glint)
-    const catchlight2 = new THREE.Mesh(new THREE.SphereGeometry(0.005, 8, 8), this.matCatchlight);
-    catchlight2.position.set(-0.015, -0.015, 0.020);
+    // 3g. Secondary Sub-Specular Catchlight (Soft reflection at 7 o'clock for wet optical realism)
+    const catchlight2 = new THREE.Mesh(new THREE.SphereGeometry(0.0045, 8, 8), this.matCatchlight);
+    catchlight2.position.set(-0.014, -0.014, 0.016);
     gazeGroup.add(catchlight2);
 
     // 4. Crystal-Clear Optical Cornea Lens Dome (Pure clarity, zero milky fog)
@@ -985,13 +1307,21 @@ class Robot3D {
     lens.position.set(0, 0, 0.012);
     eyeGroup.add(lens);
 
-    // 5. Upper Eyelash Fringe (Fine dark cilia defining the upper eyelid)
+    // 5. Upper Eyelash Fringe (Fine dark cilia defining the upper eyelid margin)
     const lashGeo = new THREE.TorusGeometry(0.092, 0.006, 8, 28, Math.PI * 0.88);
     lashGeo.scale(1.22, 0.86, 1.0);
     const lash = new THREE.Mesh(lashGeo, this.matEyelash);
     lash.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
     lash.position.set(0, 0.018, 0.028);
     eyeGroup.add(lash);
+
+    // Lower Eyelash Waterline / Subtle Shadow
+    const lowerLashGeo = new THREE.TorusGeometry(0.088, 0.0035, 8, 24, Math.PI * 0.78);
+    lowerLashGeo.scale(1.18, 0.82, 1.0);
+    const lowerLash = new THREE.Mesh(lowerLashGeo, this.matSkinShadow);
+    lowerLash.rotation.z = isLeft ? 0.08 : -0.08;
+    lowerLash.position.set(0, -0.016, 0.024);
+    eyeGroup.add(lowerLash);
 
     // 6. Supratarsal Upper Eyelid Crease (Natural double eyelid fold in skin shadow)
     const lidArchGeo = new THREE.TorusGeometry(0.104, 0.009, 12, 24, Math.PI * 0.85);
@@ -1001,15 +1331,15 @@ class Robot3D {
     lidArch.position.set(0, 0.038, 0.026);
     eyeGroup.add(lidArch);
 
-    // 7. Natural Skin-Toned Eyelid Shutter for Blinking (NEVER black - uses matSkin!)
+    // 7. Natural Skin-Toned Eyelid Shutter for Blinking (Uses matSkin!)
     const lidGeo = new THREE.SphereGeometry(0.106, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
     const eyelid = new THREE.Mesh(lidGeo, this.matSkin);
     eyelid.position.set(0, 0, 0.016);
     eyelid.rotation.x = -Math.PI / 2; // Default open
     eyeGroup.add(eyelid);
 
-    // 8. Dedicated High-Definition Eye Point Light (Symmetrically illuminates both eyes!)
-    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 1.3, 1.8);
+    // 8. High-Definition Portrait Eye Light (Symmetrically illuminates both eyes)
+    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 1.2, 1.8);
     eyeLight.position.set(0, 0, 0.14);
     eyeGroup.add(eyeLight);
 
@@ -1020,9 +1350,9 @@ class Robot3D {
       eyelid: eyelid,
       gazeGroup: gazeGroup,
       pupil: gazeGroup,
-      pupilCore: pupilCore,
-      irisRing: irisRing,
-      aperture: aperture,
+      pupilCore: pupilObsidian,
+      irisDisk: irisDisk,
+      collarette: collarette,
       catchlight1: catchlight1,
       catchlight2: catchlight2
     };
@@ -3158,19 +3488,22 @@ class Robot3D {
       if (this.leftEye.userData.eyelid) this.leftEye.userData.eyelid.rotation.x = lidAngle;
       if (this.rightEye.userData.eyelid) this.rightEye.userData.eyelid.rotation.x = lidAngle;
 
-      // Cybernetic Pupil Laser Diode Pulse
-      if (this.expression === "speaking" || this.isOverdrive) {
-        const pulse = 1.0 + Math.sin(time * 12) * 0.25;
-        if (this.leftEye.userData.pupilCore) this.leftEye.userData.pupilCore.scale.set(pulse, pulse, pulse);
-        if (this.rightEye.userData.pupilCore) this.rightEye.userData.pupilCore.scale.set(pulse, pulse, pulse);
-        if (this.leftEyeLight) this.leftEyeLight.intensity = 1.4 + Math.sin(time * 12) * 0.4;
-        if (this.rightEyeLight) this.rightEyeLight.intensity = 1.4 + Math.sin(time * 12) * 0.4;
+      // Biological Human Pupil Response (Cognitive Dilation & Saccadic Fixation)
+      let pupilScale = 1.0;
+      if (this.expression === "thinking") {
+        pupilScale = 1.14 + Math.sin(time * 3.0) * 0.04;
+      } else if (this.expression === "speaking") {
+        pupilScale = 1.08 + Math.sin(time * 4.5) * 0.05;
+      } else if (this.expression === "surprised") {
+        pupilScale = 1.24;
       } else {
-        if (this.leftEye.userData.pupilCore) this.leftEye.userData.pupilCore.scale.set(1, 1, 1);
-        if (this.rightEye.userData.pupilCore) this.rightEye.userData.pupilCore.scale.set(1, 1, 1);
-        if (this.leftEyeLight) this.leftEyeLight.intensity = 1.2;
-        if (this.rightEyeLight) this.rightEyeLight.intensity = 1.2;
+        pupilScale = 1.0 + Math.sin(time * 1.5) * 0.02;
       }
+
+      if (this.leftEye.userData.pupilCore) this.leftEye.userData.pupilCore.scale.set(pupilScale, pupilScale, 1);
+      if (this.rightEye.userData.pupilCore) this.rightEye.userData.pupilCore.scale.set(pupilScale, pupilScale, 1);
+      if (this.leftEyeLight) this.leftEyeLight.intensity = 1.2;
+      if (this.rightEyeLight) this.rightEyeLight.intensity = 1.2;
     }
 
     // 4. Subtle Humanoid Breathing & Idle Weight Shifting on Two Legs
@@ -3226,10 +3559,92 @@ class Robot3D {
       }
     }
 
-    // 5. Speech Bar Pulsing
-    if (this.speechLED && this.expression === "speaking") {
-      const pulse = Math.abs(Math.sin(time * 14)) * 0.15 + 0.1;
-      this.speechLED.scale.set(1 + pulse, 1 + pulse, 1);
+    // 5. DYNAMIC HUMAN SPEECH, TONGUE, TEETH & LIPS ARTICULATION ("lips for a moment")
+    if (this.lowerMouth && this.upperLip && this.tongue) {
+      let targetJawX = 0;
+      let targetJawY = 0;
+      let targetUpperLipY = 0;
+      let targetTongueY = 0;
+      let targetTongueZ = 0;
+      let targetTongueRotX = 0;
+
+      if (this.expression === "speaking") {
+        // 5a. Active Speech Articulation & Viseme Modulation:
+        // Fluid conversational phoneme sequences (open vowels, labials, dentals, lingual consonants)
+        const speechFreq = 13.5;
+        const viseme1 = Math.sin(time * speechFreq);
+        const viseme2 = Math.cos(time * (speechFreq * 0.72));
+        const viseme3 = Math.sin(time * (speechFreq * 0.48));
+
+        // Jaw drops downward and moves slightly forward to articulate syllables
+        const jawDrop = Math.max(0, viseme1 * 0.16 + viseme2 * 0.08 + 0.08);
+        targetJawX = jawDrop;
+        targetJawY = -jawDrop * 0.025;
+
+        // Upper lip elevates slightly, exposing the upper enamel incisors
+        targetUpperLipY = Math.max(0, viseme2) * 0.007;
+
+        // Active muscular tongue articulation:
+        // Elevates and touches alveolar ridge / incisors for "t", "d", "n", "l" consonants;
+        // drops and retracts for open vowels ("a", "o")
+        targetTongueY = Math.sin(time * 11.0) * 0.008 + 0.004;
+        targetTongueZ = Math.cos(time * 9.5) * 0.007;
+        targetTongueRotX = Math.sin(time * 12.0) * 0.18;
+
+      } else if (this.expression === "happy") {
+        // 5b. Warm Charismatic Smile:
+        // Lips part wide, exposing clean enamel teeth and tongue tip
+        targetJawX = 0.085;
+        targetJawY = -0.006;
+        targetUpperLipY = 0.008;
+        targetTongueY = 0.002;
+        targetTongueZ = 0.003;
+        targetTongueRotX = 0.05;
+
+      } else if (this.expression === "thinking") {
+        // 5c. Deep Contemplative Lip Compression:
+        // Subtle pursing of the lips in deep focus
+        targetJawX = 0.015;
+        targetJawY = 0.002;
+        targetUpperLipY = -0.003;
+        targetTongueY = -0.002;
+        targetTongueZ = -0.004;
+        targetTongueRotX = -0.05;
+
+      } else if (this.expression === "surprised") {
+        // 5d. Inquisitive Surprised Expression:
+        // Parted rounded "O" lips exposing dental arches and oral cavity
+        targetJawX = 0.22;
+        targetJawY = -0.015;
+        targetUpperLipY = 0.010;
+        targetTongueY = -0.005;
+        targetTongueZ = -0.002;
+        targetTongueRotX = 0.10;
+
+      } else {
+        // 5e. Idle Natural Resting Breath ("lips for a moment"):
+        // Real human beings subtly micro-part their lips during natural breathing.
+        // During the peak of inhalation, the lips gently separate ("lips for a moment"),
+        // revealing a subtle glistening sliver of upper enamel teeth and resting tongue tip,
+        // then softly relax back together during exhalation!
+        const breathCycle = Math.sin(time * 2.2);
+        const microPart = Math.max(0, breathCycle) * 0.038;
+        targetJawX = microPart;
+        targetJawY = -microPart * 0.012;
+        targetUpperLipY = microPart * 0.003;
+        targetTongueY = Math.sin(time * 2.2) * 0.0015;
+        targetTongueZ = 0;
+        targetTongueRotX = 0;
+      }
+
+      // Organic kinematic smoothing with tissue elasticity damping
+      const mouthAlpha = Math.min(1.0, delta * 16.0);
+      this.lowerMouth.rotation.x += (targetJawX - this.lowerMouth.rotation.x) * mouthAlpha;
+      this.lowerMouth.position.y += (targetJawY - this.lowerMouth.position.y) * mouthAlpha;
+      this.upperLip.position.y += (targetUpperLipY - this.upperLip.position.y) * mouthAlpha;
+      this.tongue.position.y += (targetTongueY - this.tongue.position.y) * mouthAlpha;
+      this.tongue.position.z += (targetTongueZ - this.tongue.position.z) * mouthAlpha;
+      this.tongue.rotation.x += (targetTongueRotX - this.tongue.rotation.x) * mouthAlpha;
     }
 
     // 6. Kinematic Action Gestures & Pose Interpolation
@@ -3352,7 +3767,7 @@ class Robot3D {
           targetLeft.upper = { x: -0.18, y: 0.0, z: -0.22 };
           targetHead.x = -recoil * 0.18;
 
-          if (this.hifiSlapTimer > 1.4) {
+          if (this.hifiSlapTimer > 0.85) {
             this.endAction();
           }
         } else {
@@ -3369,7 +3784,7 @@ class Robot3D {
 
           targetHead.x = 0.05;
 
-          if (this.actionTimer > 6.0) {
+          if (this.actionTimer > 2.6) {
             this.endAction();
           }
         }
@@ -3411,11 +3826,11 @@ class Robot3D {
         // Step 2 (0.5s - 2.4s): Holds crisp rigid salute at the right ear outside the body
         // Step 3 (2.4s - 3.0s): Smartly snaps hand down to side and returns to ready stance
         if (this.actionTimer < 2.4) {
-          // Steps 1 & 2: Right hand goes directly to right ear with elbow flared OUTSIDE body (X=0.75)
-          targetRight.upper = { x: -0.18, y: 0.60, z: 1.88 };
-          targetRight.fore = { x: -0.45, y: -0.25, z: 1.74 };
-          targetRight.hand = { x: -0.15, y: 0.27, z: 0.48 }; // fingertips touch right ear from outside
-          rightFingersTarget = 0.0; // Pinned flat fingers at ear
+          // Steps 1 & 2: Right hand goes directly to touch the right ear with elbow flared OUTSIDE body
+          targetRight.upper = { x: -0.12, y: 0.17, z: 2.48 };
+          targetRight.fore = { x: -1.20, y: -0.03, z: 1.41 };
+          targetRight.hand = { x: -0.13, y: 0.07, z: 0.53 }; // fingertips touch right ear directly
+          rightFingersTarget = 0.0; // Pinned flat fingers touching ear
 
           targetLeft.upper = { x: 0.0, y: 0.0, z: -0.05 }; // Left arm pinned flush to side
           targetLeft.fore = { x: 0.0, y: 0.0, z: 0.0 };

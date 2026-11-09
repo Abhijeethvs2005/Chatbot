@@ -317,21 +317,24 @@ body.theme-matrix .robot-hud-stage {
 /* Wardrobe / Outfits Selector Bar */
 .hud-wardrobe-bar {
   position: absolute;
-  top: 66px;
+  top: 54px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: rgba(6, 11, 24, 0.90);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1px solid var(--border-color);
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 20px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
   z-index: 30;
   pointer-events: auto;
+  max-width: 95%;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .wardrobe-label {
@@ -373,10 +376,96 @@ body.theme-matrix .robot-hud-stage {
   font-weight: 700;
 }
 
+/* Dynamic Muscle Hypertrophy Control Bar */
+.hud-muscle-bar {
+  position: absolute;
+  top: 94px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(6, 11, 24, 0.90);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  z-index: 30;
+  pointer-events: auto;
+  max-width: 95%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.muscle-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #f59e0b;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+
+.muscle-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.muscle-pill:hover {
+  background: rgba(245, 158, 11, 0.16);
+  border-color: #f59e0b;
+  color: var(--text-main);
+  transform: translateY(-1px);
+}
+
+.muscle-pill.active {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #f59e0b;
+  color: #fbbf24;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+  font-weight: 700;
+}
+
+.muscle-gain-btn {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.35));
+  border: 1px solid #f59e0b;
+  color: #fef3c7;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.muscle-gain-btn:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(239, 68, 68, 0.55));
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.5);
+  transform: translateY(-1px) scale(1.03);
+}
+
 /* 3D Orbit & Zoom Control Hint */
 .hud-control-hint {
   position: absolute;
-  top: 108px;
+  top: 134px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -1140,7 +1229,10 @@ input:checked + .slider:before { transform: translateX(16px); }
   .main-stage-split { grid-template-columns: 1fr; height: auto; }
   .robot-hud-stage { height: 440px; border-right: none; border-bottom: 1px solid var(--border-color); }
   .study-terminal { height: 650px; }
-  .hud-wardrobe-bar { top: 56px; max-width: 96%; }
+  .hud-wardrobe-bar { top: 48px; max-width: 96%; padding: 2px 6px; }
+  .hud-muscle-bar { top: 82px; max-width: 96%; padding: 2px 6px; }
+  .muscle-pill { font-size: 10px; padding: 2px 6px; }
+  .muscle-gain-btn { font-size: 10px; padding: 2px 7px; }
   .outfit-pill { font-size: 10.5px; padding: 3px 7px; }
   .hud-control-hint { display: none; }
   .hud-actions-bar { bottom: 50px; max-width: 96%; }

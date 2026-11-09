@@ -481,8 +481,61 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Dynamic Muscle Hypertrophy Controls
+  const musclePills = document.querySelectorAll(".muscle-pill");
+  const gainMuscleBtn = document.getElementById("gain-muscle-btn");
+
+  const syncMuscleUI = (levelKey) => {
+    musclePills.forEach((p) => {
+      if (p.dataset.level === levelKey) p.classList.add("active");
+      else p.classList.remove("active");
+    });
+    const status = document.getElementById("frame-system-status");
+    if (status && robot) {
+      const name = robot.getMuscleLevelName ? robot.getMuscleLevelName() : levelKey;
+      status.textContent = `3D FRAME: MUSCLE HYPERTROPHY [${name.toUpperCase()}]`;
+    }
+  };
+
+  musclePills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const level = pill.dataset.level;
+      if (robot) {
+        robot.setMuscleLevel(level);
+        syncMuscleUI(level);
+        if (window.AudioEngine) {
+          if (window.AudioEngine.playClick) window.AudioEngine.playClick();
+          if (window.AudioEngine.voiceEnabled) {
+            const name = robot.getMuscleLevelName ? robot.getMuscleLevelName() : level;
+            window.AudioEngine.speak(`Muscle hypertrophy set to ${name} physique.`);
+          }
+        }
+      }
+    });
+  });
+
+  if (gainMuscleBtn) {
+    gainMuscleBtn.addEventListener("click", () => {
+      if (robot) {
+        const nextLevel = robot.gainMuscle();
+        syncMuscleUI(nextLevel);
+        if (window.AudioEngine) {
+          if (window.AudioEngine.playServoHum) window.AudioEngine.playServoHum();
+          if (window.AudioEngine.voiceEnabled) {
+            const name = robot.getMuscleLevelName ? robot.getMuscleLevelName() : nextLevel;
+            window.AudioEngine.speak(`Gaining muscle! Hypertrophy advanced to ${name} build!`);
+          }
+        }
+        if (nextLevel === "muscular" || nextLevel === "bodybuilder") {
+          setTimeout(() => { if (robot) robot.flex(); }, 350);
+        }
+      }
+    });
+  }
+
   // Robot Interactive Actions & Gestures
   const actionConfigs = [
+    { id: "act-flex-btn", action: "flex" },
     { id: "act-hifi-btn", action: "hifi" },
     { id: "act-hello-btn", action: "hello" },
     { id: "act-bye-btn", action: "bye" },
@@ -638,7 +691,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Robot Reacts: Thinking & Overdrive State or Gesture Trigger
     const lower = text.toLowerCase();
     if (robot) {
-      if (lower.includes("high five") || lower.includes("hifi") || lower.includes("high-five")) {
+      if (lower.includes("gain muscle") || lower.includes("grow muscle") || lower.includes("hypertrophy")) {
+        if (gainMuscleBtn) gainMuscleBtn.click();
+        else { robot.gainMuscle(); robot.flex(); }
+      } else if (lower.includes("flex") || lower.includes("bicep") || lower.includes("workout") || lower.includes("muscle")) {
+        robot.flex();
+      } else if (lower.includes("high five") || lower.includes("hifi") || lower.includes("high-five")) {
         robot.hifi();
       } else if (lower.includes("salute")) {
         robot.salute();
