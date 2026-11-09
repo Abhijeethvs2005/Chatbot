@@ -88,6 +88,8 @@ class Robot3D {
     this.currentAction = null;
     this.actionTimer = 0;
     this.isHifiReady = false;
+    this.hifiSlapped = false;
+    this.hifiSlapTimer = 0;
 
     // Orbit & Stage Toggles
     this.isOrbiting = false;
@@ -206,12 +208,22 @@ class Robot3D {
   }
 
   setupLights() {
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
     this.scene.add(this.ambientLight);
 
     this.keyLight = new THREE.DirectionalLight(0xffffff, 1.35);
     this.keyLight.position.set(4, 6, 5);
     this.scene.add(this.keyLight);
+
+    // Balanced left fill light to eliminate any dark shadow or discoloration on the left eye
+    this.fillLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    this.fillLight.position.set(-4, 5, 4);
+    this.scene.add(this.fillLight);
+
+    // Front portrait light for clear facial features (eyes, nose, mouth)
+    this.faceLight = new THREE.DirectionalLight(0xfff7ed, 0.85);
+    this.faceLight.position.set(0, 1.2, 3.8);
+    this.scene.add(this.faceLight);
 
     this.rimLight = new THREE.DirectionalLight(0x38bdf8, 1.8);
     this.rimLight.position.set(-4, 3, -3);
@@ -385,201 +397,288 @@ class Robot3D {
     this.headGroup = new THREE.Group();
     this.headGroup.position.set(0, 0.78, 0);
 
-    // Humanoid Head Sculpt (Cranium with jaw, chin, cheeks)
-    const craniumGeo = new THREE.SphereGeometry(0.58, 32, 32);
-    craniumGeo.scale(0.92, 1.05, 0.95);
-    const cranium = new THREE.Mesh(craniumGeo, this.matArmor);
+    // 1. Male Cranium Base (Proportional masculine head shape)
+    const craniumGeo = new THREE.SphereGeometry(0.50, 32, 32);
+    craniumGeo.scale(0.88, 1.05, 0.95);
+    const cranium = new THREE.Mesh(craniumGeo, this.matSkin);
+    cranium.position.set(0, 0.02, -0.02);
     this.headGroup.add(cranium);
 
-    // Sculpted Humanoid Jaw & Chin
-    const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.22, 0.32), this.matArmor);
-    jaw.position.set(0, -0.26, 0.12);
-    this.headGroup.add(jaw);
+    // 2. Broad Masculine Forehead (Frontal bone with subtle slope)
+    const forehead = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.20, 0.16), this.matSkin);
+    forehead.position.set(0, 0.25, 0.30);
+    forehead.rotation.x = -0.12;
+    this.headGroup.add(forehead);
 
-    const chin = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 0.14, 16), this.matChassis);
-    chin.position.set(0, -0.35, 0.24);
-    chin.rotation.x = 0.3;
+    // 3. Strong Masculine Brow Ridge (Supraorbital ridge defining male eye sockets)
+    const browRidge = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.065, 0.14), this.matSkin);
+    browRidge.position.set(0, 0.155, 0.38);
+    this.headGroup.add(browRidge);
+
+    // 4. Chiseled Zygomatic Cheekbones (Lateral cheek definition)
+    [-0.23, 0.23].forEach((cx) => {
+      const cheek = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.18, 0.16), this.matSkin);
+      cheek.position.set(cx, -0.05, 0.32);
+      cheek.rotation.y = cx < 0 ? 0.20 : -0.20;
+      cheek.rotation.z = cx < 0 ? -0.10 : 0.10;
+      this.headGroup.add(cheek);
+    });
+
+    // 5. Defined Masculine Jawline (Mandibular angles tapering to chin)
+    [-0.17, 0.17].forEach((jx) => {
+      const jawAngle = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.22, 0.24), this.matSkin);
+      jawAngle.position.set(jx, -0.24, 0.18);
+      jawAngle.rotation.y = jx < 0 ? 0.32 : -0.32;
+      jawAngle.rotation.z = jx < 0 ? -0.16 : 0.16;
+      this.headGroup.add(jawAngle);
+    });
+
+    // 6. Strong Square Male Chin
+    const chin = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.13, 0.18), this.matSkin);
+    chin.position.set(0, -0.34, 0.32);
     this.headGroup.add(chin);
 
-    // Recessed High-Contrast Visor Faceplate
-    const visorGeo = new THREE.CylinderGeometry(0.46, 0.46, 0.38, 32, 1, false, -Math.PI / 2.3, (Math.PI * 2) / 2.3);
-    const visor = new THREE.Mesh(visorGeo, this.matVisor);
-    visor.rotation.y = Math.PI / 2;
-    visor.position.set(0, 0.02, 0.22);
-    this.headGroup.add(visor);
+    // Handsome Masculine Chin Cleft (Subtle central groove)
+    const chinCleft = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.08, 0.025), this.matArmor);
+    chinCleft.position.set(0, -0.34, 0.415);
+    this.headGroup.add(chinCleft);
 
-    // --- CLEAR 3D HUMAN-LIKE NOSE ---
+    // 7. Handsome Modern Male Haircut (Stylish Quiff/Pompadour with Tapered Sides)
+    // 7a. Hair Base Cap (Top, crown, and back of cranium)
+    const hairCapGeo = new THREE.SphereGeometry(0.51, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.52);
+    hairCapGeo.scale(0.91, 1.06, 0.97);
+    const hairCap = new THREE.Mesh(hairCapGeo, this.matHair);
+    hairCap.position.set(0, 0.06, -0.02);
+    this.headGroup.add(hairCap);
+
+    // 7b. Nape and Back Taper
+    const napeTaper = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.26, 0.16), this.matHair);
+    napeTaper.position.set(0, -0.12, -0.36);
+    this.headGroup.add(napeTaper);
+
+    // 7c. Styled Top Pompadour Volume
+    const topHair = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.13, 0.42), this.matHair);
+    topHair.position.set(0, 0.51, 0.02);
+    topHair.rotation.x = -0.06;
+    this.headGroup.add(topHair);
+
+    // 7d. Swept Front Quiff / Fringe (Styled upward & swept back, clear of eyes)
+    const frontQuiff = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.20, 0.38, 16), this.matHair);
+    frontQuiff.rotation.z = Math.PI / 2;
+    frontQuiff.rotation.x = 0.28;
+    frontQuiff.position.set(0, 0.46, 0.24);
+    this.headGroup.add(frontQuiff);
+
+    // 7e. Clean Male Sideburns (Descend in front of ears)
+    [-0.41, 0.41].forEach((sx) => {
+      const sideburn = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.12), this.matHair);
+      sideburn.position.set(sx, 0.06, 0.08);
+      this.headGroup.add(sideburn);
+    });
+
+    // 8. Natural Masculine Ears with Cybernetic Comms Node
+    [-0.46, 0.46].forEach((ex) => {
+      const earGroup = new THREE.Group();
+      earGroup.position.set(ex, 0.02, 0.0);
+
+      const earBody = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.19, 0.10), this.matSkin);
+      earBody.rotation.y = ex < 0 ? -0.16 : 0.16;
+      earGroup.add(earBody);
+
+      const helix = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.016, 12, 24), this.matSkin);
+      helix.rotation.y = Math.PI / 2;
+      earGroup.add(helix);
+
+      const commRing = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.007, 12, 24), this.matAccent);
+      commRing.rotation.y = Math.PI / 2;
+      commRing.position.set(ex < 0 ? -0.02 : 0.02, -0.02, 0);
+      earGroup.add(commRing);
+
+      this.headGroup.add(earGroup);
+    });
+
+    // 9. Muscular Male Neck with Adam's Apple & Collar Ring
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.21, 0.28, 24), this.matSkin);
+    neck.position.set(0, -0.50, 0);
+    this.headGroup.add(neck);
+
+    const adamsApple = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.07, 16), this.matSkin);
+    adamsApple.rotation.x = Math.PI / 2;
+    adamsApple.position.set(0, -0.48, 0.195);
+    this.headGroup.add(adamsApple);
+
+    const collarRing = new THREE.Mesh(new THREE.TorusGeometry(0.20, 0.03, 16, 32), this.matChassis);
+    collarRing.rotation.x = Math.PI / 2;
+    collarRing.position.set(0, -0.62, 0);
+    this.headGroup.add(collarRing);
+
+    // 10. --- PROMINENT, CLEARLY VISIBLE 3D MALE NOSE ---
     const noseGroup = new THREE.Group();
-    noseGroup.position.set(0, -0.04, 0.44);
+    noseGroup.position.set(0, 0.035, 0.42);
 
-    // Nose Bridge (Dorsal ridge extending down from between the eyes)
-    const noseBridge = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.042, 0.14, 8), this.matArmor);
-    noseBridge.rotation.x = 0.35;
-    noseBridge.position.set(0, 0.04, 0.02);
-    noseGroup.add(noseBridge);
+    // 10a. Nasal Root & Straight Dorsal Bridge (Extends down from between eyes)
+    const bridgeGeo = new THREE.CylinderGeometry(0.026, 0.036, 0.15, 12);
+    bridgeGeo.scale(1.0, 1.0, 1.35);
+    const bridge = new THREE.Mesh(bridgeGeo, this.matSkin);
+    bridge.rotation.x = 0.32;
+    bridge.position.set(0, 0.02, 0.04);
+    noseGroup.add(bridge);
 
-    // Defined Humanoid Nose Tip & Nostrils
-    const noseTip = new THREE.Mesh(new THREE.SphereGeometry(0.038, 12, 12), this.matChrome);
-    noseTip.scale.set(1.1, 0.8, 1.2);
-    noseTip.position.set(0, -0.03, 0.06);
+    // 10b. Defined Masculine Nose Tip (Apex / Lobule - proud & distinct)
+    const tipGeo = new THREE.SphereGeometry(0.038, 16, 16);
+    tipGeo.scale(1.15, 0.95, 1.25);
+    const noseTip = new THREE.Mesh(tipGeo, this.matSkin);
+    noseTip.position.set(0, -0.058, 0.098);
     noseGroup.add(noseTip);
 
-    // Left and Right Nostril Flares
-    [-0.035, 0.035].forEach((nx) => {
-      const nostril = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), this.matChassis);
-      nostril.position.set(nx, -0.045, 0.04);
+    // 10c. Symmetrical Left and Right Nostril Wings (Alar Cartilages)
+    [-0.042, 0.042].forEach((nx) => {
+      const ala = new THREE.Mesh(new THREE.SphereGeometry(0.023, 12, 12), this.matSkin);
+      ala.scale.set(0.9, 0.85, 1.1);
+      ala.position.set(nx, -0.068, 0.078);
+      noseGroup.add(ala);
+
+      // Recessed dark nostril openings underneath
+      const nostril = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.011, 0.016, 8), this.matEyeSocket);
+      nostril.position.set(nx * 0.72, -0.084, 0.076);
+      nostril.rotation.x = 0.48;
       noseGroup.add(nostril);
     });
+
+    // 10d. Nasal Columella & Septum Base
+    const columella = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.030, 0.032), this.matSkin);
+    columella.position.set(0, -0.078, 0.078);
+    noseGroup.add(columella);
+
+    // 10e. Philtrum Groove (Connecting nose to upper lip)
+    const philtrum = new THREE.Mesh(new THREE.BoxGeometry(0.030, 0.065, 0.016), this.matSkin);
+    philtrum.position.set(0, -0.125, 0.055);
+    noseGroup.add(philtrum);
 
     this.faceNose = noseGroup;
     this.headGroup.add(noseGroup);
 
-    // --- CLEAR 3D GLOWING EYES ---
-    this.leftEye = this.createHumanoidEye(-0.20);
-    this.rightEye = this.createHumanoidEye(0.20);
+    // 11. --- ULTRA-CLARITY SYMMETRICAL MALE EYES (Zero black defect!) ---
+    this.leftEye = this.createHumanoidEye(-0.19);
+    this.rightEye = this.createHumanoidEye(0.19);
     this.headGroup.add(this.leftEye);
     this.headGroup.add(this.rightEye);
 
-    // Humanoid Eyebrow Plates (Emote dynamically)
-    this.leftBrow = this.createEyebrow(-0.20, true);
-    this.rightBrow = this.createEyebrow(0.20, false);
+    // 12. --- GROOMED MASCULINE EYEBROWS ---
+    this.leftBrow = this.createEyebrow(-0.19, true);
+    this.rightBrow = this.createEyebrow(0.19, false);
     this.headGroup.add(this.leftBrow);
     this.headGroup.add(this.rightBrow);
 
-    // --- HUMANOID LIPS & SPEECH BAR ---
+    // 13. --- MASCULINE LIPS & SPEECH BAR ---
     const lipsGroup = new THREE.Group();
     lipsGroup.position.set(0, -0.22, 0.42);
 
-    // Upper Lip Contour
-    const upperLip = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.024, 0.04), this.matArmor);
-    upperLip.position.set(0, 0.015, 0);
+    // Upper Lip with Cupid's bow contour
+    const upperLip = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.024, 0.038), this.matLips);
+    upperLip.position.set(0, 0.014, 0.005);
     lipsGroup.add(upperLip);
 
-    // Lower Lip
-    const lowerLip = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.024, 0.04), this.matArmor);
-    lowerLip.position.set(0, -0.015, 0);
+    // Full Masculine Lower Lip
+    const lowerLip = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.026, 0.040), this.matLips);
+    lowerLip.position.set(0, -0.016, 0.005);
     lipsGroup.add(lowerLip);
 
-    // Acoustic Speech Light Bar (Glows and pulses when speaking)
-    this.speechLED = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.012, 0.02), this.matAccent);
-    this.speechLED.position.set(0, 0, 0.018);
+    // Acoustic Speech Light Bar (Pulses during voice activity)
+    this.speechLED = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.010, 0.022), this.matAccent);
+    this.speechLED.position.set(0, 0, 0.022);
     lipsGroup.add(this.speechLED);
 
     this.faceLips = lipsGroup;
     this.headGroup.add(lipsGroup);
-
-    // Lateral Audio Sensors / Human-like Ears
-    [-0.56, 0.56].forEach((ex) => {
-      const earBase = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.08, 16), this.matChassis);
-      earBase.rotation.z = Math.PI / 2;
-      earBase.position.set(ex, 0.02, 0);
-      this.headGroup.add(earBase);
-
-      const earTorus = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.018, 12, 24), this.matAccent);
-      earTorus.rotation.y = Math.PI / 2;
-      earTorus.position.set(ex, 0.02, 0);
-      this.headGroup.add(earTorus);
-    });
-
-    // Neck Column
-    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.18, 20), this.matJoint);
-    neck.position.set(0, -0.56, 0);
-    this.headGroup.add(neck);
 
     this.robotGroup.add(this.headGroup);
   }
 
   createHumanoidEye(xPos) {
     const eyeGroup = new THREE.Group();
-    eyeGroup.position.set(xPos, 0.06, 0.44);
+    eyeGroup.position.set(xPos, 0.065, 0.44);
 
-    // 1. Recessed Chrome Orbital Socket Bezel (Outer Frame)
-    const socketBezel = new THREE.Mesh(new THREE.TorusGeometry(0.125, 0.016, 24, 48), this.matChrome);
-    eyeGroup.add(socketBezel);
+    // 1. Natural Skin-Toned Orbital Socket Rim
+    const socketRim = new THREE.Mesh(new THREE.TorusGeometry(0.118, 0.015, 16, 32), this.matSkin);
+    eyeGroup.add(socketRim);
 
-    // 2. High-Contrast Deep Optic Chamber / Eyeball Socket Cup
-    const chamberGeo = new THREE.CylinderGeometry(0.12, 0.11, 0.08, 32);
-    chamberGeo.rotateX(Math.PI / 2);
-    const chamber = new THREE.Mesh(chamberGeo, this.matEyeSocket);
-    chamber.position.set(0, 0, -0.02);
-    eyeGroup.add(chamber);
+    // 2. Pure Pearlescent White Eyeball Sclera (100% clean white on BOTH eyes - zero black defect!)
+    const eyeballGeo = new THREE.SphereGeometry(0.10, 32, 32);
+    const eyeball = new THREE.Mesh(eyeballGeo, this.matSclera);
+    eyeball.position.set(0, 0, -0.01);
+    eyeGroup.add(eyeball);
 
-    // 3. Sclera Outer Reflective Bevel Ring
-    const scleraRing = new THREE.Mesh(
-      new THREE.RingGeometry(0.088, 0.122, 36),
-      new THREE.MeshStandardMaterial({
-        color: 0x1e293b,
-        metalness: 0.85,
-        roughness: 0.15
-      })
-    );
-    scleraRing.position.set(0, 0, 0.005);
-    eyeGroup.add(scleraRing);
-
-    // 4. Moving Gaze Assembly (Tracks cursor smoothly inside socket with zero distortion)
+    // 3. Moving Gaze Assembly (Iris, Aperture, Pupil, Laser Diode, Catchlights)
     const gazeGroup = new THREE.Group();
-    gazeGroup.position.set(0, 0, 0.012);
+    gazeGroup.position.set(0, 0, 0.038);
     eyeGroup.add(gazeGroup);
 
-    // 4a. Outer Limbal Ring (Crisp dark border around the iris for photographic clarity)
-    const limbalRing = new THREE.Mesh(new THREE.TorusGeometry(0.086, 0.008, 16, 36), this.matLimbalRing);
+    // 3a. Deep Metallic Limbal Ring (Defines iris boundary for sharp optical contrast)
+    const limbalRing = new THREE.Mesh(new THREE.TorusGeometry(0.076, 0.007, 16, 36), this.matLimbalRing);
     gazeGroup.add(limbalRing);
 
-    // 4b. Radiant Glowing Cybernetic Iris
-    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.072, 0.014, 20, 36), this.matIris);
+    // 3b. Radiant Glowing Cybernetic Iris
+    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.064, 0.012, 20, 36), this.matIris);
     gazeGroup.add(irisRing);
 
-    // 4c. Geometric Micro-Aperture Ring (Detailed robotic iris texture)
+    // 3c. Geometric Micro-Aperture (High-tech cyber eye texture)
     const apertureMat = new THREE.MeshStandardMaterial({
       color: this.themes[this.currentTheme].accent,
       emissive: this.themes[this.currentTheme].glow,
       emissiveIntensity: 0.9,
       wireframe: true
     });
-    const aperture = new THREE.Mesh(new THREE.RingGeometry(0.046, 0.076, 24), apertureMat);
-    aperture.position.set(0, 0, 0.004);
+    const aperture = new THREE.Mesh(new THREE.RingGeometry(0.040, 0.068, 24), apertureMat);
+    aperture.position.set(0, 0, 0.003);
     gazeGroup.add(aperture);
 
-    // 4d. Deep Obsidian Black Pupil Core (High-definition optical contrast)
-    const pupilBacking = new THREE.Mesh(new THREE.CircleGeometry(0.048, 32), this.matPupilObsidian);
-    pupilBacking.position.set(0, 0, 0.008);
+    // 3d. Deep Obsidian Black Pupil Core (Optical center)
+    const pupilBacking = new THREE.Mesh(new THREE.CircleGeometry(0.042, 32), this.matPupilObsidian);
+    pupilBacking.position.set(0, 0, 0.006);
     gazeGroup.add(pupilBacking);
 
-    // 4e. Luminous Central Diode (High-clarity pupil laser/retina core)
-    const pupilCore = new THREE.Mesh(new THREE.SphereGeometry(0.024, 16, 16), this.matPupilCore);
-    pupilCore.position.set(0, 0, 0.018);
+    // 3e. Luminous Central Diode (Retina focus core)
+    const pupilCore = new THREE.Mesh(new THREE.SphereGeometry(0.020, 16, 16), this.matPupilCore);
+    pupilCore.position.set(0, 0, 0.014);
     gazeGroup.add(pupilCore);
 
-    // 4f. Primary Crisp Specular Catchlight (Upper right glint)
-    const catchlight1 = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 10), this.matCatchlight);
-    catchlight1.position.set(0.024, 0.024, 0.028);
+    // 3f. Primary Crisp Specular Catchlight (Upper right glint for lifelike shine)
+    const catchlight1 = new THREE.Mesh(new THREE.SphereGeometry(0.010, 10, 10), this.matCatchlight);
+    catchlight1.position.set(0.020, 0.020, 0.022);
     gazeGroup.add(catchlight1);
 
-    // 4g. Secondary Sub-Specular Catchlight (Lower left depth glint)
-    const catchlight2 = new THREE.Mesh(new THREE.SphereGeometry(0.006, 8, 8), this.matCatchlight);
-    catchlight2.position.set(-0.018, -0.018, 0.024);
+    // 3g. Secondary Sub-Specular Catchlight (Lower left glint)
+    const catchlight2 = new THREE.Mesh(new THREE.SphereGeometry(0.005, 8, 8), this.matCatchlight);
+    catchlight2.position.set(-0.015, -0.015, 0.020);
     gazeGroup.add(catchlight2);
 
-    // 5. Crystal-Clear Optical Cornea Lens Dome (Pure clarity, zero milky haze)
-    const lensGeo = new THREE.SphereGeometry(0.118, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.45);
+    // 4. Crystal-Clear Optical Cornea Lens Dome (Pure clarity, zero milky fog)
+    const lensGeo = new THREE.SphereGeometry(0.104, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.42);
     const lens = new THREE.Mesh(lensGeo, this.matEyeLens);
     lens.position.set(0, 0, 0.012);
     eyeGroup.add(lens);
 
-    // 6. Dedicated High-Definition Eye Spot/Point Light
-    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 1.2, 1.6);
-    eyeLight.position.set(0, 0, 0.12);
+    // 5. Natural Upper Eyelid Fold (Supratarsal male eyelid crease in skin tone)
+    const lidArch = new THREE.Mesh(new THREE.TorusGeometry(0.102, 0.014, 12, 24, Math.PI), this.matSkin);
+    lidArch.rotation.z = Math.PI;
+    lidArch.position.set(0, 0.018, 0.032);
+    eyeGroup.add(lidArch);
+
+    // 6. Natural Skin-Toned Eyelid Shutter for Blinking (NEVER black - uses matSkin!)
+    const lidGeo = new THREE.SphereGeometry(0.106, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
+    const eyelid = new THREE.Mesh(lidGeo, this.matSkin);
+    eyelid.position.set(0, 0, 0.016);
+    eyelid.rotation.x = -Math.PI / 2; // Default open
+    eyeGroup.add(eyelid);
+
+    // 7. Dedicated High-Definition Eye Point Light (Symmetrically illuminates both eyes!)
+    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 1.3, 1.8);
+    eyeLight.position.set(0, 0, 0.14);
     eyeGroup.add(eyeLight);
 
     if (xPos < 0) this.leftEyeLight = eyeLight;
     else this.rightEyeLight = eyeLight;
-
-    // 7. Smooth Articulated Eyelids
-    const lidGeo = new THREE.SphereGeometry(0.126, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
-    const eyelid = new THREE.Mesh(lidGeo, this.matChassis);
-    eyelid.position.set(0, 0, 0.02);
-    eyelid.rotation.x = -Math.PI / 2; // Default open
-    eyeGroup.add(eyelid);
 
     eyeGroup.userData = {
       eyelid: eyelid,
@@ -597,11 +696,12 @@ class Robot3D {
 
   createEyebrow(xPos, isLeft) {
     const brow = new THREE.Group();
-    brow.position.set(xPos, 0.20, 0.44);
+    brow.position.set(xPos, 0.19, 0.47);
 
-    const plate = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.03, 0.05), this.matArmor);
-    plate.rotation.z = isLeft ? -0.1 : 0.1;
-    brow.add(plate);
+    // Groomed masculine eyebrow: thicker at the glabella, tapering toward the temple
+    const browMesh = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.034, 0.04), this.matEyebrow);
+    browMesh.rotation.z = isLeft ? -0.08 : 0.08;
+    brow.add(browMesh);
 
     return brow;
   }
@@ -1579,19 +1679,20 @@ class Robot3D {
   }
 
   triggerHighFiveClap() {
+    if (!this.isHifiReady) return;
     this.isHifiReady = false;
+    this.hifiSlapped = true;
+    this.hifiSlapTimer = 0;
     if (window.AudioEngine) {
       if (window.AudioEngine.playClap) window.AudioEngine.playClap();
       else if (window.AudioEngine.playHydraulicClick) window.AudioEngine.playHydraulicClick();
       window.AudioEngine.speak("Awesome high-five! Let's conquer our study goals!");
     }
-    this.rightArm.hand.rotation.x = 0.45;
     this.setExpression("happy");
-    setTimeout(() => {
-      this.rightArm.hand.rotation.x = -0.25;
-      this.currentAction = null;
-      this.setExpression("idle");
-    }, 1200);
+  }
+
+  onHifiHit() {
+    this.triggerHighFiveClap();
   }
 
   resetCameraView() {
@@ -1613,10 +1714,10 @@ class Robot3D {
       this.targetRotationY = 0;
       this.cameraLookTarget.set(0, -0.72, 0);
     } else if (mode === "eyes") {
-      this.targetCameraDistance = 1.45;
+      this.targetCameraDistance = 1.35;
       this.targetRotationX = 0.02;
       this.targetRotationY = 0;
-      this.cameraLookTarget.set(0, 0.82, 0.10);
+      this.cameraLookTarget.set(0, 0.84, 0.12);
     } else if (mode === "hands") {
       this.targetCameraDistance = 2.1;
       this.targetRotationX = 0.15;
@@ -1794,32 +1895,38 @@ class Robot3D {
       } else {
         this.robotGroup.position.y = 0;
 
-        // Subtle realistic weight shift between left and right leg
+        // Kinematic weight shift targets between left and right leg
+        let targetLeftLeg = { thighX: 0, thighZ: 0, kneeX: 0 };
+        let targetRightLeg = { thighX: 0, thighZ: 0, kneeX: 0 };
+
+        if (this.currentAction === "salute") {
+          // Standing rigid at attention: heels aligned, zero sway
+          targetLeftLeg = { thighX: 0, thighZ: 0, kneeX: 0 };
+          targetRightLeg = { thighX: 0, thighZ: 0, kneeX: 0 };
+        } else if (this.currentAction === "hifi") {
+          // Athletic grounded stance
+          targetLeftLeg = { thighX: 0.10, thighZ: -0.04, kneeX: -0.12 };
+          targetRightLeg = { thighX: -0.06, thighZ: 0.04, kneeX: 0.06 };
+        } else if (this.currentAction === "hello" || this.currentAction === "bye") {
+          // Weight shifted toward left hip to balance right arm gesture
+          targetLeftLeg = { thighX: 0.04, thighZ: 0.035, kneeX: 0.02 };
+          targetRightLeg = { thighX: -0.04, thighZ: -0.035, kneeX: 0.04 };
+        } else {
+          // Natural idle breathing weight shift
+          const shift = Math.sin(time * 1.5);
+          targetLeftLeg = { thighX: shift * 0.022, thighZ: shift * 0.022, kneeX: Math.max(0, -shift * 0.025) };
+          targetRightLeg = { thighX: -shift * 0.022, thighZ: -shift * 0.022, kneeX: Math.max(0, shift * 0.025) };
+        }
+
         if (this.leftLeg && this.rightLeg) {
-          if (this.currentAction === "salute") {
-            // Standing rigid at attention
-            this.leftLeg.thigh.rotation.z = 0;
-            this.rightLeg.thigh.rotation.z = 0;
-            this.leftLeg.thigh.rotation.x = 0;
-            this.rightLeg.thigh.rotation.x = 0;
-            this.leftLeg.knee.rotation.x = 0;
-            this.rightLeg.knee.rotation.x = 0;
-          } else if (this.currentAction === "hifi") {
-            // Braced athletic stance
-            this.leftLeg.thigh.rotation.x = 0.10;
-            this.leftLeg.knee.rotation.x = -0.12;
-            this.rightLeg.thigh.rotation.x = -0.06;
-            this.rightLeg.knee.rotation.x = 0.06;
-          } else {
-            // Natural idle breathing weight shift
-            const shift = Math.sin(time * 1.5);
-            this.leftLeg.thigh.rotation.z = shift * 0.022;
-            this.rightLeg.thigh.rotation.z = -shift * 0.022;
-            this.leftLeg.thigh.rotation.x = shift * 0.018;
-            this.rightLeg.thigh.rotation.x = -shift * 0.018;
-            this.leftLeg.knee.rotation.x = Math.max(0, -shift * 0.025);
-            this.rightLeg.knee.rotation.x = Math.max(0, shift * 0.025);
-          }
+          const legAlpha = Math.min(1.0, delta * 8.0);
+          this.leftLeg.thigh.rotation.x += (targetLeftLeg.thighX - this.leftLeg.thigh.rotation.x) * legAlpha;
+          this.leftLeg.thigh.rotation.z += (targetLeftLeg.thighZ - this.leftLeg.thigh.rotation.z) * legAlpha;
+          this.leftLeg.knee.rotation.x += (targetLeftLeg.kneeX - this.leftLeg.knee.rotation.x) * legAlpha;
+
+          this.rightLeg.thigh.rotation.x += (targetRightLeg.thighX - this.rightLeg.thigh.rotation.x) * legAlpha;
+          this.rightLeg.thigh.rotation.z += (targetRightLeg.thighZ - this.rightLeg.thigh.rotation.z) * legAlpha;
+          this.rightLeg.knee.rotation.x += (targetRightLeg.kneeX - this.rightLeg.knee.rotation.x) * legAlpha;
         }
       }
     }
@@ -1830,124 +1937,205 @@ class Robot3D {
       this.speechLED.scale.set(1 + pulse, 1 + pulse, 1);
     }
 
-    // 6. Action Gestures State Machine
+    // 6. Kinematic Action Gestures & Pose Interpolation
     if (this.leftArm && this.rightArm) {
+      const breathe = Math.sin(time * 1.8) * 0.03;
+
+      // Default Neutral Idle Poses
+      const targetLeft = {
+        upper: { x: 0.25 + breathe, y: 0.0, z: 0.12 },
+        fore: { x: -1.15 + breathe, y: 0.0, z: 0.0 },
+        hand: { x: -0.25, y: 0.40, z: 0.0 }
+      };
+      const targetRight = {
+        upper: { x: 0.25 + breathe, y: 0.0, z: -0.12 },
+        fore: { x: -1.15 + breathe, y: 0.0, z: 0.0 },
+        hand: { x: -0.25, y: -0.40, z: 0.0 }
+      };
+      const targetHead = { x: 0.0, y: 0.0, z: 0.0 };
+      let leftFingersTarget = Math.sin(time * 2.2) * 0.12 + 0.18;
+      let rightFingersTarget = Math.sin(time * 2.2) * 0.12 + 0.18;
+
       if (this.currentAction === "hello") {
         this.actionTimer += delta;
-        // Warm waving gesture with open palm
-        this.rightArm.upperArm.rotation.z = -1.25;
-        this.rightArm.upperArm.rotation.x = 0.35;
-        this.rightArm.forearm.rotation.x = -1.82;
-        this.rightArm.hand.rotation.x = 0.52;
-        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 8.5) * 0.45;
-        this.rightArm.hand.rotation.z = Math.sin(this.actionTimer * 8.5) * 0.15;
-        if (this.headGroup) this.headGroup.rotation.z = 0.12;
+        const wave = Math.sin(this.actionTimer * 8.5) * 0.42;
+        const waveZ = Math.sin(this.actionTimer * 8.5) * 0.15;
+        // Right arm raised high with open palm waving smoothly
+        targetRight.upper = { x: 0.35, y: -0.15, z: -1.30 };
+        targetRight.fore = { x: -1.82, y: 0.0, z: 0.0 };
+        targetRight.hand = { x: 0.52, y: wave, z: waveZ };
+        rightFingersTarget = 0.02; // Open flat waving hand
 
-        if (this.actionTimer > 2.8) {
+        // Left arm relaxed supportive posture
+        targetLeft.upper = { x: 0.15, y: 0.0, z: 0.16 };
+        targetLeft.fore = { x: -0.90, y: 0.0, z: 0.0 };
+        targetLeft.hand = { x: -0.15, y: 0.25, z: 0.0 };
+
+        targetHead.z = 0.12;
+        targetHead.x = -0.04;
+
+        if (this.actionTimer > 3.0) {
           this.currentAction = null;
           this.setExpression("idle");
-          if (this.headGroup) this.headGroup.rotation.z = 0;
         }
       } else if (this.currentAction === "bye") {
         this.actionTimer += delta;
-        // Gentle farewell wave with wrist sway
-        this.rightArm.upperArm.rotation.z = -1.0;
-        this.rightArm.upperArm.rotation.x = 0.22;
-        this.rightArm.forearm.rotation.x = -1.65;
-        this.rightArm.hand.rotation.x = 0.4;
-        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 4.5) * 0.38;
-        if (this.headGroup) this.headGroup.rotation.z = -0.10;
+        const byeWave = Math.sin(this.actionTimer * 4.5) * 0.36;
+        // Right arm gentle farewell wave
+        targetRight.upper = { x: 0.22, y: -0.10, z: -1.05 };
+        targetRight.fore = { x: -1.65, y: 0.0, z: 0.0 };
+        targetRight.hand = { x: 0.40, y: byeWave, z: byeWave * 0.15 };
+        rightFingersTarget = 0.05;
+
+        // Left arm in supportive posture
+        targetLeft.upper = { x: 0.12, y: 0.0, z: 0.15 };
+        targetLeft.fore = { x: -0.85, y: 0.0, z: 0.0 };
+        targetLeft.hand = { x: -0.10, y: 0.20, z: 0.0 };
+
+        targetHead.z = -0.10;
+
+        if (this.actionTimer > 3.0) {
+          this.currentAction = null;
+          this.setExpression("idle");
+        }
+      } else if (this.currentAction === "hifi") {
+        this.actionTimer += delta;
+        if (this.hifiSlapped) {
+          this.hifiSlapTimer += delta;
+          // Kinetic physical recoil from slap
+          const recoil = Math.sin(Math.min(Math.PI, this.hifiSlapTimer * 6.5)) * 0.40;
+          targetRight.upper = { x: 0.70 - recoil * 0.7, y: 0.08, z: -0.35 };
+          targetRight.fore = { x: -0.75 - recoil * 0.9, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.75 - recoil, y: 0.0, z: 0.0 };
+          rightFingersTarget = 0.02;
+
+          targetLeft.upper = { x: -0.18, y: 0.0, z: 0.22 };
+          targetHead.x = -recoil * 0.15;
+
+          if (this.hifiSlapTimer > 1.3) {
+            this.hifiSlapped = false;
+            this.currentAction = null;
+            this.setExpression("idle");
+          }
+        } else {
+          // Ready palm facing user at eye level
+          targetRight.upper = { x: 0.78, y: -0.06, z: -0.42 };
+          targetRight.fore = { x: -0.52, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 1.05, y: 0.0, z: 0.0 };
+          rightFingersTarget = 0.0; // Flat open palm
+
+          targetLeft.upper = { x: -0.12, y: 0.0, z: 0.18 };
+          targetLeft.fore = { x: -0.65, y: 0.0, z: 0.0 };
+          targetLeft.hand = { x: 0.0, y: 0.30, z: 0.0 };
+
+          targetHead.x = 0.05;
+
+          if (this.actionTimer > 6.0) {
+            this.isHifiReady = false;
+            this.currentAction = null;
+            this.setExpression("idle");
+          }
+        }
+      } else if (this.currentAction === "kiss") {
+        this.actionTimer += delta;
+        if (this.actionTimer < 1.1) {
+          // Phase 1: Bring hand right to lips
+          targetRight.upper = { x: 0.85, y: -0.12, z: -0.38 };
+          targetRight.fore = { x: -2.35, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.72, y: 0.0, z: 0.0 };
+          rightFingersTarget = 0.28; // Gently cupped at lips
+          targetHead.x = -0.12; // Bow head gently toward hand
+        } else if (this.actionTimer < 3.2) {
+          // Phase 2: Extend hand outward toward screen, blowing kiss
+          const sway = Math.sin(this.actionTimer * 4.0) * 0.18;
+          targetRight.upper = { x: 0.45, y: 0.0, z: -0.45 };
+          targetRight.fore = { x: -0.72, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.32, y: sway, z: 0.0 };
+          rightFingersTarget = 0.05; // Open fingers releasing kiss
+          targetHead.x = 0.08;
+          targetHead.z = 0.05;
+        } else {
+          // Phase 3: Smooth return
+          if (this.actionTimer > 3.8) {
+            this.currentAction = null;
+            this.setExpression("idle");
+          }
+        }
+        targetLeft.upper = { x: 0.10, y: 0.0, z: 0.16 };
+        targetLeft.fore = { x: -0.75, y: 0.0, z: 0.0 };
+        targetLeft.hand = { x: -0.10, y: 0.30, z: 0.0 };
+      } else if (this.currentAction === "salute") {
+        this.actionTimer += delta;
+        // Left arm pinned rigid flush down at attention
+        targetLeft.upper = { x: 0.0, y: 0.0, z: 0.08 };
+        targetLeft.fore = { x: 0.0, y: 0.0, z: 0.0 };
+        targetLeft.hand = { x: 0.0, y: 0.0, z: 0.0 };
+
+        // Right arm sharp salute: fingertips align to brow
+        targetRight.upper = { x: 0.42, y: -0.15, z: -1.38 };
+        targetRight.fore = { x: -2.42, y: 0.0, z: 0.0 };
+        targetRight.hand = { x: 0.15, y: 0.0, z: 0.38 };
+        rightFingersTarget = 0.0; // Pinned straight fingers
+
+        targetHead.x = 0.06;
+        targetHead.y = 0.0;
+        targetHead.z = 0.0;
 
         if (this.actionTimer > 2.8) {
           this.currentAction = null;
           this.setExpression("idle");
-          if (this.headGroup) this.headGroup.rotation.z = 0;
-        }
-      } else if (this.currentAction === "hifi") {
-        this.actionTimer += delta;
-        // High-five ready stance: palm upright facing viewer at eye height
-        this.rightArm.upperArm.rotation.z = -0.42;
-        this.rightArm.upperArm.rotation.x = 0.78;
-        this.rightArm.forearm.rotation.x = -0.52;
-        this.rightArm.hand.rotation.x = 1.05;
-        this.rightArm.hand.rotation.y = 0.0;
-        if (this.actionTimer > 6.0) {
-          this.isHifiReady = false;
-          this.currentAction = null;
-          this.setExpression("idle");
-        }
-      } else if (this.currentAction === "kiss") {
-        this.actionTimer += delta;
-        if (this.actionTimer < 1.0) {
-          // Bring hand right to lips
-          this.rightArm.upperArm.rotation.z = -0.38;
-          this.rightArm.upperArm.rotation.x = 0.85;
-          this.rightArm.forearm.rotation.x = -2.28;
-          this.rightArm.hand.rotation.x = 0.7;
-          if (this.headGroup) this.headGroup.rotation.x = -0.12;
-        } else if (this.actionTimer < 3.5) {
-          // Open hand outward blowing kiss toward user
-          this.rightArm.forearm.rotation.x = -0.75;
-          this.rightArm.hand.rotation.x = 0.35;
-          this.rightArm.hand.rotation.y = Math.sin(time * 4) * 0.20;
-          if (this.headGroup) this.headGroup.rotation.x = 0.10;
-        } else {
-          this.currentAction = null;
-          this.setExpression("idle");
-          if (this.headGroup) this.headGroup.rotation.x = 0;
-        }
-      } else if (this.currentAction === "salute") {
-        this.actionTimer += delta;
-        // Left arm pinned straight down at attention
-        this.leftArm.upperArm.rotation.set(0, 0, 0.1);
-        this.leftArm.forearm.rotation.set(0, 0, 0);
-        this.leftArm.hand.rotation.set(0, 0, 0);
-
-        // Sharp military salute: fingertips touch right temple/brow
-        this.rightArm.upperArm.rotation.z = -1.35;
-        this.rightArm.upperArm.rotation.x = 0.45;
-        this.rightArm.forearm.rotation.x = -2.45;
-        this.rightArm.hand.rotation.x = 0.15;
-        this.rightArm.hand.rotation.z = 0.38;
-        if (this.headGroup) this.headGroup.rotation.x = 0.08;
-
-        if (this.actionTimer > 2.5) {
-          this.currentAction = null;
-          this.setExpression("idle");
-          if (this.headGroup) this.headGroup.rotation.x = 0;
         }
       } else if (this.expression === "speaking") {
-        // Conversational Gesturing: Both hands articulate in rhythm
-        const wave = Math.sin(time * 5) * 0.12;
-        this.leftArm.forearm.rotation.x = -1.1 + wave;
-        this.rightArm.forearm.rotation.x = -1.1 - wave;
-        this.leftArm.hand.rotation.y = 0.4 + Math.sin(time * 4) * 0.15;
-        this.rightArm.hand.rotation.y = -0.4 - Math.sin(time * 4) * 0.15;
-      } else {
-        // Default Stance: Both hands elevated at chest level
-        const breathe = Math.sin(time * 1.8) * 0.03;
-        this.leftArm.upperArm.rotation.x = 0.25 + breathe;
-        this.rightArm.upperArm.rotation.x = 0.25 + breathe;
-        this.leftArm.forearm.rotation.x = -1.15 + breathe;
-        this.rightArm.forearm.rotation.x = -1.15 + breathe;
-        this.rightArm.upperArm.rotation.z = -0.12;
-        this.rightArm.hand.rotation.x = -0.25;
-        this.rightArm.hand.rotation.y = -0.4;
-      }
-    }
+        // Conversational Gesturing: Both hands articulate with speech rhythm
+        const wave = Math.sin(time * 5.0) * 0.14;
+        const wave2 = Math.cos(time * 4.2) * 0.12;
+        targetLeft.upper = { x: 0.35 + wave * 0.5, y: 0.0, z: 0.18 };
+        targetLeft.fore = { x: -1.10 + wave, y: 0.0, z: 0.0 };
+        targetLeft.hand = { x: -0.15, y: 0.45 + wave2, z: 0.0 };
 
-    // 7. Clear 5-Digit Finger Articulation
-    const fingerCurl = Math.sin(time * 2.2) * 0.12 + 0.18;
-    this.leftFingers.forEach((f, i) => {
-      f.rotation.x = fingerCurl + i * 0.03;
-    });
-    this.rightFingers.forEach((f, i) => {
-      if (this.currentAction === "hifi" || this.currentAction === "salute" || this.currentAction === "hello") {
-        f.rotation.x = 0.02; // Flat straight open fingers
-      } else {
-        f.rotation.x = fingerCurl + i * 0.03;
+        targetRight.upper = { x: 0.35 - wave * 0.5, y: 0.0, z: -0.18 };
+        targetRight.fore = { x: -1.10 - wave, y: 0.0, z: 0.0 };
+        targetRight.hand = { x: -0.15, y: -0.45 - wave2, z: 0.0 };
+
+        targetHead.y = Math.sin(time * 2.5) * 0.06;
       }
-    });
+
+      // Smooth Kinematic Rotation Interpolation (Lerp)
+      const lerpSpeed = 12.0;
+      const alpha = Math.min(1.0, delta * lerpSpeed);
+
+      const lerpBone = (bone, target) => {
+        if (!bone || !target) return;
+        if (target.x !== undefined) bone.rotation.x += (target.x - bone.rotation.x) * alpha;
+        if (target.y !== undefined) bone.rotation.y += (target.y - bone.rotation.y) * alpha;
+        if (target.z !== undefined) bone.rotation.z += (target.z - bone.rotation.z) * alpha;
+      };
+
+      lerpBone(this.leftArm.upperArm, targetLeft.upper);
+      lerpBone(this.leftArm.forearm, targetLeft.fore);
+      lerpBone(this.leftArm.hand, targetLeft.hand);
+
+      lerpBone(this.rightArm.upperArm, targetRight.upper);
+      lerpBone(this.rightArm.forearm, targetRight.fore);
+      lerpBone(this.rightArm.hand, targetRight.hand);
+
+      if (this.headGroup) {
+        const headAlpha = Math.min(1.0, delta * 8.0);
+        this.headGroup.rotation.x += (targetHead.x - this.headGroup.rotation.x) * headAlpha;
+        this.headGroup.rotation.y += (targetHead.y - this.headGroup.rotation.y) * headAlpha;
+        this.headGroup.rotation.z += (targetHead.z - this.headGroup.rotation.z) * headAlpha;
+      }
+
+      // 7. Clear 5-Digit Finger Articulation
+      this.leftFingers.forEach((f, i) => {
+        const targetCurl = leftFingersTarget + i * 0.03;
+        f.rotation.x += (targetCurl - f.rotation.x) * alpha;
+      });
+      this.rightFingers.forEach((f, i) => {
+        const targetCurl = rightFingersTarget + (rightFingersTarget > 0.05 ? i * 0.03 : 0);
+        f.rotation.x += (targetCurl - f.rotation.x) * alpha;
+      });
+    }
 
     // 8. Animate Floating 3D Hearts (Flying Kiss Action)
     for (let i = this.heartParticles.length - 1; i >= 0; i--) {

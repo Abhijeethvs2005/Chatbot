@@ -510,7 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".action-btn").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        setTimeout(() => btn.classList.remove("active"), 1200);
+        setTimeout(() => btn.classList.remove("active"), 2800);
         if (robot) robot.doAction(cfg.action);
       });
     }

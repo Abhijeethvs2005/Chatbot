@@ -431,6 +431,263 @@ function solveAnalyticalProblem(query) {
   const raw = query.trim();
   const qLower = raw.toLowerCase();
 
+  // 0a. Transcendental Derivatives: sin, cos, tan, e^x, ln, log
+  const transDiffMatch = qLower.match(/(?:derivative of|d\/dx\s*\(?)\s*(sin|cos|tan|e\^x|ln|log)\s*(?:\(?\s*x\s*\)?)?/);
+  if (transDiffMatch) {
+    const fn = transDiffMatch[1].toLowerCase();
+    if (fn === "sin") {
+      return {
+        id: "calc_diff_sin",
+        title: "Calculus Derivative: d/dx [sin(x)]",
+        subject: "Mathematics",
+        core: "The derivative of $\\sin(x)$ with respect to $x$ is **$\\cos(x)$**.",
+        formulas: ["\\frac{d}{dx}[\\sin(x)] = \\cos(x)", "\\frac{d}{dx}[\\sin(kx)] = k \\cos(kx) \\quad \\text{(Chain Rule)}"],
+        steps: [
+          "1. **Definition of Derivative**: \\lim_{h \\to 0} \\frac{\\sin(x+h) - \\sin(x)}{h}.",
+          "2. **Angle Addition Identity**: \\sin(x+h) = \\sin(x)\\cos(h) + \\cos(x)\\sin(h).",
+          "3. **Fundamental Limits**: \\lim_{h \\to 0} \\frac{\\sin(h)}{h} = 1 \\text{ and } \\lim_{h \\to 0} \\frac{\\cos(h)-1}{h} = 0.",
+          "4. **Exact Result**: $$\\mathbf{\\frac{d}{dx}[\\sin(x)] = \\cos(x)}$$"
+        ],
+        analogy: "At the peak of a sine wave (x = π/2), the slope is zero (cos(π/2) = 0). Where sine rises fastest through the origin (x = 0), its slope is 1 (cos(0) = 1).",
+        pitfalls: "Remember: the derivative of sin(x) is POSITIVE cos(x), whereas the derivative of cos(x) is NEGATIVE sin(x)!"
+      };
+    } else if (fn === "cos") {
+      return {
+        id: "calc_diff_cos",
+        title: "Calculus Derivative: d/dx [cos(x)]",
+        subject: "Mathematics",
+        core: "The derivative of $\\cos(x)$ with respect to $x$ is **$-\\sin(x)$**.",
+        formulas: ["\\frac{d}{dx}[\\cos(x)] = -\\sin(x)"],
+        steps: [
+          "1. **Definition of Derivative**: \\lim_{h \\to 0} \\frac{\\cos(x+h) - \\cos(x)}{h}.",
+          "2. **Identity Expansion**: \\cos(x+h) = \\cos(x)\\cos(h) - \\sin(x)\\sin(h).",
+          "3. **Exact Result**: $$\\mathbf{\\frac{d}{dx}[\\cos(x)] = -\\sin(x)}$$"
+        ],
+        analogy: "Starting at x = 0 where cos(x) is at its crest, the curve immediately slopes downward, which is why its derivative is negative.",
+        pitfalls: "Forgetting the negative sign on d/dx[cos(x)] is the single most common sign error in trigonometric calculus!"
+      };
+    } else if (fn === "tan") {
+      return {
+        id: "calc_diff_tan",
+        title: "Calculus Derivative: d/dx [tan(x)]",
+        subject: "Mathematics",
+        core: "The derivative of $\\tan(x)$ with respect to $x$ is **$\\sec^2(x)$**.",
+        formulas: ["\\frac{d}{dx}[\\tan(x)] = \\sec^2(x) = 1 + \\tan^2(x)"],
+        steps: [
+          "1. **Rewrite as Quotient**: \\tan(x) = \\frac{\\sin(x)}{\\cos(x)}.",
+          "2. **Quotient Rule**: \\frac{u'v - uv'}{v^2} = \\frac{\\cos^2(x) - (-\\sin^2(x))}{\\cos^2(x)} = \\frac{1}{\\cos^2(x)} = \\sec^2(x).",
+          "3. **Exact Result**: $$\\mathbf{\\frac{d}{dx}[\\tan(x)] = \\sec^2(x)}$$"
+        ],
+        analogy: "Because tangent approaches vertical asymptotes at ±π/2, its slope is always positive and accelerates rapidly toward infinity.",
+        pitfalls: "Remember sec²(x) is strictly positive for all real x in the domain."
+      };
+    } else if (fn === "e^x") {
+      return {
+        id: "calc_diff_exp",
+        title: "Calculus Derivative: d/dx [e^x]",
+        subject: "Mathematics",
+        core: "The derivative of the natural exponential function $e^x$ is **$e^x$**.",
+        formulas: ["\\frac{d}{dx}[e^x] = e^x", "\\frac{d}{dx}[e^{kx}] = k e^{kx}"],
+        steps: [
+          "1. **Foundational Definition**: Euler's number e is uniquely defined such that the rate of change of e^x equals the function itself.",
+          "2. **Exact Result**: $$\\mathbf{\\frac{d}{dx}[e^x] = e^x}$$"
+        ],
+        analogy: "e^x is the only non-zero mathematical curve where the curve height, its slope, and the accumulated area from -∞ are all identical.",
+        pitfalls: "When composite like e^(3x), remember to apply the chain rule: d/dx[e^(3x)] = 3e^(3x)!"
+      };
+    } else if (fn === "ln" || fn === "log") {
+      return {
+        id: "calc_diff_ln",
+        title: "Calculus Derivative: d/dx [ln(x)]",
+        subject: "Mathematics",
+        core: "The derivative of $\\ln(x)$ for $x > 0$ is **$\\frac{1}{x}$**.",
+        formulas: ["\\frac{d}{dx}[\\ln(x)] = \\frac{1}{x} \\quad (x > 0)"],
+        steps: [
+          "1. **Inverse Function Theorem**: Since y = \\ln(x) \\implies e^y = x, differentiating gives e^y \\cdot y' = 1 \\implies y' = \\frac{1}{e^y} = \\frac{1}{x}.",
+          "2. **Exact Result**: $$\\mathbf{\\frac{d}{dx}[\\ln(x)] = \\frac{1}{x}}$$"
+        ],
+        analogy: "As x gets larger, the curve climbs more and more slowly, so the slope (1/x) approaches 0.",
+        pitfalls: "Remember that ln(x) is only defined for real values when x > 0."
+      };
+    }
+  }
+
+  // 0b. Transcendental Integrals: sin, cos, e^x, 1/x
+  const transIntegMatch = qLower.match(/(?:integral of|integrate|antiderivative of)\s*(sin|cos|e\^x|1\/x)\s*(?:\(?\s*x\s*\)?)?/);
+  if (transIntegMatch) {
+    const fn = transIntegMatch[1].toLowerCase();
+    if (fn === "sin") {
+      return {
+        id: "calc_integ_sin",
+        title: "Calculus Indefinite Integral: ∫ sin(x) dx",
+        subject: "Mathematics",
+        core: "The indefinite integral of $\\sin(x)$ is **$-\\cos(x) + C$**.",
+        formulas: ["\\int \\sin(x) \\, dx = -\\cos(x) + C"],
+        steps: [
+          "1. **Antiderivative Check**: Since \\frac{d}{dx}[\\cos(x)] = -\\sin(x), multiplying by -1 yields \\frac{d}{dx}[-\\cos(x)] = \\sin(x).",
+          "2. **Result**: $$\\mathbf{\\int \\sin(x) \\, dx = -\\cos(x) + C}$$"
+        ],
+        analogy: "Integrating reverses differentiation: since differentiating cos gives -sin, integrating sin returns -cos.",
+        pitfalls: "Students constantly mix up signs: derivative of sin is +cos, but integral of sin is -cos!"
+      };
+    } else if (fn === "cos") {
+      return {
+        id: "calc_integ_cos",
+        title: "Calculus Indefinite Integral: ∫ cos(x) dx",
+        subject: "Mathematics",
+        core: "The indefinite integral of $\\cos(x)$ is **$\\sin(x) + C$**.",
+        formulas: ["\\int \\cos(x) \\, dx = \\sin(x) + C"],
+        steps: [
+          "1. **Antiderivative Check**: Since \\frac{d}{dx}[\\sin(x)] = \\cos(x), the antiderivative is directly \\sin(x).",
+          "2. **Result**: $$\\mathbf{\\int \\cos(x) \\, dx = \\sin(x) + C}$$"
+        ],
+        analogy: "Integrating cos(x) finds the accumulated signed area under the cosine wave.",
+        pitfalls: "Remember the constant of integration + C!"
+      };
+    } else if (fn === "e^x") {
+      return {
+        id: "calc_integ_exp",
+        title: "Calculus Indefinite Integral: ∫ e^x dx",
+        subject: "Mathematics",
+        core: "The indefinite integral of $e^x$ is **$e^x + C$**.",
+        formulas: ["\\int e^x \\, dx = e^x + C"],
+        steps: [
+          "1. **Unique Property**: Since \\frac{d}{dx}[e^x] = e^x, the integral is identically e^x + C.",
+          "2. **Result**: $$\\mathbf{\\int e^x \\, dx = e^x + C}$$"
+        ],
+        analogy: "The natural exponential curve is completely invariant under both integration and differentiation.",
+        pitfalls: "For composite expressions like e^(2x), remember to divide by the inner derivative: \\int e^{kx} dx = \\frac{1}{k}e^{kx} + C."
+      };
+    } else if (fn === "1/x") {
+      return {
+        id: "calc_integ_inv",
+        title: "Calculus Indefinite Integral: ∫ (1/x) dx",
+        subject: "Mathematics",
+        core: "The indefinite integral of $\\frac{1}{x}$ is **$\\ln|x| + C$**.",
+        formulas: ["\\int \\frac{1}{x} \\, dx = \\ln|x| + C \\quad (x \\neq 0)"],
+        steps: [
+          "1. **Power Rule Exception**: The standard power rule \\int x^n dx = \\frac{x^{n+1}}{n+1} fails at n = -1 because it would divide by zero.",
+          "2. **Fundamental Antiderivative**: The antiderivative of x^{-1} is uniquely \\ln|x|.",
+          "3. **Result**: $$\\mathbf{\\int \\frac{1}{x} \\, dx = \\ln|x| + C}$$"
+        ],
+        analogy: "The 1/x curve forms a hyperbola; the accumulated area under this hyperbola from 1 to x is the natural logarithm function.",
+        pitfalls: "Always include the absolute value brackets \\ln|x| to handle negative domain values correctly!"
+      };
+    }
+  }
+
+  // 0c. Exponentiation / Power: e.g. "2^10", "5^3", "2 to the power of 8"
+  const powMatch = qLower.match(/(\d+(?:\.\d+)?)\s*(?:\^|\*\*|\s+to\s+the\s+power\s+of\s+)\s*(\d+(?:\.\d+)?)/);
+  if (powMatch) {
+    const base = parseFloat(powMatch[1]);
+    const exp = parseFloat(powMatch[2]);
+    if (exp <= 50) {
+      const res = Math.pow(base, exp);
+      const resFmt = Number.isInteger(res) ? res : Math.round(res * 10000) / 10000;
+      return {
+        id: "math_power",
+        title: `Exponentiation: ${base}^${exp}`,
+        subject: "Mathematics",
+        core: `**${base}^{${exp}} = ${resFmt}**.`,
+        formulas: [`${base}^{${exp}} = ${resFmt}`],
+        steps: [
+          `1. **Base**: ${base}, **Exponent**: ${exp}.`,
+          `2. **Compute**: Repeatedly multiply ${base} by itself ${exp} times.`,
+          `3. **Exact Result**: $$\\mathbf{${base}^{${exp}} = ${resFmt}}$$`
+        ],
+        analogy: `Repeated self-multiplication: ${base} scaled by itself ${exp} times.`,
+        pitfalls: "Any non-zero number to the power of 0 equals 1 (e.g. x^0 = 1).",
+        quiz: {
+          question: `What is ${base}^${exp}?`,
+          options: [`${resFmt}`, `${resFmt * 2}`, `${base * exp}`, `0`],
+          correct: 0,
+          explanation: `${base}^${exp} = ${resFmt}.`
+        }
+      };
+    }
+  }
+
+  // 0d. Chemistry Molar Mass
+  const molMatch = qLower.match(/(?:molar mass|molecular weight)\s+of\s+([A-Za-z0-9]+)/);
+  if (molMatch) {
+    const formula = molMatch[1];
+    const ATOMIC_WEIGHTS = {
+      H: 1.008, He: 4.0026, Li: 6.94, Be: 9.0122, B: 10.81, C: 12.011, N: 14.007,
+      O: 15.999, F: 18.998, Ne: 20.180, Na: 22.990, Mg: 24.305, Al: 26.982,
+      Si: 28.085, P: 30.974, S: 32.06, Cl: 35.45, K: 39.098, Ca: 40.078, Fe: 55.845, Cu: 63.546
+    };
+    const elemRegex = /([A-Z][a-z]?)(\d*)/g;
+    let match;
+    let totalMass = 0;
+    const parts = [];
+    let valid = true;
+    while ((match = elemRegex.exec(formula)) !== null) {
+      if (!match[0]) break;
+      const elem = match[1];
+      const count = match[2] ? parseInt(match[2], 10) : 1;
+      if (elem in ATOMIC_WEIGHTS) {
+        const mass = ATOMIC_WEIGHTS[elem] * count;
+        totalMass += mass;
+        parts.push(`${count} × ${elem} (${ATOMIC_WEIGHTS[elem]}) = ${Math.round(mass * 1000) / 1000}`);
+      } else {
+        valid = false;
+        break;
+      }
+    }
+    if (valid && totalMass > 0) {
+      const rounded = Math.round(totalMass * 1000) / 1000;
+      return {
+        id: "chem_molar_mass",
+        title: `Chemistry: Molar Mass of ${formula}`,
+        subject: "Chemistry",
+        core: `The molar mass of **${formula}** is **${rounded} g/mol**.`,
+        formulas: [`\\text{Molar Mass}(${formula}) = ${rounded} \\text{ g/mol}`],
+        steps: [
+          "1. **Elemental Composition**:",
+          ...parts.map(p => `   - ${p}`),
+          `2. **Sum of Atomic Weights**: $$\\mathbf{${rounded} \\text{ g/mol}}$$`
+        ],
+        analogy: "Molar mass is the molecular 'weight on the scale' for one mole (6.022 × 10²³ molecules) of that substance.",
+        pitfalls: "Be careful with chemical formula capitalization: CO is Carbon Monoxide, whereas Co is Cobalt!",
+        quiz: {
+          question: `What is the molar mass of ${formula}?`,
+          options: [`${rounded} g/mol`, `${Math.round(rounded * 2)} g/mol`, `0 g/mol`, `${Math.round(rounded / 2)} g/mol`],
+          correct: 0,
+          explanation: `Summing the standard IUPAC atomic weights yields ${rounded} g/mol.`
+        }
+      };
+    }
+  }
+
+  // 0e. LCM: Least Common Multiple
+  const lcmMatch = qLower.match(/lcm\s+(?:of\s+)?(\d+)\s*(?:and|,)\s*(\d+)/);
+  if (lcmMatch) {
+    const a = parseInt(lcmMatch[1], 10);
+    const b = parseInt(lcmMatch[2], 10);
+    function _gcd(x, y) { return y === 0 ? x : _gcd(y, x % y); }
+    const g = _gcd(a, b);
+    const lcmVal = Math.abs(a * b) / g;
+    return {
+      id: "math_lcm",
+      title: `Least Common Multiple: LCM(${a}, ${b})`,
+      subject: "Mathematics",
+      core: `The least common multiple of ${a} and ${b} is **${lcmVal}**.`,
+      formulas: [`\\text{LCM}(a, b) = \\frac{|a \\cdot b|}{\\gcd(a, b)} = \\frac{${a} \\times ${b}}{${g}} = ${lcmVal}`],
+      steps: [
+        `1. **Find GCD**: \\gcd(${a}, ${b}) = ${g}.`,
+        `2. **Compute LCM**: (${a} × ${b}) / ${g} = ${lcmVal}.`
+      ],
+      analogy: "Two flashing neon lights: if light A flashes every 4s and light B every 6s, they flash simultaneously every LCM(4, 6) = 12 seconds.",
+      pitfalls: "LCM is always greater than or equal to both numbers, unlike GCD which is less than or equal to both numbers.",
+      quiz: {
+        question: `What is LCM(${a}, ${b})?`,
+        options: [`${lcmVal}`, `${g}`, `${a * b}`, `1`],
+        correct: 0,
+        explanation: `LCM(${a}, ${b}) = ${lcmVal}.`
+      }
+    };
+  }
+
   // 1. Calculus Differentiation: e.g. "derivative of 3x^2 + 5x - 7", "d/dx(4x^3 - 6x^2)"
   const diffMatch = qLower.match(/(?:derivative of|differentiate|d\/dx\s*\(?)\s*([0-9xX\^\+\-\s\.\*]+)\)?/);
   if (diffMatch) {
@@ -1051,6 +1308,545 @@ function lookupFactualKnowledge(query) {
   const q = query.toLowerCase().trim();
 
   const FACTS = [
+    // 1. PERSONA: CHATBOT ABHI
+    {
+      pattern: /^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+chatbot\s+abhi)/i,
+      data: {
+        id: "persona_abhi",
+        title: "Interactive Assistant: Chatbot Abhi",
+        subject: "General",
+        core: "I am **Chatbot Abhi**, an intelligent, interactive 3D AI educational assistant created by **Abhijeeth V S**.",
+        formulas: ["\\text{Identity: Chatbot Abhi} \\quad \\bullet \\quad \\text{Creator: Abhijeeth V S} \\quad \\bullet \\quad \\text{Engine: Real-time 3D + Sub-1ms STEM Core}"],
+        steps: [
+          "1. **Creator & Purpose**: Conceived and developed by **Abhijeeth V S** to provide learners with an ultra-responsive, highly accurate, and engaging STEM companion.",
+          "2. **3D Interactive Avatar**: Articulated humanoid 3D robot avatar with reactive expressions, five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
+          "3. **Multi-Discipline Intelligence**: Sub-millisecond symbolic mathematical solvers (Calculus, Polynomial Integration, Differentiation, Molar Mass chemistry), comprehensive physics/biology/computer science encyclopedias, and professional communication coaching."
+        ],
+        analogy: "Like having an enthusiastic, personal futuristic robot tutor sitting right beside you at your study desk!",
+        pitfalls: "I am 'Chatbot Abhi' created by Abhijeeth V S—never generic boilerplate!",
+        quiz: {
+          question: "Who created Chatbot Abhi?",
+          options: ["Abhijeeth V S", "Anonymous Corporation", "Random Open Source", "Nobody"],
+          correct: 0,
+          explanation: "Chatbot Abhi was designed and developed by Abhijeeth V S."
+        }
+      }
+    },
+    // 2. AERODYNAMICS: HOW PLANES FLY
+    {
+      pattern: /(?:how\s+(?:do\s+)?(?:air)?planes?\s+fly|how\s+(?:do\s+)?airplanes?\s+stay\s+in\s+the\s+air|mechanism\s+of\s+flight)/i,
+      data: {
+        id: "aero_planes_fly",
+        title: "Aerodynamics & Fluid Dynamics: How Airplanes Fly",
+        subject: "Physics",
+        core: "Airplanes fly by generating **Lift**—an upward aerodynamic force that counteracts the airplane's weight—through the interaction of an **airfoil (curved wing)** with moving air, governed by **Bernoulli's Principle** and **Newton's Third Law**.",
+        formulas: [
+          "L = \\frac{1}{2} \\rho v^2 S C_L \\quad \\text{(Lift Equation)}",
+          "P + \\frac{1}{2}\\rho v^2 = \\text{const} \\quad \\text{(Bernoulli)}",
+          "\\vec{L} + \\vec{W} + \\vec{T} + \\vec{D} = 0 \\quad \\text{(Level Flight)}"
+        ],
+        steps: [
+          "1. **Four Forces**: **Lift** (upward from wings), **Weight** (downward gravity), **Thrust** (forward propulsion), and **Drag** (air friction). In level flight: Lift = Weight and Thrust = Drag.",
+          "2. **Airfoil & Angle of Attack**: The wing's curved top (camber) and tilted angle deflect incoming airflow downward (downwash).",
+          "3. **Bernoulli's Principle**: Faster airflow over the upper curved surface generates lower static pressure than beneath the wing, creating an upward suction force.",
+          "4. **Newton's Third Law**: Deflecting thousands of tons of air downward creates an equal and opposite reaction force pushing the wings upward."
+        ],
+        analogy: "Sticking your hand flat out a moving car window and tilting your palm slightly upward: oncoming rushing air forcefully pushes your entire arm up.",
+        pitfalls: "The 'Equal Transit Time' theory is a myth! Air over the top moves much faster than air beneath and arrives at the trailing edge long before lower air.",
+        quiz: {
+          question: "Which upward aerodynamic force overcomes an airplane's weight?",
+          options: ["Lift", "Thrust", "Drag", "Centripetal force"],
+          correct: 0,
+          explanation: "Lift generated by wings balances the downward force of gravity/weight."
+        }
+      }
+    },
+    // 3. ATMOSPHERIC OPTICS: WHY IS THE SKY BLUE
+    {
+      pattern: /(?:why\s+(?:is\s+)?(?:the\s+)?sky\s+blue|why\s+sky\s+is\s+blue)/i,
+      data: {
+        id: "optics_sky_blue",
+        title: "Atmospheric Optics: Why the Sky is Blue (Rayleigh Scattering)",
+        subject: "Physics",
+        core: "The sky appears blue because Earth's atmosphere scatters sunlight through **Rayleigh Scattering**, where shorter wavelengths of visible light (blue and violet) are scattered in all directions far more intensely than longer wavelengths (red and orange) by nitrogen ($N_2$) and oxygen ($O_2$) gas molecules.",
+        formulas: [
+          "I(\\lambda) \\propto \\frac{1}{\\lambda^4} \\quad \\text{(Rayleigh's Law)}",
+          "\\frac{I_{\\text{blue}}}{I_{\\text{red}}} \\approx \\left(\\frac{700\\text{ nm}}{450\\text{ nm}}\\right)^4 \\approx 5.8 \\times \\text{ more scattering}"
+        ],
+        steps: [
+          "1. **Sunlight Spectrum**: Sunlight emits all colors across the visible spectrum (from 700 nm red to 400 nm violet).",
+          "2. **Inverse Fourth Power Law**: Rayleigh scattering intensity is proportional to $1/\\lambda^4$. Short blue waves scatter nearly 6 times more than long red waves.",
+          "3. **Human Eye Sensitivity**: Although violet scatters even more than blue, sunlight has fewer violet photons and human eye cone cells are far more sensitive to blue and green, perceiving bright sky blue.",
+          "4. **Red Sunsets**: At sunset, sunlight passes through much thicker atmosphere; blue light scatters away before reaching you, leaving long red/orange rays."
+        ],
+        analogy: "Throwing marbles through a forest: big basketballs (red waves) pass through cleanly, while tiny ping-pong balls (blue waves) ricochet off every thin bamboo stalk in all directions.",
+        pitfalls: "The ocean does NOT cause the blue sky! The sky is blue due to Rayleigh scattering in air; the ocean is blue because it absorbs red light and reflects the blue sky.",
+        quiz: {
+          question: "What physical phenomenon causes the sky to appear blue?",
+          options: ["Rayleigh Scattering", "Compton Scattering", "Total Internal Reflection", "Diffraction"],
+          correct: 0,
+          explanation: "Rayleigh scattering scatters shorter blue wavelengths far more intensely (proportional to 1/lambda^4)."
+        }
+      }
+    },
+    // 4. ASTRONOMY: WHY DO STARS TWINKLE
+    {
+      pattern: /(?:why\s+(?:do\s+)?stars\s+twinkle|why\s+stars\s+twinkle|twinkling\s+of\s+stars)/i,
+      data: {
+        id: "astro_stars_twinkle",
+        title: "Astronomy & Optics: Why Stars Twinkle (Atmospheric Scintillation)",
+        subject: "Physics",
+        core: "Stars twinkle due to **Atmospheric Scintillation**—the rapid refraction and bending of starlight as it travels through turbulent, moving layers of Earth's atmosphere with fluctuating temperatures and air densities.",
+        formulas: [
+          "n_1 \\sin\\theta_1 = n_2 \\sin\\theta_2 \\quad \\text{(Snell's Law of Refraction)}"
+        ],
+        steps: [
+          "1. **Point Source**: Stars are light-years away, reaching Earth as an infinitesimal single point of light.",
+          "2. **Turbulent Atmosphere**: Pockets of warm and cool air constantly shift, causing microscopic variations in refractive index.",
+          "3. **Rapid Shifting**: As the pinprick beam is bent zig-zagging in random directions, its intensity at your pupil fluctuates rapidly (twinkling).",
+          "4. **Why Planets Don't Twinkle**: Closer planets appear as extended disks emitting millions of rays; turbulence fluctuations average out into a steady shine."
+        ],
+        analogy: "Looking at a coin resting at the bottom of a gently rippling swimming pool: ripples make the stationary coin appear to shimmer, dance, and wiggle.",
+        pitfalls: "Stars do NOT twinkle in outer space! Viewed from the Moon, ISS, or Hubble telescope, stars shine with a completely steady, piercing beam.",
+        quiz: {
+          question: "Why do stars twinkle when viewed from Earth?",
+          options: ["Atmospheric turbulence and refraction", "Stars pulsating in brightness", "Earth's rotation speed", "Solar wind bursts"],
+          correct: 0,
+          explanation: "Turbulent layers of Earth's atmosphere continuously refract starlight as it travels to our eyes."
+        }
+      }
+    },
+    // 5. CHEMISTRY: WHY DOES ICE FLOAT
+    {
+      pattern: /(?:why\s+(?:does\s+)?ice\s+float|why\s+ice\s+floats)/i,
+      data: {
+        id: "chem_ice_float",
+        title: "Physical Chemistry: Why Ice Floats on Water",
+        subject: "Chemistry",
+        core: "Ice floats on water because **solid ice is less dense than liquid water** ($\approx 0.917\text{ g/cm}^3$ vs $\approx 1.000\text{ g/cm}^3$), an extraordinary anomaly caused by **hydrogen bonding** forming an open hexagonal crystal lattice upon freezing.",
+        formulas: [
+          "\\rho_{\\text{liquid H}_2\\text{O}} \\approx 1.000 \\, \\text{g/cm}^3 \\quad (\\text{maximum at } 3.98^\\circ\\text{C})",
+          "\\rho_{\\text{ice}} \\approx 0.917 \\, \\text{g/cm}^3 \\implies +9\\% \\text{ Expansion}"
+        ],
+        steps: [
+          "1. **Liquid Water Packing**: In liquid water, molecules tumble and slide past each other with flexible, packed hydrogen bonds, peaking in density at 3.98°C.",
+          "2. **Hexagonal Cage Lattice**: Below 0°C, each molecule locks into four rigid tetrahedral hydrogen bonds with open hexagonal rings.",
+          "3. **Open Cavity Expansion**: This crystal structure traps empty space, expanding water by ~9% in volume and lowering its density.",
+          "4. **Ecological Preservation**: Surface floating ice insulates lakes and oceans, preventing them from freezing solid to the bottom and preserving marine life."
+        ],
+        analogy: "Dancers mingling closely on a dance floor vs. all holding hands at rigid arm's length in geometric rings, which forces everyone further apart and occupies more total room.",
+        pitfalls: "Almost all other substances become denser when solidifying; water is one of the extraordinarily rare exceptions whose solid is less dense than its liquid!",
+        quiz: {
+          question: "At what temperature does liquid pure water reach its maximum density?",
+          options: ["3.98°C (~4°C)", "0°C", "100°C", "-4°C"],
+          correct: 0,
+          explanation: "Water reaches its maximum density of 1.000 g/cm³ at approximately 3.98°C."
+        }
+      }
+    },
+    // 6. GEOCHEMISTRY: WHY OCEAN WATER IS SALTY
+    {
+      pattern: /(?:why\s+(?:is\s+)?(?:the\s+)?ocean\s+(?:water\s+)?salty|why\s+sea\s+water\s+salty)/i,
+      data: {
+        id: "geo_ocean_salty",
+        title: "Geochemistry & Oceanography: Why Ocean Water is Salty",
+        subject: "Chemistry",
+        core: "The ocean is salty because **rainwater weathers rocks on land, dissolving mineral ions (predominantly $\text{Na}^+$ and $\text{Cl}^-$) that rivers deliver to oceans**, where billions of years of solar evaporation have concentrated the salt while leaving minerals behind.",
+        formulas: [
+          "\\text{Salinity} \\approx 35 \\, \\text{g/kg} = 35 \\, \\text{ppt} \\, (3.5\\% \\text{ by mass})"
+        ],
+        steps: [
+          "1. **Mild Carbonic Rain**: Rain absorbs atmospheric $CO_2$ forming weak carbonic acid ($H_2CO_3$, pH ~5.6).",
+          "2. **Rock Weathering**: Acidic rain dissolves minerals—primarily sodium and chloride ions—from continental rocks and soils.",
+          "3. **River Transport**: Rivers carry ~4 billion tons of dissolved minerals into the oceans annually.",
+          "4. **Evaporation Concentration**: Solar heat evaporates pure $H_2O$ into clouds, leaving all dissolved salts trapped in the ocean over 3.8 billion years."
+        ],
+        analogy: "Boiling a pot of salted broth: as steam escapes, the broth becomes saltier and saltier because water evaporates while salt remains.",
+        pitfalls: "Rivers are NOT completely salt-free! They carry trace dissolved salts that human taste buds cannot detect; over billions of years, rivers made the sea salty.",
+        quiz: {
+          question: "What is the average salinity of the world's oceans?",
+          options: ["3.5% (35 ppt)", "10.0%", "0.5%", "25.0%"],
+          correct: 0,
+          explanation: "Average seawater salinity is roughly 35 parts per thousand (3.5% by weight)."
+        }
+      }
+    },
+    // 7. ASTRONAUTICS: HOW ROCKETS WORK
+    {
+      pattern: /(?:how\s+(?:do\s+)?rockets?\s+work|how\s+rocket\s+engines?\s+work|rocket\s+propulsion\s+physics)/i,
+      data: {
+        id: "aero_rocket_work",
+        title: "Astronautics & Propulsion: How Rockets Work (Newton's Third Law)",
+        subject: "Physics",
+        core: "Rockets work by **Newton's Third Law of Motion (Action and Reaction)**: combusting fuel and oxidizer at extreme pressure and expelling superheated gas out of a de Laval nozzle at hypersonic speed to produce forward **thrust** through momentum conservation.",
+        formulas: [
+          "F_{\\text{thrust}} = \\dot{m} v_e + (p_e - p_0) A_e \\approx \\dot{m} v_e",
+          "\\Delta v = v_e \\ln\\left(\\frac{m_0}{m_f}\\right) \\quad \\text{(Tsiolkovsky Equation)}"
+        ],
+        steps: [
+          "1. **Fuel + Oxidizer**: Rockets carry their own oxidizer (like Liquid Oxygen), allowing combustion in the vacuum of deep space.",
+          "2. **de Laval Nozzle**: Accelerates burning gas from subsonic in the chamber to sonic at the throat and hypersonic ($>3000\text{ m/s}$) down the bell flare.",
+          "3. **Momentum Conservation**: Throwing mass backward at high velocity accelerates the rocket vehicle forward.",
+          "4. **Vacuum Superiority**: Rockets operate MORE efficiently in vacuum because zero ambient air pressure opposes the expanding plume."
+        ],
+        analogy: "Sitting on a skateboard and throwing a heavy 20kg medicine ball forward: you and the skateboard roll forcefully backward.",
+        pitfalls: "Rockets do NOT push off the air or ground! They accelerate through internal reaction force by expelling high-speed exhaust mass.",
+        quiz: {
+          question: "Which physical law forms the operating foundation of rocket thrust?",
+          options: ["Newton's Third Law of Motion", "Pascal's Law", "Hooke's Law", "Faraday's Law"],
+          correct: 0,
+          explanation: "Newton's Third Law states for every action, there is an equal and opposite reaction."
+        }
+      }
+    },
+    // 8. COMPUTER NETWORKS: HOW THE INTERNET WORKS
+    {
+      pattern: /(?:how\s+(?:does\s+)?(?:the\s+)?internet\s+work|how\s+internet\s+works)/i,
+      data: {
+        id: "cs_internet_work",
+        title: "Computer Networks: How the Internet Works (TCP/IP & Packet Switching)",
+        subject: "Computer Science",
+        core: "The Internet is a **global, decentralized network of interconnected computers** communicating via standardized protocols (**TCP/IP**), slicing data into addressed **packets** routed across fiber-optic cables and routers at near light-speed.",
+        formulas: [
+          "\\text{Latency} = t_{\\text{propagation}} + t_{\\text{transmission}} + t_{\\text{queuing}} + t_{\\text{processing}}"
+        ],
+        steps: [
+          "1. **DNS Resolution**: Translates human domain names (e.g., google.com) into numerical machine IP addresses (e.g., 142.250.190.46).",
+          "2. **Packet Switching (IP)**: Slices large data into small packets (<=1500 bytes) stamped with sender/destination headers.",
+          "3. **Dynamic Routing (BGP)**: Millions of autonomous routers steer packets along the fastest uncongested paths across undersea cables.",
+          "4. **Reassembly (TCP)**: Receives packets, verifies integrity, reorders them, and reassembles them into webpages or videos."
+        ],
+        analogy: "Tearing a 300-page book into numbered postcards, mailing each via different postal vans, and reassembling them in numerical order.",
+        pitfalls: "The Internet is the underlying physical hardware and routing network; the World Wide Web is just one application running on top of it.",
+        quiz: {
+          question: "What protocol is responsible for reliable, in-order packet delivery on the Internet?",
+          options: ["TCP (Transmission Control Protocol)", "UDP", "ICMP", "ARP"],
+          correct: 0,
+          explanation: "TCP guarantees reliable, ordered packet delivery with handshakes and checksums."
+        }
+      }
+    },
+    // 9. IMMUNOLOGY: HOW VACCINES WORK
+    {
+      pattern: /(?:how\s+(?:do\s+)?vaccines?\s+work|how\s+vaccine\s+works|immunology\s+vaccine)/i,
+      data: {
+        id: "bio_vaccine_work",
+        title: "Immunology: How Vaccines Work (Adaptive Immune Memory)",
+        subject: "Biology",
+        core: "Vaccines work by safely introducing a harmless antigen (inactivated virus, purified protein, or mRNA blueprint) to train your **adaptive immune system** to produce targeted antibodies and long-lived **Memory B and T cells**, granting protective immunity without causing disease.",
+        formulas: [
+          "\\text{Antigen} \\to \\text{APC Presentation} \\to \\text{Helper T} \\to \\text{Plasma B Cells (Antibodies)} + \\text{Memory Cells}"
+        ],
+        steps: [
+          "1. **Safe Antigen**: Delivers an inactive molecular blueprint (antigen) that mimics the pathogen.",
+          "2. **Antigen Presentation**: Dendritic cells engulf the antigen and display fragments to Helper T-cells.",
+          "3. **Antibody Generation**: B-cells mature into plasma cells producing millions of neutralizing antibodies.",
+          "4. **Long-Term Memory**: Memory B and T cells remain in lymph nodes for years, mounting an instant counter-attack if exposed to the real pathogen."
+        ],
+        analogy: "Showing security guards a 'Wanted Poster' of a burglar so they recognize and arrest the real thief before he can enter.",
+        pitfalls: "Vaccines do not give you the active disease; mild soreness or fatigue shows your immune system is actively exercising and building antibodies!",
+        quiz: {
+          question: "Which immune cells are responsible for long-term immunological memory after vaccination?",
+          options: ["Memory B and T cells", "Neutrophils", "Erythrocytes", "Platelets"],
+          correct: 0,
+          explanation: "Memory B and T lymphocytes preserve antigen recognition for rapid future defense."
+        }
+      }
+    },
+    // 10. COMPUTER SCIENCE: HOW COMPUTERS WORK
+    {
+      pattern: /(?:how\s+(?:does\s+)?(?:a\s+)?computer\s+work|how\s+computers?\s+work|computer\s+architecture\s+basics)/i,
+      data: {
+        id: "cs_computer_work",
+        title: "Computer Science: How a Computer Works (Von Neumann Architecture)",
+        subject: "Computer Science",
+        core: "A computer works by processing binary information (**1s and 0s**) using billions of microscopic **semiconductor transistors** organized into logic gates, operating under the **Von Neumann Architecture** via the continuous **Fetch-Decode-Execute cycle**.",
+        formulas: [
+          "\\text{Instruction Cycle: } \\text{PC} \\to \\text{Fetch [RAM]} \\to \\text{Decode [Control Unit]} \\to \\text{Execute [ALU]} \\to \\text{Writeback}"
+        ],
+        steps: [
+          "1. **Binary Bits**: 0 is low voltage (~0V); 1 is high voltage (~1.2V). Transistors act as ultrafast electronic switches.",
+          "2. **Logic Gates & ALU**: Transistors assemble into gates (AND, OR, NOT) forming the Arithmetic Logic Unit (ALU) for arithmetic and logic.",
+          "3. **The CPU Instruction Cycle**: Continuously Fetches instructions from RAM, Decodes the opcode, and Executes the operation.",
+          "4. **Memory Hierarchy**: L1/L2/L3 cache (<1ns) -> volatile RAM (workspace) -> persistent SSD flash storage."
+        ],
+        analogy: "A master chef (CPU): cutting board in front of him is RAM (active workspace), kitchen drawers are cache, and the basement storage room is the SSD.",
+        pitfalls: "Computers do not 'think' with subjective awareness; they execute billions of mathematical and logical switching operations on electrical voltages.",
+        quiz: {
+          question: "What are the three core stages of the CPU instruction cycle?",
+          options: ["Fetch, Decode, Execute", "Compile, Link, Run", "Input, Process, Output", "Read, Write, Erase"],
+          correct: 0,
+          explanation: "The Von Neumann CPU cycle continuously Fetches, Decodes, and Executes instructions."
+        }
+      }
+    },
+    // 11. CIVICS: PRIME MINISTER OF INDIA
+    {
+      pattern: /(?:who\s+is\s+(?:the\s+)?(?:current\s+)?prime\s+minister\s+of\s+india|who\s+is\s+(?:the\s+)?pm\s+of\s+india|current\s+prime\s+minister\s+of\s+india)/i,
+      data: {
+        id: "civics_pm_india",
+        title: "Indian Civics & Governance: Prime Minister of India",
+        subject: "General",
+        core: "The current Prime Minister of India is **Narendra Damodardas Modi** (in office since **May 26, 2014**).",
+        formulas: [
+          "\\text{Executive: Head of Government (Prime Minister) vs Head of State (President Murmu)}"
+        ],
+        steps: [
+          "1. **Incumbent Leader**: **Narendra Modi** is the 14th Prime Minister of the Republic of India, serving consecutive terms since 2014 (BJP / NDA).",
+          "2. **Constitutional Role**: Under Article 74, the PM is the chief executive and **Head of Government**, chairing the Union Council of Ministers.",
+          "3. **Offices**: Prime Minister's Office (PMO) at South Block, New Delhi; residence at 7, Lok Kalyan Marg, New Delhi.",
+          "4. **First PM**: Jawaharlal Nehru was India's first Prime Minister (1947–1964)."
+        ],
+        analogy: "The Prime Minister is the executive captain leading government policy and administration across India.",
+        pitfalls: "The Prime Minister is the **Head of Government**, while the President of India (Droupadi Murmu) is the constitutional **Head of State**!",
+        quiz: {
+          question: "Who is the Prime Minister of India?",
+          options: ["Narendra Modi", "Droupadi Murmu", "Rahul Gandhi", "Amit Shah"],
+          correct: 0,
+          explanation: "Narendra Modi has served as the Prime Minister of India since May 26, 2014."
+        }
+      }
+    },
+    // 12. CIVICS: PRESIDENT OF INDIA
+    {
+      pattern: /(?:who\s+is\s+(?:the\s+)?(?:current\s+)?president\s+of\s+india|current\s+president\s+of\s+india)/i,
+      data: {
+        id: "civics_president_india",
+        title: "Indian Civics & Governance: President of India",
+        subject: "General",
+        core: "The current President of India is **Droupadi Murmu** (assumed office on **July 25, 2022**).",
+        formulas: [
+          "\\text{Article 53: Supreme Commander of the Indian Armed Forces \& First Citizen of India}"
+        ],
+        steps: [
+          "1. **Incumbent Leader**: **Droupadi Murmu** is the 15th President of India, the first from an indigenous tribal community (Santhal), and second woman president.",
+          "2. **Constitutional Role**: Formal **Head of State**, First Citizen, and Supreme Commander of the Army, Navy, and Air Force.",
+          "3. **Residence**: Rashtrapati Bhavan in New Delhi.",
+          "4. **First President**: Dr. Rajendra Prasad (1950–1962)."
+        ],
+        analogy: "The President is the constitutional guardian and sovereign figurehead of the Republic.",
+        pitfalls: "The President acts on the binding aid and advice of the Council of Ministers headed by the Prime Minister.",
+        quiz: {
+          question: "Who is the President of India?",
+          options: ["Droupadi Murmu", "Narendra Modi", "Pratibha Patil", "Ram Nath Kovind"],
+          correct: 0,
+          explanation: "Droupadi Murmu took office as the 15th President of India on July 25, 2022."
+        }
+      }
+    },
+    // 13. CIVICS: PRESIDENT OF USA
+    {
+      pattern: /(?:who\s+is\s+(?:the\s+)?(?:current\s+)?president\s+of\s+(?:the\s+)?(?:usa|united\s+states|america)|current\s+us\s+president)/i,
+      data: {
+        id: "civics_president_usa",
+        title: "American Civics: President of the United States",
+        subject: "General",
+        core: "The 46th President of the United States is **Joe Biden** (Joseph R. Biden Jr., inaugurated **January 20, 2021**).",
+        formulas: [
+          "\\text{Article II, US Constitution: Head of State, Head of Government, and Commander-in-Chief}"
+        ],
+        steps: [
+          "1. **Incumbent Leader**: **Joe Biden** took office on January 20, 2021, serving alongside Vice President Kamala Harris.",
+          "2. **Constitutional Powers**: Article II establishes the President as head of the federal executive branch and Commander-in-Chief.",
+          "3. **Residence**: The White House, 1600 Pennsylvania Avenue NW, Washington, D.C.",
+          "4. **First President**: George Washington (1789–1797)."
+        ],
+        analogy: "Chief executive officer of the US federal government.",
+        pitfalls: "In the US system, the President is both Head of State AND Head of Government simultaneously.",
+        quiz: {
+          question: "Who is the 46th President of the United States?",
+          options: ["Joe Biden", "Donald Trump", "Barack Obama", "George W. Bush"],
+          correct: 0,
+          explanation: "Joe Biden was inaugurated as the 46th President of the United States on January 20, 2021."
+        }
+      }
+    },
+    // 14. COMPUTER SCIENCE: ARTIFICIAL INTELLIGENCE
+    {
+      pattern: /(?:what\s+is\s+(?:artificial\s+intelligence|ai)|define\s+artificial\s+intelligence)/i,
+      data: {
+        id: "cs_ai_definition",
+        title: "Computer Science: Artificial Intelligence (AI)",
+        subject: "Computer Science",
+        core: "**Artificial Intelligence (AI)** is the discipline in computer science focused on creating systems capable of performing cognitive tasks that historically required human intelligence—such as visual perception, natural language reasoning, decision-making, and autonomous problem-solving.",
+        formulas: [
+          "\\text{AI} \\supset \\text{Machine Learning (ML)} \\supset \\text{Deep Learning (DL)} \\supset \\text{LLMs}"
+        ],
+        steps: [
+          "1. **Hierarchy**: AI is the broad field; ML learns from data; Deep Learning uses multilayer neural networks; Generative AI creates new content.",
+          "2. **Learning Paradigms**: Supervised (labeled data), Unsupervised (pattern discovery), Reinforcement (rewards/penalties), and Transformers (self-attention).",
+          "3. **Narrow vs General AI**: Current AI (including Chatbot Abhi) is Artificial Narrow Intelligence (ANI); Artificial General Intelligence (AGI) remains an active research goal."
+        ],
+        analogy: "Traditional programming gives a chef an exact rigid recipe; Machine Learning feeds the chef 10,000 gourmet meals so he invents recipes on his own.",
+        pitfalls: "Current AI systems do not have subjective sentience or feelings; they are high-dimensional mathematical optimization models.",
+        quiz: {
+          question: "Which field is a subset of Machine Learning that uses multilayer neural networks?",
+          options: ["Deep Learning", "Symbolic Logic", "Rule-based systems", "Linear regression"],
+          correct: 0,
+          explanation: "Deep Learning utilizes deep artificial neural networks inspired by biological neural circuits."
+        }
+      }
+    },
+    // 15. PHYSICS: GRAVITY
+    {
+      pattern: /(?:what\s+is\s+gravity|define\s+gravity|how\s+gravity\s+works)/i,
+      data: {
+        id: "phys_gravity_def",
+        title: "Fundamental Physics: Gravity (Newtonian to General Relativity)",
+        subject: "Physics",
+        core: "**Gravity** is the universal fundamental interaction that causes mutual attraction between all entities with mass or energy—described classically by **Newton's Universal Gravitation** and relativistically by **Einstein's General Relativity** as the curvature of four-dimensional spacetime.",
+        formulas: [
+          "F = G \\frac{m_1 m_2}{r^2} \\quad \\text{(Newtonian Gravitation)}",
+          "G_{\\mu\\nu} = \\frac{8\\pi G}{c^4} T_{\\mu\\nu} \\quad \\text{(Einstein Field Equations)}"
+        ],
+        steps: [
+            "1. **Newtonian Mechanics**: Every mass attracts every other mass with force proportional to product of masses and inverse square of distance.",
+            "2. **General Relativity**: Mass and energy curve 4D spacetime; objects and light follow geodesics (straight paths) through curved geometry.",
+            "3. **Cosmic Reach**: Although the weakest fundamental force, it has infinite range and never repels, shaping stars, planets, and galaxies."
+        ],
+        analogy: "A bowling ball resting on a stretched rubber trampoline: the fabric dips, causing rolling marbles to curve into orbits around it.",
+        pitfalls: "Astronauts on the ISS are NOT in zero gravity! Gravity in low Earth orbit is ~90% of sea level; they float because they are in free-fall around Earth.",
+        quiz: {
+          question: "According to Einstein's General Relativity, what causes gravitational acceleration?",
+          options: ["Curvature of four-dimensional spacetime", "Exchange of magnetic flux", "Atmospheric air pressure", "Static electric charges"],
+          correct: 0,
+          explanation: "Mass and energy warp spacetime geometry, and objects follow geodesics through this curved space."
+        }
+      }
+    },
+    // 16. PLANETARY SCIENCE: SEASONS
+    {
+      pattern: /(?:why\s+(?:do\s+)?seasons\s+(?:happen|change|occur)|what\s+causes\s+seasons|why\s+(?:do\s+)?we\s+have\s+seasons)/i,
+      data: {
+        id: "geo_seasons",
+        title: "Planetary Science: Earth's Axial Tilt & The Seasons",
+        subject: "General",
+        core: "Seasons happen because **Earth's rotational axis is tilted at an angle of approximately $23.44^\circ$ relative to its orbital plane around the Sun**, altering sunlight angles and daylight durations throughout the year.",
+        formulas: [
+          "\\text{Axial Obliquity (Tilt)} \\approx 23.44^\\circ = 23^\\circ 26'"
+        ],
+        steps: [
+          "1. **Fixed Direction in Space**: Earth's axis points continuously toward Polaris (North Star) as it orbits the Sun.",
+          "2. **Summer**: Hemispheres tilted toward the Sun receive steep, concentrated solar rays and longer days.",
+          "3. **Winter**: Hemispheres tilted away receive shallow, oblique rays spread over large areas and shorter days.",
+          "4. **Opposing Hemispheres**: Northern and Southern Hemispheres always experience opposite seasons simultaneously."
+        ],
+        analogy: "Shining a flashlight straight down creates a small, intense hot circle (Summer); tilting it at an angle spreads the light into a dim, diffuse oval (Winter).",
+        pitfalls: "Seasons are NOT caused by distance to the Sun! Earth is closest to the Sun in January during the Northern Hemisphere winter!",
+        quiz: {
+          question: "What is the primary cause of seasons on Earth?",
+          options: ["Earth's 23.5° axial tilt", "Distance variations from the Sun", "Solar flare cycles", "Ocean currents"],
+          correct: 0,
+          explanation: "Earth's 23.44° axial tilt causes sunlight angle and day length to vary throughout its annual orbit."
+        }
+      }
+    },
+    // 17. BOTANY: WHY IS GRASS GREEN
+    {
+      pattern: /(?:why\s+(?:is\s+)?grass\s+green|why\s+are\s+plants\s+green)/i,
+      data: {
+        id: "bio_grass_green",
+        title: "Botany & Photobiology: Why Grass and Leaves are Green",
+        subject: "Biology",
+        core: "Grass and leaves are green because their plant cells contain the pigment **chlorophyll** (chlorophyll *a* and *b*), which absorbs blue and red wavelengths of sunlight for photosynthesis, while **reflecting unabsorbed green wavelengths** into human eyes.",
+        formulas: [
+          "\\text{Absorption: Blue (}\\sim 430\\text{ nm) and Red (}\\sim 660\\text{ nm)}, \\quad \\text{Reflection: Green (}\\sim 500\\text{-}550\\text{ nm)}"
+        ],
+        steps: [
+          "1. **Photosynthesis Pigments**: Chloroplast thylakoids contain chlorophyll to capture solar energy.",
+          "2. **Selective Absorption**: Electronic transitions in the porphyrin ring absorb blue and red light efficiently.",
+          "3. **Green Reflection**: Green light does not match these transition levels, so it is reflected into our eyes."
+        ],
+        analogy: "Wearing sunglasses that filter out red and blue light: only the bounced green light passes through to reach your eyes.",
+        pitfalls: "In autumn, chlorophyll breaks down, revealing underlying carotenoids and anthocyanins (yellow, orange, red leaves).",
+        quiz: {
+          question: "Which pigment gives grass and plant leaves their green color?",
+          options: ["Chlorophyll", "Hemoglobin", "Melanin", "Carotene"],
+          correct: 0,
+          explanation: "Chlorophyll reflects green light while absorbing blue and red photons for photosynthesis."
+        }
+      }
+    },
+    // 18. HUMAN PHYSIOLOGY: HOW THE HEART WORKS
+    {
+      pattern: /(?:how\s+(?:does\s+)?(?:the\s+)?(?:human\s+)?heart\s+work|human\s+heart\s+function|cardiac\s+cycle\s+explained)/i,
+      data: {
+        id: "bio_heart_work",
+        title: "Human Physiology: How the Heart Works (The Cardiac Cycle)",
+        subject: "Biology",
+        core: "The human heart is an autonomous **four-chambered double muscular pump** circulating blood through two synchronized circuits—the **pulmonary circuit** (oxygenating blood in lungs) and the **systemic circuit** (delivering oxygen to the body).",
+        formulas: [
+          "\\text{Cardiac Output} = \\text{Stroke Volume} \\times \\text{Heart Rate} \\approx 70\\text{ mL} \\times 72\\text{ bpm} \\approx 5.0\\text{ L/min}"
+        ],
+        steps: [
+          "1. **Four Chambers**: Right/Left Atria (receiving) and Right/Left Ventricles (pumping) separated by one-way valves.",
+          "2. **Pulmonary Circuit**: Deoxygenated blood from body -> Right Atrium -> Right Ventricle -> Pulmonary Artery -> Lungs.",
+          "3. **Systemic Circuit**: Oxygenated blood from lungs -> Left Atrium -> Left Ventricle (thick muscle) -> Aorta -> Body.",
+          "4. **Pacemaker**: Sinoatrial (SA) node fires electrical impulses coordinating atrial systole followed by ventricular systole."
+        ],
+        analogy: "A dual-cylinder hydraulic engine with one-way valves pumping 5 liters of vital fluid through 60,000 miles of vascular pipes.",
+        pitfalls: "Arteries do not always carry oxygenated blood: the Pulmonary Artery carries deoxygenated blood to the lungs!",
+        quiz: {
+          question: "Which chamber of the human heart pumps oxygenated blood into the aorta to supply the entire body?",
+          options: ["Left Ventricle", "Right Ventricle", "Left Atrium", "Right Atrium"],
+          correct: 0,
+          explanation: "The muscular Left Ventricle pumps oxygen-rich blood into the aorta for systemic circulation."
+        }
+      }
+    },
+    // 19. PHYSICS: WHAT IS ELECTRICITY
+    {
+      pattern: /(?:what\s+is\s+electricity|how\s+electricity\s+works|define\s+electricity)/i,
+      data: {
+        id: "phys_electricity",
+        title: "Electromagnetism: Electricity (Charge, Current, and Potential)",
+        subject: "Physics",
+        core: "**Electricity** is the set of physical phenomena associated with the presence and motion of matter possessing an **electric charge**—predominantly the flow of **electrons** through conductive materials.",
+        formulas: [
+          "I = \\frac{dq}{dt} \\quad \\text{(Current)}, \\quad V = I \\cdot R \\quad \\text{(Ohm's Law)}, \\quad P = V \\cdot I"
+        ],
+        steps: [
+          "1. **Electric Charge**: Protons (+1e) and electrons (-1e); like charges repel, opposites attract.",
+          "2. **Voltage (V)**: The electrical potential difference ('pressure') driving charges to move.",
+          "3. **Current (I)**: Flow rate of electric charge past a point, measured in Amperes ($1\text{ A} = 1\text{ C/s}$).",
+          "4. **Resistance (R)**: Opposition to charge flow in conductors ($V = IR$)."
+        ],
+        analogy: "Water flowing through pipes: Voltage is water pressure, Current is flow rate (gallons/min), and Resistance is pipe narrowing.",
+        pitfalls: "Electrons drift very slowly (<1 mm/s in copper wire), but the electrical field and energy travel near light speed!",
+        quiz: {
+          question: "Which equation represents Ohm's Law?",
+          options: ["V = I * R", "F = m * a", "E = m * c^2", "P = V / I"],
+          correct: 0,
+          explanation: "Ohm's Law states Voltage (V) = Current (I) * Resistance (R)."
+        }
+      }
+    },
+    // 20. PHILOSOPHY & BIOLOGY: MEANING OF LIFE
+    {
+      pattern: /(?:what\s+is\s+the\s+meaning\s+of\s+life|meaning\s+of\s+life\s+explained)/i,
+      data: {
+        id: "phil_meaning_life",
+        title: "Philosophy & Evolutionary Biology: The Meaning of Life",
+        subject: "General",
+        core: "The meaning of life unites two perspectives: **Biologically**, life is a self-sustaining process of entropy reduction and genetic continuation; **Philosophically**, meaning is an active personal creation through purpose, connection, learning, and self-actualization (**Ikigai**).",
+        formulas: [
+          "\\text{Meaning} = \\text{Purpose} + \\text{Connection} + \\text{Contribution} + \\text{Curiosity (Ikigai)}"
+        ],
+        steps: [
+          "1. **Biological Continuity**: Living organisms are open non-equilibrium systems that resist entropy by consuming free energy and passing genetic information forward.",
+          "2. **Existential Creation**: As Frankl and Sartre noted, existence precedes essence: humans author their own meaning through choices, love, and resilience.",
+          "3. **Ikigai**: The intersection of What you love, What you are good at, What the world needs, and What allows you to thrive."
+        ],
+        analogy: "Life is not a pre-recorded movie to passively watch; it is a blank canvas and palette where you are the artist crafting the masterpiece.",
+        pitfalls: "Meaning is not an object hidden under a rock waiting to be found; it is actively forged through intentional living, learning, and relationships.",
+        quiz: {
+          question: "What Japanese concept describes the intersection of passion, mission, vocation, and profession as one's purpose in life?",
+          options: ["Ikigai", "Kaizen", "Wabi-sabi", "Kintsugi"],
+          correct: 0,
+          explanation: "Ikigai represents 'a reason for being'—the sweet spot uniting passion, skills, contribution, and livelihood."
+        }
+      }
+    },
     // CELL BIOLOGY: MITOCHONDRIA
     {
       pattern: /power\s*house\s+of\s+(?:the\s+)?cell/,
