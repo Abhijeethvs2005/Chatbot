@@ -311,8 +311,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const camCoreBtn = document.getElementById("cam-core-btn");
   if (camCoreBtn) {
     camCoreBtn.addEventListener("click", () => {
-      if (robot) robot.setCameraView("core");
+      if (robot) robot.setCameraView("eyes");
       window.AudioEngine.playHydraulicClick();
+    });
+  }
+
+  const camHandsBtn = document.getElementById("cam-hands-btn");
+  if (camHandsBtn) {
+    camHandsBtn.addEventListener("click", () => {
+      if (robot) robot.setCameraView("hands");
+      window.AudioEngine.playHydraulicClick();
+    });
+  }
+
+  const waveBtn = document.getElementById("wave-btn");
+  if (waveBtn) {
+    waveBtn.addEventListener("click", () => {
+      if (robot) robot.triggerWave();
     });
   }
 

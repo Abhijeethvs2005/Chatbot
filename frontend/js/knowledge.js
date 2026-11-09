@@ -340,19 +340,20 @@ function findAcademicTopic(query) {
     }
   }
 
-  // 3. Substring scoring match
+  // 3. Substring scoring match with stopword filtering
+  const STOPWORDS = new Set(["what", "is", "the", "how", "why", "does", "can", "you", "tell", "about", "who", "was", "are", "and", "for", "with", "from", "that", "this", "system", "explain", "give"]);
   let bestMatch = null;
   let highestScore = 0;
 
+  const words = q.split(/\s+/).filter(w => w.length >= 3 && !STOPWORDS.has(w));
+
   for (const topic of ACADEMIC_TOPICS) {
     let score = 0;
-    const words = q.split(/\s+/);
     for (const word of words) {
-      if (word.length < 3) continue;
-      if (topic.title.toLowerCase().includes(word)) score += 3;
-      if (topic.core.toLowerCase().includes(word)) score += 1;
+      if (topic.title.toLowerCase().includes(word)) score += 4;
       for (const kw of topic.keywords) {
-        if (kw.includes(word)) score += 2;
+        if (kw === word) score += 5;
+        else if (kw.includes(word)) score += 3;
       }
     }
     if (score > highestScore) {
@@ -361,7 +362,7 @@ function findAcademicTopic(query) {
     }
   }
 
-  if (highestScore >= 3) return bestMatch;
+  if (highestScore >= 4) return bestMatch;
   return null;
 }
 
