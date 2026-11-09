@@ -1008,6 +1008,25 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
         "confidence": "100% Kinematic Geometry Verified"
     }),
 
+    # 1C. HANDSOME GUY LOOK & DISCIPLINED DRESS ARCHITECTURE
+    (r'(?:(?:handsome(?:\s+guy)?(?:\s+look)?)|(?:displine|discipline|disciplined)(?:\s+dress)?|(?:tailored\s+suit)|(?:gentleman\s+suit)|(?:robot\s+dress)|(?:robot\s+clothes))', {
+        "title": "3D Humanoid Robot: Handsome Guy Sculpt & Disciplined Formal Menswear",
+        "core": "Chatbot Abhi features an anatomically proportioned **Handsome Male Humanoid Sculpt** dressed in an immaculate **Disciplined Bespoke Formal Suit**.",
+        "formulas": [
+            r"\text{Aesthetic Golden Ratio} \approx 1.618 \quad \text{(Masculine Craniofacial Ideal)}",
+            r"\text{Disciplined Dress} = \text{Blazer} + \text{Epaulettes} + \text{Shirt} + \text{Windsor Tie} + \text{Belt} + \text{Creased Slacks} + \text{Oxford Shoes}"
+        ],
+        "steps": [
+            "1. **Handsome Masculine Facial Sculpt**: Designed with sharp golden-ratio facial architecture—sculpted frontal bone, defined zygomatic cheekbones with subtle model blush, sharp mandibular jawline with mental protuberance and cleft chin, symmetrical almond eyes with positive canthal tilt and sparkling specular catchlights, straight anatomical dorsal nose, and charismatic lips with a subtle resting smile.",
+            "2. **Modern Swept Pompadour Quiff**: Tailored coiffure with tapered fade on the sides and back, crisp side-part grooming line, and voluminous upward-and-backward swept quiff with layered texture locks in rich dark espresso brunette.",
+            "3. **Disciplined Formal Suit (Active by Default)**: Bespoke midnight navy fine wool blazer with structured shoulder epaulettes and gold piping, sharp satin peak lapels, vertically aligned gold crested buttons, crisp poplin dress shirt with stiff spread collar, imperial crimson silk tie held with a polished 18k gold tie bar, 3-tier merit ribbon bar, and folded white linen pocket square with gold trim.",
+            "4. **Disciplined Accessories & Footwear**: Italian dark leather belt with polished buckle, French shirt cuffs with 18k gold cufflinks, executive chronometer wristwatch on the wrist, tailored trousers with razor-sharp pressed front creases, and hand-burnished mahogany espresso Oxford dress shoes with mirror cap-toes."
+        ],
+        "analogy": "Like a distinguished, disciplined gentleman officer dressed in bespoke Savile Row tailoring, ready to instruct with effortless elegance and precision!",
+        "pitfalls": "The disciplined suit is fully integrated into the 3D kinematic rig, so all waving, high-fives, thinking gestures, and 360° orbits maintain sharp crease lines without clipping.",
+        "confidence": "100% 3D Aesthetic Architecture Verified"
+    }),
+
     # 2. AERODYNAMICS: HOW PLANES FLY
     (r'(?:how\s+(?:do\s+)?(?:air)?planes?\s+fly|how\s+(?:do\s+)?airplanes?\s+stay\s+in\s+the\s+air|mechanism\s+of\s+flight)', {
         "title": "Aerodynamics & Fluid Dynamics: How Airplanes Fly",
@@ -2719,7 +2738,7 @@ async def health_check():
         "version": "4.0.0",
         "openai_configured": has_key,
         "features": [
-            "Real 3D Humanoid Robot Dressed in Tailored Modern Menswear with Expressive Eyes & 5-Digit Hands",
+            "Real 3D Humanoid Robot in Handsome Guy Sculpt Dressed in Disciplined Bespoke Menswear with Expressive Eyes & 5-Digit Hands",
             "Advanced Lexicon & Historical Etymological Intelligence",
             "Deterministic Math & Quadratic Equation Solver",
             "Multi-Domain Academic Knowledge Base",

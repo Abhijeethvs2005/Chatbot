@@ -1748,6 +1748,7 @@ class Robot3D {
 
   buildWardrobeOutfits() {
     this.wardrobeParts = {
+      suit: [],
       cyber: [],
       student: [],
       scientist: [],
@@ -1763,7 +1764,249 @@ class Robot3D {
     };
 
     // ==========================================
-    // 0. CYBER MECHA EXOSKELETON ARMOR (TITANIUM PLATES & NEON CONDUITS)
+    // 0. DISCIPLINED BESPOKE TAILORED SUIT (OFFICER / EXECUTIVE DISCIPLINE DRESS)
+    // ==========================================
+    const suitTorso = new THREE.Group();
+    suitTorso.position.set(0, 0, 0);
+
+    // 1. Bespoke Tailored Wool Blazer Body (Athletic V-Taper Cut)
+    const blazerBody = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.54, 0.32), this.matSuitNavy);
+    blazerBody.position.set(0, 0.08, 0.10);
+    suitTorso.add(blazerBody);
+
+    // 2. Crisp White Poplin Dress Shirt (High Formal Standing Collar & Placket)
+    const shirtPlacket = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.36, 0.33), this.matShirtWhite);
+    shirtPlacket.position.set(0, 0.13, 0.11);
+    suitTorso.add(shirtPlacket);
+
+    // Stiff Spread Shirt Collar wrapping the neck
+    const collarLeft = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.08, 0.02), this.matShirtCollar);
+    collarLeft.position.set(-0.065, 0.33, 0.26);
+    collarLeft.rotation.z = -0.45;
+    collarLeft.rotation.y = 0.25;
+    suitTorso.add(collarLeft);
+
+    const collarRight = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.08, 0.02), this.matShirtCollar);
+    collarRight.position.set(0.065, 0.33, 0.26);
+    collarRight.rotation.z = 0.45;
+    collarRight.rotation.y = -0.25;
+    suitTorso.add(collarRight);
+
+    // Mother-of-pearl shirt buttons down placket
+    [0.24, 0.16, 0.08].forEach((btnY) => {
+      const shirtBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.008, 10), this.matShirtCollar);
+      shirtBtn.rotation.x = Math.PI / 2;
+      shirtBtn.position.set(0, btnY, 0.28);
+      suitTorso.add(shirtBtn);
+    });
+
+    // 3. Disciplined Imperial Crimson Silk Necktie & Full Windsor Knot
+    const suitTieKnot = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.052, 0.038), this.matTieRed);
+    suitTieKnot.position.set(0, 0.27, 0.27);
+    suitTorso.add(suitTieKnot);
+
+    const suitTieBlade = new THREE.Mesh(new THREE.ConeGeometry(0.048, 0.34, 4), this.matTieRed);
+    suitTieBlade.position.set(0, 0.10, 0.275);
+    suitTieBlade.rotation.x = Math.PI;
+    suitTorso.add(suitTieBlade);
+
+    // Polished 18k Gold Tie Bar / Clip pinned horizontally at mid-chest
+    const suitTieClip = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.010, 0.015), this.matTieClip);
+    suitTieClip.position.set(0.005, 0.13, 0.292);
+    suitTorso.add(suitTieClip);
+
+    // 4. Disciplined Peak Lapels (Sharp angular satin finish)
+    [-0.14, 0.14].forEach((lx) => {
+      const isLeft = lx < 0;
+      const lapelGeo = new THREE.BoxGeometry(0.12, 0.38, 0.03);
+      const lapel = new THREE.Mesh(lapelGeo, this.matSuitLapel);
+      lapel.position.set(lx, 0.14, 0.27);
+      lapel.rotation.z = isLeft ? 0.32 : -0.32;
+      lapel.rotation.y = isLeft ? -0.18 : 0.18;
+      suitTorso.add(lapel);
+    });
+
+    // 5. Left Breast Welt Pocket & Crisp Folded Linen Pocket Square
+    const breastPocket = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.022, 0.02), this.matSuitLapel);
+    breastPocket.position.set(-0.20, 0.17, 0.27);
+    suitTorso.add(breastPocket);
+
+    const pocketSquare = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.035, 0.014), this.matPocketSquare);
+    pocketSquare.position.set(-0.20, 0.19, 0.272);
+    pocketSquare.rotation.z = -0.08;
+    suitTorso.add(pocketSquare);
+
+    // Pocket Square Gold Edge Piping
+    const pocketGoldTrim = new THREE.Mesh(new THREE.BoxGeometry(0.082, 0.006, 0.016), this.matTieClip);
+    pocketGoldTrim.position.set(-0.20, 0.205, 0.274);
+    suitTorso.add(pocketGoldTrim);
+
+    // 6. Disciplined Honor / Academic Merit Ribbon Bar
+    const ribbonGroup = new THREE.Group();
+    ribbonGroup.position.set(-0.20, 0.125, 0.272);
+    const ribbonBar1 = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.012, 0.012), this.matRibbonRed);
+    ribbonBar1.position.set(-0.026, 0, 0);
+    ribbonGroup.add(ribbonBar1);
+    const ribbonBar2 = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.012, 0.012), this.matRibbonBlue);
+    ribbonBar2.position.set(0, 0, 0);
+    ribbonGroup.add(ribbonBar2);
+    const ribbonBar3 = new THREE.Mesh(new THREE.BoxGeometry(0.026, 0.012, 0.012), this.matRibbonGold);
+    ribbonBar3.position.set(0.026, 0, 0);
+    ribbonGroup.add(ribbonBar3);
+    suitTorso.add(ribbonGroup);
+
+    // 7. Disciplined Gold Crested Buttons (Vertically Aligned)
+    [0.02, -0.06, -0.14].forEach((by) => {
+      const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.016, 14), this.matTieClip);
+      btn.rotation.x = Math.PI / 2;
+      btn.position.set(0.025, by, 0.275);
+      suitTorso.add(btn);
+    });
+
+    // 8. Disciplined Italian Dark Leather Belt & Polished Buckle
+    const suitBelt = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.052, 0.24), this.matBelt);
+    suitBelt.position.set(0, -0.21, 0.06);
+    suitTorso.add(suitBelt);
+
+    const suitBuckle = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.062, 0.025), this.matBeltBuckle);
+    suitBuckle.position.set(0, -0.21, 0.185);
+    suitTorso.add(suitBuckle);
+
+    const suitBuckleFrame = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.007, 12, 24), this.matBeltBuckle);
+    suitBuckleFrame.position.set(0, -0.21, 0.188);
+    suitTorso.add(suitBuckleFrame);
+
+    register("suit", suitTorso, this.torsoGroup);
+
+    // Disciplined Epaulettes on Shoulders & Blazer Sleeves with French Cuffs
+    [-1, 1].forEach((dir) => {
+      const isLeft = dir === -1;
+      const armGroup = isLeft ? this.leftArm.group : this.rightArm.group;
+      const upperArm = isLeft ? this.leftArm.upperArm : this.rightArm.upperArm;
+      const forearm = isLeft ? this.leftArm.forearm : this.rightArm.forearm;
+
+      // Disciplined Shoulder Epaulette (Formal Officer Strap with Gold Piping)
+      const epauletteGroup = new THREE.Group();
+      epauletteGroup.position.set(isLeft ? -0.02 : 0.02, 0.04, 0);
+
+      const epauletteBase = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.024, 0.12), this.matSuitNavy);
+      epauletteGroup.add(epauletteBase);
+
+      const epauletteGoldCord = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.008, 8, 20), this.matTieClip);
+      epauletteGoldCord.rotation.x = Math.PI / 2;
+      epauletteGroup.add(epauletteGoldCord);
+
+      const epauletteBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.012, 10), this.matTieClip);
+      epauletteBtn.position.set(isLeft ? 0.05 : -0.05, 0.016, 0);
+      epauletteGroup.add(epauletteBtn);
+
+      register("suit", epauletteGroup, armGroup);
+
+      // Upper Arm Blazer Sleeve
+      const upperSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.096, 0.086, 0.34, 18), this.matSuitNavy);
+      upperSleeve.position.set(0, -0.16, 0);
+      register("suit", upperSleeve, upperArm);
+
+      // Forearm Blazer Sleeve
+      const lowerSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.076, 0.28, 18), this.matSuitNavy);
+      lowerSleeve.position.set(0, -0.14, 0);
+      register("suit", lowerSleeve, forearm);
+
+      // Crisp White French Shirt Cuff extending from sleeve
+      const frenchCuff = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.066, 0.05, 16), this.matShirtWhite);
+      frenchCuff.position.set(0, -0.28, 0);
+      register("suit", frenchCuff, forearm);
+
+      // Polished 18k Gold Cufflink
+      const cufflink = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.015, 10), this.matTieClip);
+      cufflink.rotation.x = Math.PI / 2;
+      cufflink.position.set(isLeft ? 0.065 : -0.065, -0.28, 0);
+      register("suit", cufflink, forearm);
+
+      // Executive Disciplined Chronometer / Wristwatch on Left Wrist
+      if (isLeft) {
+        const watchGroup = new THREE.Group();
+        watchGroup.position.set(0, -0.26, 0);
+
+        const watchBand = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.012, 10, 24), this.matBelt);
+        watchBand.rotation.x = Math.PI / 2;
+        watchGroup.add(watchBand);
+
+        const watchBezel = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.014, 16), this.matTieClip);
+        watchBezel.rotation.z = Math.PI / 2;
+        watchBezel.position.set(0.062, 0, 0);
+        watchGroup.add(watchBezel);
+
+        const watchFace = new THREE.Mesh(new THREE.CircleGeometry(0.018, 16), this.matSuitNavy);
+        watchFace.rotation.y = Math.PI / 2;
+        watchFace.position.set(0.070, 0, 0);
+        watchGroup.add(watchFace);
+
+        register("suit", watchGroup, forearm);
+      }
+    });
+
+    // Disciplined Tailored Wool Trousers & Mirror-Polished Oxford Shoes
+    if (this.leftLeg && this.rightLeg) {
+      [-1, 1].forEach((dir) => {
+        const isLeft = dir === -1;
+        const leg = isLeft ? this.leftLeg : this.rightLeg;
+
+        // Tailored Wool Trouser Thigh with Razor Crease
+        const suitTrouserThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.116, 0.100, 0.46, 20), this.matTrousers);
+        suitTrouserThigh.position.set(0, -0.24, 0);
+        register("suit", suitTrouserThigh, leg.thigh);
+
+        // Pressed Front Crease on Thigh
+        const suitCreaseThigh = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.44, 0.022), this.matTrouserCrease);
+        suitCreaseThigh.position.set(0, -0.24, 0.106);
+        register("suit", suitCreaseThigh, leg.thigh);
+
+        // Tailored Wool Trouser Calf with Razor Crease
+        const suitTrouserCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.102, 0.088, 0.46, 20), this.matTrousers);
+        suitTrouserCalf.position.set(0, -0.25, 0);
+        register("suit", suitTrouserCalf, leg.calf);
+
+        // Pressed Front Crease on Calf
+        const suitCreaseCalf = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.44, 0.020), this.matTrouserCrease);
+        suitCreaseCalf.position.set(0, -0.25, 0.092);
+        register("suit", suitCreaseCalf, leg.calf);
+
+        // Hand-Burnished Mahogany Espresso Oxford Dress Shoe
+        const suitShoeGroup = new THREE.Group();
+        suitShoeGroup.position.set(0, 0, 0.03);
+
+        // Shoe Upper with Sleek Toe Taper
+        const shoeUpper = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matShoes);
+        shoeUpper.position.set(0, 0, 0);
+        suitShoeGroup.add(shoeUpper);
+
+        // Mirror-Polished Cap Toe
+        const capToe = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.074, 0.145, 16), this.matShoes);
+        capToe.rotation.z = Math.PI / 2;
+        capToe.position.set(0, 0.008, 0.145);
+        suitShoeGroup.add(capToe);
+
+        // Leather Welt & Stacked Heel Sole
+        const shoeSole = new THREE.Mesh(new THREE.BoxGeometry(0.170, 0.022, 0.32), this.matSole);
+        shoeSole.position.set(0, -0.042, 0.01);
+        suitShoeGroup.add(shoeSole);
+
+        const dressHeel = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.025, 0.11), this.matSole);
+        dressHeel.position.set(0, -0.055, -0.09);
+        suitShoeGroup.add(dressHeel);
+
+        // Neat Dress Oxford Laces
+        const shoeLaces = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.012, 0.085), this.matLaces);
+        shoeLaces.position.set(0, 0.045, 0.05);
+        suitShoeGroup.add(shoeLaces);
+
+        register("suit", suitShoeGroup, leg.foot);
+      });
+    }
+
+    // ==========================================
+    // 1. CYBER MECHA EXOSKELETON ARMOR (TITANIUM PLATES & NEON CONDUITS)
     // ==========================================
     const cyberTorso = new THREE.Group();
     cyberTorso.position.set(0, 0, 0);

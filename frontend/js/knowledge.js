@@ -1359,7 +1359,35 @@ function lookupFactualKnowledge(query) {
         }
       }
     },
-    // 1C. ADVANCED LEXICON & VOCABULARY ENGINE OVERVIEW
+    // 1C. HANDSOME GUY LOOK & DISCIPLINED DRESS ARCHITECTURE
+    {
+      pattern: /(?:(?:handsome(?:\s+guy)?(?:\s+look)?)|(?:displine|discipline|disciplined)(?:\s+dress)?|(?:tailored\s+suit)|(?:gentleman\s+suit)|(?:robot\s+dress)|(?:robot\s+clothes))/i,
+      data: {
+        id: "handsome_guy_disciplined_dress",
+        title: "3D Humanoid Robot: Handsome Guy Sculpt & Disciplined Formal Menswear",
+        subject: "General",
+        core: "Chatbot Abhi features an anatomically proportioned **Handsome Male Humanoid Sculpt** dressed in an immaculate **Disciplined Bespoke Formal Suit**.",
+        formulas: [
+          "\\text{Aesthetic Ratio} \\approx 1.618 \\quad \\text{(Golden Ratio Masculine Proportions)}",
+          "\\text{Attire} = \\text{Blazer} + \\text{Epaulettes} + \\text{Shirt} + \\text{Windsor Tie} + \\text{Belt} + \\text{Creased Slacks} + \\text{Oxford Shoes}"
+        ],
+        steps: [
+          "1. **Handsome Masculine Facial Sculpt**: Designed with sharp golden-ratio facial architecture—sculpted frontal bone, defined zygomatic cheekbones with subtle model blush, sharp mandibular jawline with mental protuberance and cleft chin, symmetrical almond eyes with positive canthal tilt and sparkling specular catchlights, straight anatomical dorsal nose, and charismatic lips with a subtle resting smile.",
+          "2. **Modern Swept Pompadour Quiff**: Tailored coiffure with tapered fade on the sides and back, crisp side-part grooming line, and voluminous upward-and-backward swept quiff with layered texture locks in rich dark espresso brunette.",
+          "3. **Disciplined Formal Suit (Active by Default)**: Bespoke midnight navy fine wool blazer with structured shoulder epaulettes and gold piping, sharp satin peak lapels, vertically aligned gold crested buttons, crisp poplin dress shirt with stiff spread collar, imperial crimson silk tie held with a polished 18k gold tie bar, 3-tier merit ribbon bar, and folded white linen pocket square with gold trim.",
+          "4. **Disciplined Accessories & Footwear**: Italian dark leather belt with polished buckle, French shirt cuffs with 18k gold cufflinks, executive chronometer wristwatch on the wrist, tailored trousers with razor-sharp pressed front creases, and hand-burnished mahogany espresso Oxford dress shoes with mirror cap-toes."
+        ],
+        analogy: "Like a distinguished, disciplined gentleman officer dressed in bespoke Savile Row tailoring, ready to instruct with effortless elegance and precision!",
+        pitfalls: "The disciplined suit is fully integrated into the 3D kinematic rig, so all waving, high-fives, thinking gestures, and 360° orbits maintain sharp crease lines without clipping.",
+        quiz: {
+          question: "What attire does Chatbot Abhi wear by default?",
+          options: ["Disciplined Bespoke Formal Suit", "Casual Pajamas", "Naked Chassis", "Tattered T-shirt"],
+          correct: 0,
+          explanation: "Chatbot Abhi wears an immaculate Disciplined Bespoke Formal Suit with blazer, epaulettes, tie, belt, and Oxford shoes."
+        }
+      }
+    },
+    // 1D. ADVANCED LEXICON & VOCABULARY ENGINE OVERVIEW
     {
       pattern: /(?:explore\s+vocabulary|understand\s+lexicon|lexicon\s+system|vocabulary\s+engine|vocabulary\s+explorer|vocabulary\s+guide|how\s+do\s+dictionaries\s+work)/i,
       data: {
