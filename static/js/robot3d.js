@@ -1543,47 +1543,141 @@ class Robot3D {
     this.scene.add(this.holoStage);
   }
 
-  // --- INTERACTIVE ACTIONS & GESTURES ---
+  // --- INTERACTIVE ACTIONS & GESTURES ARCHITECTURE ---
 
-  doAction(actionName) {
+  /**
+   * Execute a robot action gesture with promise-based lifecycle.
+   * @param {string} actionName - 'hello', 'bye', 'hifi', 'kiss', 'salute', 'think', 'nod', 'shakeHead', 'celebrate'
+   * @param {Function} [onComplete] - Optional callback invoked when action concludes
+   * @param {number} [duration] - Optional override duration in seconds
+   * @returns {Promise<void>}
+   */
+  doAction(actionName, onComplete, duration = null) {
     this.currentAction = actionName;
     this.actionTimer = 0;
+    this.actionDuration = duration;
 
-    if (actionName === "hello") {
-      this.setExpression("happy");
-      if (window.AudioEngine) {
-        window.AudioEngine.playRobotChirp();
-        window.AudioEngine.speak("Hello there! Wonderful to meet you!");
+    return new Promise((resolve) => {
+      this._actionResolver = () => {
+        if (typeof onComplete === "function") {
+          try { onComplete(); } catch (err) { console.error("Action onComplete error:", err); }
+        }
+        resolve();
+      };
+
+      if (actionName === "hello") {
+        this.setExpression("happy");
+        if (window.AudioEngine) {
+          window.AudioEngine.playRobotChirp();
+          window.AudioEngine.speak("Hello there! Wonderful to meet you!");
+        }
+      } else if (actionName === "bye") {
+        this.setExpression("happy");
+        if (window.AudioEngine) {
+          window.AudioEngine.playRobotChirp();
+          window.AudioEngine.speak("Goodbye! Have an extraordinary study session!");
+        }
+      } else if (actionName === "hifi") {
+        this.setExpression("happy");
+        this.isHifiReady = true;
+        this.hifiSlapped = false;
+        if (window.AudioEngine) {
+          window.AudioEngine.playRobotChirp();
+          window.AudioEngine.speak("Give me a high-five! Tap my hand or screen!");
+        }
+      } else if (actionName === "kiss") {
+        this.setExpression("happy");
+        if (window.AudioEngine) {
+          if (window.AudioEngine.playKissSound) window.AudioEngine.playKissSound();
+          else window.AudioEngine.playRobotChirp();
+          window.AudioEngine.speak("Sending you lots of love and positive energy!");
+        }
+        setTimeout(() => this.spawnHeartParticles(), 900);
+      } else if (actionName === "salute") {
+        this.setExpression("idle");
+        if (window.AudioEngine) {
+          if (window.AudioEngine.playSalute) window.AudioEngine.playSalute();
+          else window.AudioEngine.playServoHum();
+          window.AudioEngine.speak("Standing at attention! System fully operational!");
+        }
+      } else if (actionName === "think") {
+        this.setExpression("thinking");
+        if (window.AudioEngine && window.AudioEngine.playServoHum) {
+          window.AudioEngine.playServoHum();
+        }
+      } else if (actionName === "nod") {
+        this.setExpression("happy");
+        if (window.AudioEngine && window.AudioEngine.playChime) {
+          window.AudioEngine.playChime();
+        }
+      } else if (actionName === "shakeHead") {
+        this.setExpression("idle");
+        if (window.AudioEngine && window.AudioEngine.playHydraulicClick) {
+          window.AudioEngine.playHydraulicClick();
+        }
+      } else if (actionName === "celebrate") {
+        this.setExpression("happy");
+        if (window.AudioEngine) {
+          if (window.AudioEngine.playVictoryFanfare) window.AudioEngine.playVictoryFanfare();
+          else if (window.AudioEngine.playChime) window.AudioEngine.playChime();
+          window.AudioEngine.speak("Outstanding job! Goal achieved!");
+        }
       }
-    } else if (actionName === "bye") {
-      this.setExpression("happy");
-      if (window.AudioEngine) {
-        window.AudioEngine.playRobotChirp();
-        window.AudioEngine.speak("Goodbye! Have an extraordinary study session!");
-      }
-    } else if (actionName === "hifi") {
-      this.setExpression("happy");
-      this.isHifiReady = true;
-      if (window.AudioEngine) {
-        window.AudioEngine.playRobotChirp();
-        window.AudioEngine.speak("Give me a high-five! Tap my hand or screen!");
-      }
-    } else if (actionName === "kiss") {
-      this.setExpression("happy");
-      if (window.AudioEngine) {
-        if (window.AudioEngine.playKissSound) window.AudioEngine.playKissSound();
-        else window.AudioEngine.playRobotChirp();
-        window.AudioEngine.speak("Sending you lots of love and positive energy!");
-      }
-      setTimeout(() => this.spawnHeartParticles(), 900);
-    } else if (actionName === "salute") {
-      this.setExpression("idle");
-      if (window.AudioEngine) {
-        if (window.AudioEngine.playSalute) window.AudioEngine.playSalute();
-        else window.AudioEngine.playServoHum();
-        window.AudioEngine.speak("Standing at attention! System fully operational!");
-      }
+    });
+  }
+
+  endAction() {
+    this.currentAction = null;
+    this.actionTimer = 0;
+    this.isHifiReady = false;
+    this.hifiSlapped = false;
+    this.setExpression("idle");
+    if (this._actionResolver) {
+      const resolve = this._actionResolver;
+      this._actionResolver = null;
+      resolve();
     }
+  }
+
+  // First-Class Convenient Action Methods
+  hello(onComplete) {
+    return this.doAction("hello", onComplete);
+  }
+
+  bye(onComplete) {
+    return this.doAction("bye", onComplete);
+  }
+
+  hifi(onComplete) {
+    return this.doAction("hifi", onComplete);
+  }
+
+  kiss(onComplete) {
+    return this.doAction("kiss", onComplete);
+  }
+
+  salute(onComplete) {
+    return this.doAction("salute", onComplete);
+  }
+
+  think(duration = 2.5, onComplete) {
+    return this.doAction("think", onComplete, duration);
+  }
+
+  nod(onComplete) {
+    return this.doAction("nod", onComplete);
+  }
+
+  shakeHead(onComplete) {
+    return this.doAction("shakeHead", onComplete);
+  }
+
+  celebrate(onComplete) {
+    return this.doAction("celebrate", onComplete);
+  }
+
+  stopAction() {
+    this.endAction();
   }
 
   spawnHeartParticles() {
@@ -1827,10 +1921,28 @@ class Robot3D {
     this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.08;
     this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.08;
 
-    // 3. Head & Eyes Cursor Tracking
+    // 3. Head & Eyes Cursor Tracking with Expressive Kinematics
     if (this.headGroup && !this.isDragging) {
-      this.headGroup.rotation.y = this.mouse.x * 0.45;
-      this.headGroup.rotation.x = -this.mouse.y * 0.30;
+      if (this.expression === "thinking") {
+        // Inquisitive head tilt up and to the side with subtle cognitive oscillation
+        this.headGroup.rotation.y = this.mouse.x * 0.25 + 0.16;
+        this.headGroup.rotation.x = -0.15 + Math.sin(time * 3.0) * 0.03;
+        this.headGroup.rotation.z = 0.14;
+      } else if (this.expression === "speaking") {
+        // Subtle rhythmic conversational head nods synchronized with speech cadence
+        this.headGroup.rotation.y = this.mouse.x * 0.45;
+        this.headGroup.rotation.x = -this.mouse.y * 0.30 + Math.sin(time * 6.0) * 0.035;
+        this.headGroup.rotation.z = Math.sin(time * 3.0) * 0.02;
+      } else if (this.expression === "happy") {
+        // Cheerful affirmative encouraging head nod
+        this.headGroup.rotation.y = this.mouse.x * 0.40;
+        this.headGroup.rotation.x = -this.mouse.y * 0.25 + Math.sin(time * 5.0) * 0.04;
+        this.headGroup.rotation.z = 0.04;
+      } else {
+        this.headGroup.rotation.y = this.mouse.x * 0.45;
+        this.headGroup.rotation.x = -this.mouse.y * 0.30;
+        this.headGroup.rotation.z = 0;
+      }
     }
 
     if (this.leftEye && this.rightEye) {
@@ -1941,7 +2053,7 @@ class Robot3D {
     if (this.leftArm && this.rightArm) {
       const breathe = Math.sin(time * 1.8) * 0.03;
 
-      // Default Neutral Idle Poses
+      // Default Neutral Idle Poses with Dynamic Expression Articulation
       const targetLeft = {
         upper: { x: 0.25 + breathe, y: 0.0, z: 0.12 },
         fore: { x: -1.15 + breathe, y: 0.0, z: 0.0 },
@@ -1955,6 +2067,21 @@ class Robot3D {
       const targetHead = { x: 0.0, y: 0.0, z: 0.0 };
       let leftFingersTarget = Math.sin(time * 2.2) * 0.12 + 0.18;
       let rightFingersTarget = Math.sin(time * 2.2) * 0.12 + 0.18;
+
+      // Inquisitive Contemplative Arm Gestures during Thinking
+      if (this.expression === "thinking" && !this.currentAction) {
+        targetLeft.upper = { x: 0.48 + breathe, y: 0.24, z: 0.36 };
+        targetLeft.fore = { x: -1.82, y: 0.18, z: 0.08 };
+        targetLeft.hand = { x: -0.10, y: 0.38, z: 0.14 };
+        leftFingersTarget = 0.32; // gently curled fingers near chin
+      } else if (this.expression === "speaking" && !this.currentAction) {
+        // Conversational Explaining Gesture during Speech Streaming
+        const talkWave = Math.sin(time * 5.0) * 0.14;
+        targetRight.upper = { x: 0.32 + talkWave * 0.4, y: -0.12, z: -0.28 };
+        targetRight.fore = { x: -1.45 + talkWave, y: 0.15, z: -0.10 };
+        targetRight.hand = { x: 0.12, y: -0.20 + talkWave * 0.8, z: 0.0 };
+        rightFingersTarget = 0.08 + Math.abs(talkWave) * 0.25;
+      }
 
       if (this.currentAction === "hello") {
         this.actionTimer += delta;
@@ -2152,10 +2279,11 @@ class Robot3D {
       }
     }
 
-    // 9. Quantum Core Pulse
+    // 9. Quantum Core Pulse with Adaptive Cognitive Feedback
     if (this.coreMesh) {
-      const pulseRate = this.isOverdrive ? 8.0 : 3.5;
-      const s = 1.0 + Math.sin(time * pulseRate) * 0.12;
+      const pulseRate = this.isOverdrive ? 8.5 : (this.expression === "thinking" ? 7.0 : (this.expression === "speaking" ? 5.5 : 2.5));
+      const amp = this.isOverdrive ? 0.22 : (this.expression === "thinking" ? 0.18 : (this.expression === "speaking" ? 0.15 : 0.08));
+      const s = 1.0 + Math.sin(time * pulseRate) * amp;
       this.coreMesh.scale.set(s, s, 1);
     }
 

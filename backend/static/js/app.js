@@ -674,10 +674,16 @@ document.addEventListener("DOMContentLoaded", () => {
           window.AudioEngine.speak(localMatch.core, () => {
             if (robot) robot.setExpression("speaking");
           }, () => {
-            if (robot) robot.setExpression("idle");
+            if (robot) {
+              robot.setExpression("happy");
+              setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
+            }
           });
         } else {
-          setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
+          if (robot) {
+            robot.setExpression("happy");
+            setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
+          }
         }
 
         // Render any math equations with KaTeX
@@ -746,10 +752,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 contentDiv.innerHTML = markedParse(fullText);
                 MathGrapher.renderMath(contentDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
+                if (robot && robot.expression !== "speaking") {
+                  robot.setExpression("speaking");
+                }
               }
 
               if (data.done) {
-                if (robot) robot.setExpression("idle");
+                if (robot) {
+                  robot.setExpression("happy");
+                  setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1500);
+                }
               }
             } catch (err) {
               // ignore parse errors on partial chunks
