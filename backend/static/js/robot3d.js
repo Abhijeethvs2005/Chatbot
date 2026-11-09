@@ -2626,15 +2626,15 @@ class Robot3D {
     if (this.leftArm && this.rightArm) {
       const breathe = Math.sin(time * 1.8) * 0.03;
 
-      // Default Neutral Idle Poses with Dynamic Expression Articulation
+      // Default Neutral Idle Poses with Dynamic Expression Articulation (naturally outside body)
       const targetLeft = {
-        upper: { x: 0.25 + breathe, y: 0.0, z: 0.12 },
-        fore: { x: -1.15 + breathe, y: 0.0, z: 0.0 },
+        upper: { x: 0.25 + breathe, y: 0.0, z: -0.14 },
+        fore: { x: -1.05 + breathe, y: 0.0, z: 0.0 },
         hand: { x: -0.25, y: 0.40, z: 0.0 }
       };
       const targetRight = {
-        upper: { x: 0.25 + breathe, y: 0.0, z: -0.12 },
-        fore: { x: -1.15 + breathe, y: 0.0, z: 0.0 },
+        upper: { x: 0.25 + breathe, y: 0.0, z: 0.14 },
+        fore: { x: -1.05 + breathe, y: 0.0, z: 0.0 },
         hand: { x: -0.25, y: -0.40, z: 0.0 }
       };
       const targetHead = { x: 0.0, y: 0.0, z: 0.0 };
