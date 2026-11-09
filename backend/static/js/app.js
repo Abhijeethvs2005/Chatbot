@@ -270,26 +270,123 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Theme Switching
+  // 3D Animation Frame & Multi-Theme System
+  const THEME_DATA = {
+    cyber_cyan: {
+      bodyClass: "theme-cyber",
+      status: "3D FRAME: CYBER CYAN ONLINE",
+      name: "Cyber Cyan"
+    },
+    amber_hazard: {
+      bodyClass: "theme-amber",
+      status: "3D FRAME: AMBER HAZARD WARNING",
+      name: "Amber Hazard"
+    },
+    quantum_violet: {
+      bodyClass: "theme-quantum",
+      status: "3D FRAME: QUANTUM VOID ACTIVE",
+      name: "Quantum Void"
+    },
+    cleanroom_white: {
+      bodyClass: "theme-cleanroom",
+      status: "3D FRAME: CLEANROOM AERO CALIBRATED",
+      name: "Cleanroom White"
+    },
+    matrix_emerald: {
+      bodyClass: "theme-matrix",
+      status: "3D FRAME: EMERALD MATRIX INITIALIZED",
+      name: "Emerald Matrix"
+    }
+  };
+
+  const THEME_KEYS = ["cyber_cyan", "amber_hazard", "quantum_violet", "cleanroom_white", "matrix_emerald"];
+  let currentThemeIdx = 0;
+
+  function applyTheme(themeKey) {
+    const info = THEME_DATA[themeKey] || THEME_DATA["cyber_cyan"];
+    currentThemeIdx = THEME_KEYS.indexOf(themeKey);
+    if (currentThemeIdx === -1) currentThemeIdx = 0;
+
+    // Trigger 3D Frame Theme Switching Glitch Animation
+    const hudStage = document.getElementById("robot-hud-stage");
+    if (hudStage) {
+      hudStage.classList.remove("theme-transitioning");
+      void hudStage.offsetWidth; // trigger reflow
+      hudStage.classList.add("theme-transitioning");
+      setTimeout(() => hudStage.classList.remove("theme-transitioning"), 700);
+    }
+
+    // Update Body CSS theme
+    document.body.className = "";
+    if (info.bodyClass) document.body.classList.add(info.bodyClass);
+
+    // Update Active Pill indicator
+    document.querySelectorAll(".theme-pill").forEach((pill) => {
+      pill.classList.toggle("active", pill.dataset.theme === themeKey);
+    });
+
+    // Update 3D Robot & Holographic Stage Materials
+    if (robot) robot.setTheme(themeKey);
+
+    // Update HUD Frame Telemetry Title
+    const frameStatus = document.getElementById("frame-system-status");
+    if (frameStatus) frameStatus.textContent = info.status;
+
+    if (window.AudioEngine) window.AudioEngine.playHydraulicClick();
+  }
+
+  // Theme Switching Event Listeners
   const themePills = document.querySelectorAll(".theme-pill");
   themePills.forEach((pill) => {
     pill.addEventListener("click", () => {
-      themePills.forEach((p) => p.classList.remove("active"));
-      pill.classList.add("active");
       const themeKey = pill.dataset.theme;
-
-      // Update Body CSS theme
-      document.body.className = "";
-      if (themeKey === "amber_hazard") document.body.classList.add("theme-amber");
-      else if (themeKey === "quantum_violet") document.body.classList.add("theme-quantum");
-      else if (themeKey === "cleanroom_white") document.body.classList.add("theme-cleanroom");
-      else document.body.classList.add("theme-cyber");
-
-      // Update 3D Robot Materials
-      if (robot) robot.setTheme(themeKey);
-      window.AudioEngine.playHydraulicClick();
+      applyTheme(themeKey);
     });
   });
+
+  // Cursor-Tracking Holographic Reticle inside the 3D Animation Frame
+  const hudStage = document.getElementById("robot-hud-stage");
+  const holoReticle = document.getElementById("holo-reticle");
+  const reticleTag = document.getElementById("reticle-tag");
+  const telemetryCoords = document.getElementById("frame-telemetry-coords");
+
+  if (hudStage && holoReticle) {
+    hudStage.addEventListener("mousemove", (e) => {
+      const rect = hudStage.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      holoReticle.style.left = `${x}px`;
+      holoReticle.style.top = `${y}px`;
+
+      const normX = ((x / rect.width) * 2 - 1).toFixed(2);
+      const normY = (-((y / rect.height) * 2 - 1)).toFixed(2);
+      if (reticleTag) reticleTag.textContent = `AIM [${normX}, ${normY}]`;
+      if (telemetryCoords) telemetryCoords.textContent = `TARGET: X: ${normX} | Y: ${normY} | Z: 4.20`;
+    });
+
+    hudStage.addEventListener("mouseleave", () => {
+      holoReticle.style.opacity = "0.2";
+    });
+    hudStage.addEventListener("mouseenter", () => {
+      holoReticle.style.opacity = "0.75";
+    });
+  }
+
+  // Live 3D Frame FPS Telemetry Counter
+  let lastFrameTime = performance.now();
+  let frameCount = 0;
+  const fpsDisplay = document.getElementById("frame-fps-counter");
+  function updateFps() {
+    frameCount++;
+    const now = performance.now();
+    if (now - lastFrameTime >= 1000) {
+      if (fpsDisplay) fpsDisplay.textContent = Math.round((frameCount * 1000) / (now - lastFrameTime));
+      frameCount = 0;
+      lastFrameTime = now;
+    }
+    requestAnimationFrame(updateFps);
+  }
+  requestAnimationFrame(updateFps);
 
   // Robot Overdrive & Camera Controls
   const overdriveBtn = document.getElementById("overdrive-btn");
@@ -301,33 +398,123 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const camCommandBtn = document.getElementById("cam-command-btn");
+  const camCoreBtn = document.getElementById("cam-core-btn");
+  const camHandsBtn = document.getElementById("cam-hands-btn");
+  const camOrbitBtn = document.getElementById("cam-orbit-btn");
+  const toggleGridBtn = document.getElementById("toggle-grid-btn");
+  const frameThemeBtn = document.getElementById("frame-theme-btn");
+
   if (camCommandBtn) {
     camCommandBtn.addEventListener("click", () => {
-      if (robot) robot.setCameraView("command");
+      if (robot) {
+        if (robot.isOrbiting) robot.toggleOrbit();
+        robot.setCameraView("command");
+      }
+      if (camOrbitBtn) {
+        camOrbitBtn.classList.remove("active");
+        camOrbitBtn.innerHTML = "🔄 ORBIT";
+      }
       window.AudioEngine.playHydraulicClick();
     });
   }
 
-  const camCoreBtn = document.getElementById("cam-core-btn");
   if (camCoreBtn) {
     camCoreBtn.addEventListener("click", () => {
-      if (robot) robot.setCameraView("eyes");
+      if (robot) {
+        if (robot.isOrbiting) robot.toggleOrbit();
+        robot.setCameraView("eyes");
+      }
+      if (camOrbitBtn) {
+        camOrbitBtn.classList.remove("active");
+        camOrbitBtn.innerHTML = "🔄 ORBIT";
+      }
       window.AudioEngine.playHydraulicClick();
     });
   }
 
-  const camHandsBtn = document.getElementById("cam-hands-btn");
   if (camHandsBtn) {
     camHandsBtn.addEventListener("click", () => {
-      if (robot) robot.setCameraView("hands");
+      if (robot) {
+        if (robot.isOrbiting) robot.toggleOrbit();
+        robot.setCameraView("hands");
+      }
+      if (camOrbitBtn) {
+        camOrbitBtn.classList.remove("active");
+        camOrbitBtn.innerHTML = "🔄 ORBIT";
+      }
       window.AudioEngine.playHydraulicClick();
     });
   }
+
+  if (camOrbitBtn) {
+    camOrbitBtn.addEventListener("click", () => {
+      if (robot) {
+        const isOrbiting = robot.toggleOrbit();
+        camOrbitBtn.classList.toggle("active", isOrbiting);
+        camOrbitBtn.innerHTML = isOrbiting ? "⏹️ STOP" : "🔄 ORBIT";
+      }
+      window.AudioEngine.playHydraulicClick();
+    });
+  }
+
+  if (toggleGridBtn) {
+    toggleGridBtn.addEventListener("click", () => {
+      if (robot) {
+        const isVisible = robot.toggleHoloStage();
+        toggleGridBtn.classList.toggle("active", isVisible);
+      }
+      window.AudioEngine.playClick();
+    });
+  }
+
+  if (frameThemeBtn) {
+    frameThemeBtn.addEventListener("click", () => {
+      const nextIdx = (currentThemeIdx + 1) % THEME_KEYS.length;
+      applyTheme(THEME_KEYS[nextIdx]);
+    });
+  }
+
+  const camResetBtn = document.getElementById("cam-reset-btn");
+  if (camResetBtn) {
+    camResetBtn.addEventListener("click", () => {
+      if (robot) robot.resetCameraView();
+      window.AudioEngine.playHydraulicClick();
+    });
+  }
+
+  // Wardrobe / Clothes Outfit Selector
+  const outfitPills = document.querySelectorAll(".outfit-pill");
+  outfitPills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      outfitPills.forEach((p) => p.classList.remove("active"));
+      pill.classList.add("active");
+      const outfit = pill.dataset.outfit;
+      if (robot) robot.setOutfit(outfit);
+    });
+  });
+
+  // Robot Interactive Actions & Gestures
+  const actionConfigs = [
+    { id: "act-hifi-btn", action: "hifi" },
+    { id: "act-hello-btn", action: "hello" },
+    { id: "act-bye-btn", action: "bye" },
+    { id: "act-kiss-btn", action: "kiss" },
+    { id: "act-salute-btn", action: "salute" }
+  ];
+
+  actionConfigs.forEach((cfg) => {
+    const btn = document.getElementById(cfg.id);
+    if (btn) {
+      btn.addEventListener("click", () => {
+        if (robot) robot.doAction(cfg.action);
+      });
+    }
+  });
 
   const waveBtn = document.getElementById("wave-btn");
   if (waveBtn) {
     waveBtn.addEventListener("click", () => {
-      if (robot) robot.triggerWave();
+      if (robot) robot.doAction("hello");
     });
   }
 

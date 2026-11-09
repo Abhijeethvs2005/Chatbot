@@ -34,9 +34,10 @@
       <div class="theme-selector" title="Switch 3D Robot System Theme">
         <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); margin-right: 4px;">THEME:</span>
         <div class="theme-pill active" data-theme="cyber_cyan" title="Cyber Cyan Mecha"></div>
-        <div class="theme-pill" data-theme="amber_hazard" title="Amber Industrial"></div>
-        <div class="theme-pill" data-theme="quantum_violet" title="Quantum Void"></div>
-        <div class="theme-pill" data-theme="cleanroom_white" title="Cleanroom White"></div>
+        <div class="theme-pill" data-theme="amber_hazard" title="Amber Industrial Hazard"></div>
+        <div class="theme-pill" data-theme="quantum_violet" title="Quantum Void Nebula"></div>
+        <div class="theme-pill" data-theme="cleanroom_white" title="Cleanroom Surgical White"></div>
+        <div class="theme-pill" data-theme="matrix_emerald" title="Emerald Matrix Digital"></div>
       </div>
 
       <!-- Center Telemetry & Pomodoro Widget -->
@@ -66,25 +67,45 @@
 
     <!-- Main Viewport: 3D Robot HUD + Study Terminal -->
     <main class="main-stage-split">
-      <!-- Left: 3D Robot System Stage -->
-      <section class="robot-hud-stage">
+      <!-- Left: 3D Robot System Stage & Animated Frame -->
+      <section class="robot-hud-stage" id="robot-hud-stage">
+        <!-- Holographic Chamfered Sci-Fi Frame Overlay -->
+        <div class="holo-frame-overlay">
+          <!-- 4 Glowing Sci-Fi Corner Brackets -->
+          <div class="holo-corner top-left"></div>
+          <div class="holo-corner top-right"></div>
+          <div class="holo-corner bottom-left"></div>
+          <div class="holo-corner bottom-right"></div>
+
+          <!-- Dynamic Holographic Scanline Laser Sweep -->
+          <div class="holo-scanline-sweep"></div>
+
+          <!-- Animated Targeting Reticle following cursor -->
+          <div class="holo-reticle" id="holo-reticle">
+            <div class="reticle-ring"></div>
+            <div class="reticle-cross-h"></div>
+            <div class="reticle-cross-v"></div>
+            <div class="reticle-tag" id="reticle-tag">TARGET ACQUIRED</div>
+          </div>
+        </div>
+
         <!-- Telemetry Badges (Top Left) -->
         <div class="hud-top-telemetry">
           <div class="hud-telemetry-badge">
             <span class="hud-pulse"></span>
-            <span>SYSTEM STATUS: OPERATIONAL</span>
+            <span id="frame-system-status">3D FRAME: CYBER CYAN ONLINE</span>
           </div>
           <div class="hud-telemetry-badge" style="font-size: 10px;">
-            <span>IK TRACKING: ACTIVE // GYRO: SYNCED</span>
+            <span id="frame-telemetry-coords">TARGET: X: 0.00 | Y: 0.00 | Z: 4.20</span>
           </div>
         </div>
 
         <!-- Subsystem Diagnostics (Top Right) -->
         <div class="hud-subsystems">
+          <div class="subsystem-node">FRAME FPS: <span id="frame-fps-counter">60</span></div>
           <div class="subsystem-node">CORE REACTOR: <span>98.4%</span></div>
-          <div class="subsystem-node">VISION SENSORS: <span>ONLINE</span></div>
-          <div class="subsystem-node">KINEMATICS: <span>CALIBRATED</span></div>
-          <div class="subsystem-node">ION THRUSTER: <span>NOMINAL</span></div>
+          <div class="subsystem-node">HOLO GYRO: <span id="frame-gyro-counter">SYNCED</span></div>
+          <div class="subsystem-node">STAGE LIGHTS: <span id="frame-lights-status">ACTIVE</span></div>
         </div>
 
         <!-- Three.js 3D Canvas -->
@@ -93,10 +114,13 @@
         <!-- Robot HUD Interactive Controls -->
         <div class="hud-bottom-bar">
           <button class="hud-btn overdrive-btn" id="overdrive-btn" title="Trigger high-speed thinking mode">⚡ OVERDRIVE</button>
-          <button class="hud-btn" id="cam-command-btn" title="Full chassis & hands view">🎥 FULL VIEW</button>
-          <button class="hud-btn" id="cam-core-btn" title="Focus on clear glowing eyes">👁️ CLEAR EYES</button>
-          <button class="hud-btn" id="cam-hands-btn" title="Inspect 5-digit articulated hands">✋ 5-DIGIT HANDS</button>
-          <button class="hud-btn" id="wave-btn" title="Wave greeting gesture">👋 WAVE HELLO</button>
+          <button class="hud-btn" id="cam-command-btn" title="Full chassis & hands view">🎥 FULL</button>
+          <button class="hud-btn" id="cam-core-btn" title="Focus on clear glowing eyes">👁️ EYES</button>
+          <button class="hud-btn" id="cam-hands-btn" title="Inspect 5-digit articulated hands">✋ HANDS</button>
+          <button class="hud-btn" id="cam-orbit-btn" title="Toggle 360° cinematic orbit mode">🔄 ORBIT</button>
+          <button class="hud-btn" id="wave-btn" title="Wave greeting gesture">👋 WAVE</button>
+          <button class="hud-btn" id="toggle-grid-btn" title="Toggle 3D Holo Stage Rings">🌐 STAGE</button>
+          <button class="hud-btn" id="frame-theme-btn" title="Quick Cycle Theme">🎨 THEME</button>
         </div>
       </section>
 
@@ -140,12 +164,13 @@
                 <p>I am <strong>Chatbot Abhi</strong>, an interactive 3D robot system engineered by Abhijeeth for deep learning and high-accuracy academic problem solving.</p>
                 <br>
                 <div class="analogy-box">
-                  <div class="box-title">⚡ Robotic System Capabilities:</div>
+                  <div class="box-title">⚡ Humanoid Robotic Capabilities:</div>
                   <ul style="padding-left: 20px; margin-top: 6px;">
-                    <li><strong>3D Robot System:</strong> Procedural mecha geometry, dual gyroscope rings, dynamic canvas visor, and inverse kinematics cursor tracking.</li>
-                    <li><strong>Sub-10ms Solving Engine:</strong> Step-by-step mathematical proofs with KaTeX and zero API lag.</li>
-                    <li><strong>Multi-Palette Theming:</strong> Switch between Cyber Cyan, Amber Industrial, Quantum Void, and Cleanroom White.</li>
-                    <li><strong>Active Recall Testing:</strong> Built-in quizzes to test your exam readiness on any STEM concept.</li>
+                    <li><strong>Humanoid Anatomy:</strong> Full human legs, articulated thighs & knees, sculpted 3D nose, clear expressive glowing eyes, humanoid lips with speech LEDs, and two 5-digit hands.</li>
+                    <li><strong>Interactive Gestures:</strong> Tap <strong>High-Five</strong>, <strong>Hello</strong>, <strong>Bye</strong>, <strong>Blow Kiss</strong> (with floating 3D hearts), or <strong>Salute</strong>!</li>
+                    <li><strong>Wardrobe Dressing:</strong> Switch outfits in real-time (🎓 Student Uniform, 🥼 Lab Coat, 🧥 Urban Hoodie, 🚀 Space Suit, 🥋 Cyber Armor).</li>
+                    <li><strong>Cursor Zoom & 360° Orbit:</strong> Scroll mouse wheel to zoom in/out with cursor, and click-drag to rotate the robot 360°.</li>
+                    <li><strong>Sub-10ms Academic Engine:</strong> High-precision math, science, and multi-domain solving with KaTeX and live factual retrieval.</li>
                   </ul>
                 </div>
                 <p style="font-size: 12.5px; color: var(--text-dim); margin-top: 8px;">Select a subject module or click a quick prompt below to begin!</p>

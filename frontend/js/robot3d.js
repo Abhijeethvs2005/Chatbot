@@ -88,6 +88,17 @@ class Robot3D {
         pupilColor: 0xdbeafe,
         light: 0x60a5fa,
         joint: 0x475569
+      },
+      matrix_emerald: {
+        armor: 0x052e16,
+        chassis: 0x021609,
+        visor: 0x011206,
+        accent: 0x22c55e,
+        glow: 0x4ade80,
+        eyeColor: 0x22c55e,
+        pupilColor: 0xdcfce7,
+        light: 0x22c55e,
+        joint: 0x14532d
       }
     };
 
@@ -101,6 +112,16 @@ class Robot3D {
     this.waveTimer = 0;
     this.isPoked = false;
     this.isOverdrive = false;
+
+    // 3D Animation Frame & Holographic Stage
+    this.isOrbiting = false;
+    this.orbitAngle = 0;
+    this.holoStageVisible = true;
+    this.holoStageGroup = null;
+    this.holoGyroRing = null;
+    this.holoParticles = null;
+    this.holoStageMat = null;
+    this.holoParticlesMat = null;
 
     this.init();
   }
@@ -230,8 +251,20 @@ class Robot3D {
 
     if (this.coreLight) this.coreLight.color.setHex(p.light);
     if (this.rimLight) this.rimLight.color.setHex(p.light);
+    if (this.keyLight) this.keyLight.color.setHex(p.light);
     if (this.leftEyeLight) this.leftEyeLight.color.setHex(p.light);
     if (this.rightEyeLight) this.rightEyeLight.color.setHex(p.light);
+
+    if (this.holoStageMat) {
+      this.holoStageMat.color.setHex(p.accent);
+      this.holoStageMat.emissive.setHex(p.glow);
+    }
+    if (this.holoParticlesMat) {
+      this.holoParticlesMat.color.setHex(p.glow);
+    }
+    if (this.thrusterParticles && this.thrusterParticles.material) {
+      this.thrusterParticles.material.color.setHex(p.glow);
+    }
   }
 
   buildRobot() {
@@ -249,6 +282,9 @@ class Robot3D {
 
     // 4. FLOATING THRUSTER & ION PARTICLES
     this.buildThruster();
+
+    // 5. 3D HOLOGRAPHIC ANIMATION FRAME STAGE & GYRO PLATFORM
+    this.buildHoloStageFrame();
   }
 
   buildHead() {
@@ -620,6 +656,89 @@ class Robot3D {
     this.robotGroup.add(thrusterGroup);
   }
 
+  buildHoloStageFrame() {
+    this.holoStageGroup = new THREE.Group();
+    this.scene.add(this.holoStageGroup);
+
+    const p = this.themes[this.currentTheme];
+
+    this.holoStageMat = new THREE.MeshStandardMaterial({
+      color: p.accent,
+      emissive: p.glow,
+      emissiveIntensity: 0.9,
+      roughness: 0.2,
+      metalness: 0.8,
+      transparent: true,
+      opacity: 0.75
+    });
+
+    // 1. Concentric Floor Rings (Elevated Hologram Stage Platform)
+    const floorOuterRing = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.022, 16, 64), this.holoStageMat);
+    floorOuterRing.rotation.x = Math.PI / 2;
+    floorOuterRing.position.y = -1.25;
+    this.holoStageGroup.add(floorOuterRing);
+
+    const floorInnerRing = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.016, 16, 48), this.holoStageMat);
+    floorInnerRing.rotation.x = Math.PI / 2;
+    floorInnerRing.position.y = -1.25;
+    this.holoStageGroup.add(floorInnerRing);
+
+    // 2. Holographic Radial Crosshairs on Floor
+    for (let i = 0; i < 4; i++) {
+      const spokeGeo = new THREE.BoxGeometry(0.018, 0.01, 0.55);
+      const spoke = new THREE.Mesh(spokeGeo, this.holoStageMat);
+      spoke.position.y = -1.25;
+      spoke.rotation.y = (i * Math.PI) / 2;
+      spoke.translateZ(1.1);
+      this.holoStageGroup.add(spoke);
+    }
+
+    // 3. 3D Floating Gyro Ring behind the robot
+    this.holoGyroRing = new THREE.Mesh(new THREE.TorusGeometry(1.65, 0.018, 16, 64), this.holoStageMat);
+    this.holoGyroRing.position.set(0, 0.35, -0.6);
+    this.holoGyroRing.rotation.x = 0.35;
+    this.scene.add(this.holoGyroRing);
+
+    // 4. 3D Holographic Ambient Particle Field
+    const particleCount = 120;
+    const particleGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 4.2;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 3.8 + 0.2;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 3.5;
+    }
+    particleGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+    this.holoParticlesMat = new THREE.PointsMaterial({
+      color: p.glow,
+      size: 0.045,
+      transparent: true,
+      opacity: 0.75,
+      blending: THREE.AdditiveBlending
+    });
+
+    this.holoParticles = new THREE.Points(particleGeo, this.holoParticlesMat);
+    this.scene.add(this.holoParticles);
+  }
+
+  toggleOrbit() {
+    this.isOrbiting = !this.isOrbiting;
+    if (!this.isOrbiting) {
+      this.cameraTargetPos.set(0, 0.25, 4.2);
+      this.cameraLookTarget.set(0, 0.1, 0);
+    }
+    return this.isOrbiting;
+  }
+
+  toggleHoloStage() {
+    this.holoStageVisible = !this.holoStageVisible;
+    if (this.holoStageGroup) this.holoStageGroup.visible = this.holoStageVisible;
+    if (this.holoGyroRing) this.holoGyroRing.visible = this.holoStageVisible;
+    if (this.holoParticles) this.holoParticles.visible = this.holoStageVisible;
+    return this.holoStageVisible;
+  }
+
   onMouseMove(e) {
     const rect = this.container.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -710,9 +829,18 @@ class Robot3D {
     const delta = this.clock.getDelta();
     const time = this.clock.getElapsedTime();
 
-    // 1. Camera Smooth Lerping to Focus Modes
-    this.camera.position.lerp(this.cameraTargetPos, 0.06);
-    this.camera.lookAt(this.cameraLookTarget);
+    // 1. Camera Handling (Cinematic Auto-Orbit vs Smooth Lerp Focus)
+    if (this.isOrbiting) {
+      this.orbitAngle += delta * 0.72;
+      const radius = 4.2;
+      this.camera.position.x = Math.sin(this.orbitAngle) * radius;
+      this.camera.position.z = Math.cos(this.orbitAngle) * radius;
+      this.camera.position.y = 0.25 + Math.sin(this.orbitAngle * 1.6) * 0.18;
+      this.camera.lookAt(this.cameraLookTarget);
+    } else {
+      this.camera.position.lerp(this.cameraTargetPos, 0.06);
+      this.camera.lookAt(this.cameraLookTarget);
+    }
 
     // 2. Mouse Cursor Damping
     this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.08;
@@ -830,6 +958,24 @@ class Robot3D {
         pos.setY(i, py);
       }
       this.thrusterParticles.geometry.attributes.position.needsUpdate = true;
+    }
+
+    // 9. 3D Holographic Stage Frame & Gyroscope Animation
+    if (this.holoStageGroup) {
+      this.holoStageGroup.rotation.y += delta * 0.45;
+    }
+    if (this.holoGyroRing) {
+      this.holoGyroRing.rotation.z += delta * 0.28;
+      this.holoGyroRing.rotation.x = 0.35 + Math.sin(time * 0.9) * 0.12;
+    }
+    if (this.holoParticles) {
+      const pos = this.holoParticles.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        let py = pos.getY(i) + delta * 0.24;
+        if (py > 2.2) py = -1.5;
+        pos.setY(i, py);
+      }
+      this.holoParticles.geometry.attributes.position.needsUpdate = true;
     }
 
     this.renderer.render(this.scene, this.camera);
