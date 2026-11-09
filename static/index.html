@@ -108,19 +108,41 @@
           <div class="subsystem-node">STAGE LIGHTS: <span id="frame-lights-status">ACTIVE</span></div>
         </div>
 
+        <!-- Wardrobe / Outfits Selector -->
+        <div class="hud-wardrobe-bar">
+          <span class="wardrobe-label">👗 OUTFIT:</span>
+          <button class="outfit-pill active" data-outfit="cyber" title="High-Tech Titanium Cyber Armor">🥋 Cyber</button>
+          <button class="outfit-pill" data-outfit="student" title="Student Uniform Blazer, Shirt & Tie">🎓 Student</button>
+          <button class="outfit-pill" data-outfit="scientist" title="Research Lab Coat & Smart Specs">🥼 Lab Coat</button>
+          <button class="outfit-pill" data-outfit="hoodie" title="Streetwear Hoodie & Tech Denim">🧥 Hoodie</button>
+          <button class="outfit-pill" data-outfit="astronaut" title="Cosmic EVA Space Suit">🚀 Astronaut</button>
+        </div>
+
+        <!-- 3D Orbit & Zoom Control Hint -->
+        <div class="hud-control-hint">
+          <span>🖱️ Drag to Rotate 360° • Scroll to Zoom</span>
+        </div>
+
         <!-- Three.js 3D Canvas -->
         <div id="robot-viewport"></div>
+
+        <!-- Robot Interactive Actions & Gestures -->
+        <div class="hud-actions-bar">
+          <button class="action-btn" id="act-hifi-btn" title="Interactive High-Five">✋ High-Five</button>
+          <button class="action-btn" id="act-hello-btn" title="Friendly Wave Greeting">👋 Hello</button>
+          <button class="action-btn" id="act-bye-btn" title="Warm Farewell Wave">👋 Bye</button>
+          <button class="action-btn" id="act-kiss-btn" title="Blow a Flying Kiss with Floating 3D Hearts">😘 Blow Kiss</button>
+          <button class="action-btn" id="act-salute-btn" title="Military / Mecha Salute">🫡 Salute</button>
+        </div>
 
         <!-- Robot HUD Interactive Controls -->
         <div class="hud-bottom-bar">
           <button class="hud-btn overdrive-btn" id="overdrive-btn" title="Trigger high-speed thinking mode">⚡ OVERDRIVE</button>
-          <button class="hud-btn" id="cam-command-btn" title="Full chassis & hands view">🎥 FULL</button>
+          <button class="hud-btn" id="cam-command-btn" title="Full chassis & legs view">🎥 FULL</button>
           <button class="hud-btn" id="cam-core-btn" title="Focus on clear glowing eyes">👁️ EYES</button>
           <button class="hud-btn" id="cam-hands-btn" title="Inspect 5-digit articulated hands">✋ HANDS</button>
           <button class="hud-btn" id="cam-orbit-btn" title="Toggle 360° cinematic orbit mode">🔄 ORBIT</button>
-          <button class="hud-btn" id="wave-btn" title="Wave greeting gesture">👋 WAVE</button>
-          <button class="hud-btn" id="toggle-grid-btn" title="Toggle 3D Holo Stage Rings">🌐 STAGE</button>
-          <button class="hud-btn" id="frame-theme-btn" title="Quick Cycle Theme">🎨 THEME</button>
+          <button class="hud-btn" id="cam-reset-btn" title="Reset camera view">↺ RESET</button>
         </div>
       </section>
 
