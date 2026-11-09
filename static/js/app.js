@@ -68,6 +68,54 @@ document.addEventListener("DOMContentLoaded", () => {
   const makerBtn = document.getElementById("maker-notes-btn");
   const closeMakerBtn = document.getElementById("close-maker-btn");
 
+  // Settings Modal & API Key
+  const settingsModal = document.getElementById("settings-modal");
+  const settingsBtn = document.getElementById("settings-btn");
+  const closeSettingsBtn = document.getElementById("close-settings-btn");
+  const customApiKeyInput = document.getElementById("custom-api-key-input");
+  const saveApiKeyBtn = document.getElementById("save-api-key-btn");
+  const clearApiKeyBtn = document.getElementById("clear-api-key-btn");
+
+  let customApiKey = localStorage.getItem("abhi_api_key") || "";
+  if (customApiKeyInput && customApiKey) {
+    customApiKeyInput.value = customApiKey;
+  }
+
+  if (settingsBtn) {
+    settingsBtn.addEventListener("click", () => {
+      settingsModal.classList.add("open");
+      window.AudioEngine.playClick();
+    });
+  }
+
+  if (closeSettingsBtn) {
+    closeSettingsBtn.addEventListener("click", () => {
+      settingsModal.classList.remove("open");
+    });
+  }
+
+  if (saveApiKeyBtn) {
+    saveApiKeyBtn.addEventListener("click", () => {
+      const val = customApiKeyInput.value.trim();
+      customApiKey = val;
+      localStorage.setItem("abhi_api_key", val);
+      alert(val ? "✓ API Key saved successfully!" : "API Key cleared.");
+      settingsModal.classList.remove("open");
+      window.AudioEngine.playClick();
+    });
+  }
+
+  if (clearApiKeyBtn) {
+    clearApiKeyBtn.addEventListener("click", () => {
+      customApiKey = "";
+      customApiKeyInput.value = "";
+      localStorage.removeItem("abhi_api_key");
+      alert("API Key removed. Reverted to Sub-10ms Offline Engine.");
+      settingsModal.classList.remove("open");
+      window.AudioEngine.playClick();
+    });
+  }
+
   // Theme Switching
   const themePills = document.querySelectorAll(".theme-pill");
   themePills.forEach((pill) => {
@@ -259,15 +307,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
         }
-        if (window.AudioEngine.voiceEnabled) {
-          window.AudioEngine.speak(localMatch.core, () => {
-            robot.setExpression("speaking");
-          }, () => {
-            robot.setExpression("idle");
-          });
-        } else {
-          setTimeout(() => robot.setExpression("idle"), 1200);
-        }
 
         // Render any math equations with KaTeX
         MathGrapher.renderMath(botMsgElement);
@@ -297,6 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
           message: text,
           subject: state.subject,
           mode: state.mode,
+          api_key: customApiKey,
           stream: true
         })
       });

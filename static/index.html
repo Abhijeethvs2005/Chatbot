@@ -55,7 +55,8 @@
       </div>
 
       <!-- Controls -->
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="settings-btn" class="btn-sm" title="Configure Cloud AI API Key">⚙️ API KEY</button>
         <button id="sound-toggle-btn" class="btn-sm active" title="Robot Servo & Audio SFX: ON">🔊 SFX</button>
         <button id="voice-toggle-btn" class="btn-sm" title="Speech Synthesis (TTS): OFF">🗣️ VOICE</button>
         <button id="notes-toggle-btn" class="btn-sm">🎒 NOTES</button>
@@ -92,10 +93,9 @@
         <!-- Robot HUD Interactive Controls -->
         <div class="hud-bottom-bar">
           <button class="hud-btn overdrive-btn" id="overdrive-btn" title="Trigger high-speed thinking mode">⚡ OVERDRIVE</button>
-          <button class="hud-btn" id="cam-command-btn">🎥 COMMAND</button>
-          <button class="hud-btn" id="cam-core-btn">🔍 CORE VIEW</button>
-          <button class="hud-btn" onclick="window.robotInstance.pokeRobot()">👋 HIGH FIVE</button>
-          <button class="hud-btn" onclick="window.robotInstance.pokeRobot()">🔄 SPIN</button>
+          <button class="hud-btn" id="cam-command-btn">🎥 FULL VIEW</button>
+          <button class="hud-btn" id="cam-core-btn">👁️ ZOOM EYES</button>
+          <button class="hud-btn" onclick="window.robotInstance?.pokeRobot()">👋 WAVE HELLO</button>
         </div>
       </section>
 
@@ -167,7 +167,7 @@
         <div class="terminal-input-bar">
           <div class="input-box">
             <button id="mic-btn" class="input-icon-btn" title="Speak via microphone">🎤</button>
-            <input type="text" id="chat-input" placeholder="Query the academic core... (e.g. 'Derive Chain Rule' or 'Newton's laws')" autocomplete="off">
+            <input type="text" id="chat-input" placeholder="Ask any STEM, math, or study question... (e.g. '15 * 14' or 'Explain QuickSort')" autocomplete="off">
             <button id="send-btn" class="send-action-btn" title="Send Query">➔</button>
           </div>
 
@@ -198,6 +198,27 @@
           <button id="close-quiz-btn" class="close-btn">&times;</button>
         </div>
         <div id="quiz-container"></div>
+      </div>
+    </div>
+
+    <!-- API Key Settings Modal -->
+    <div id="settings-modal" class="modal-backdrop">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <h3 style="font-family: var(--font-mono); color: var(--accent);">⚙️ AI ENGINE SETTINGS</h3>
+          <button id="close-settings-btn" class="close-btn">&times;</button>
+        </div>
+        <div style="font-size: 13px; line-height: 1.6; color: #cbd5e1;">
+          <p style="margin-bottom: 12px;">By default, Chatbot Abhi runs on the <strong>Sub-10ms Offline Academic &amp; Math Engine</strong>. You can optionally connect your own OpenAI API key for live unrestricted answers.</p>
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); margin-bottom: 6px;">OPENAI API KEY (Optional):</label>
+            <input type="password" id="custom-api-key-input" placeholder="sk-..." style="width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; color: var(--text-main); font-family: var(--font-mono); font-size: 13px; outline: none;">
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+            <button id="clear-api-key-btn" class="btn-sm" style="border-color: #ef4444; color: #f87171;">Clear Key</button>
+            <button id="save-api-key-btn" class="btn-sm" style="background: var(--accent); color: var(--bg-primary);">Save Key</button>
+          </div>
+        </div>
       </div>
     </div>
 
