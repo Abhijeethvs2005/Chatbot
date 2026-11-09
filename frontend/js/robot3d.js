@@ -85,6 +85,7 @@ class Robot3D {
     this.heartParticles = [];
 
     // Current Action & Animation Timers
+    this.activeHand = "left"; // 'left' (viewer perspective) or 'right'
     this.currentAction = null;
     this.actionTimer = 0;
     this.isHifiReady = false;
@@ -2081,6 +2082,11 @@ class Robot3D {
     }
   }
 
+  toggleHand() {
+    this.activeHand = (this.activeHand === "left") ? "right" : "left";
+    return this.activeHand;
+  }
+
   buildHoloPlatform() {
     this.holoStage = new THREE.Group();
     this.holoStage.position.set(0, -1.33, 0);
@@ -2891,6 +2897,29 @@ class Robot3D {
         if (target.y !== undefined) bone.rotation.y += (target.y - bone.rotation.y) * alpha;
         if (target.z !== undefined) bone.rotation.z += (target.z - bone.rotation.z) * alpha;
       };
+
+      if (this.activeHand === "left" && this.currentAction) {
+        const mirror = (rot) => ({
+          x: rot.x,
+          y: rot.y !== undefined ? -rot.y : undefined,
+          z: rot.z !== undefined ? -rot.z : undefined
+        });
+        const mirroredLeft = {
+          upper: mirror(targetRight.upper),
+          fore: mirror(targetRight.fore),
+          hand: mirror(targetRight.hand)
+        };
+        const mirroredRight = {
+          upper: mirror(targetLeft.upper),
+          fore: mirror(targetLeft.fore),
+          hand: mirror(targetLeft.hand)
+        };
+        targetLeft = mirroredLeft;
+        targetRight = mirroredRight;
+        const tempCurl = leftFingersTarget;
+        leftFingersTarget = rightFingersTarget;
+        rightFingersTarget = tempCurl;
+      }
 
       lerpBone(this.leftArm.upperArm, targetLeft.upper);
       lerpBone(this.leftArm.forearm, targetLeft.fore);
