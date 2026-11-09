@@ -1005,212 +1005,406 @@ class Robot3D {
   }
 
   buildWardrobeOutfits() {
-    this.wardrobeGroup = new THREE.Group();
-    this.robotGroup.add(this.wardrobeGroup);
+    this.wardrobeParts = {
+      student: [],
+      scientist: [],
+      hoodie: [],
+      astronaut: []
+    };
 
-    // --- 1. STUDENT SCHOOL UNIFORM ---
-    const studentGroup = new THREE.Group();
+    const register = (outfitKey, mesh, parent) => {
+      mesh.visible = false;
+      parent.add(mesh);
+      this.wardrobeParts[outfitKey].push(mesh);
+      return mesh;
+    };
 
-    // Dark Navy School Blazer Jacket
-    const blazer = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.46, 0.30), this.matSuitNavy);
-    blazer.position.set(0, 0.24, 0.12);
-    studentGroup.add(blazer);
+    // ==========================================
+    // 1. STUDENT SCHOOL UNIFORM (ACADEMIC SHIELD CREST & GRADUATION MORTARBOARD)
+    // ==========================================
+    const studentTorso = new THREE.Group();
+    studentTorso.position.set(0, 0, 0);
 
-    // White Shirt Inner V
-    const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.34, 0.31), this.matShirtWhite);
-    shirt.position.set(0, 0.27, 0.12);
-    studentGroup.add(shirt);
+    const blazer = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.46, 0.28), this.matSuitNavy);
+    blazer.position.set(0, 0.08, 0.12);
+    studentTorso.add(blazer);
 
-    // Red Student Necktie
+    const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.32, 0.30), this.matShirtWhite);
+    shirt.position.set(0, 0.12, 0.12);
+    studentTorso.add(shirt);
+
     const tie = new THREE.Mesh(new THREE.ConeGeometry(0.048, 0.28, 4), this.matTieRed);
-    tie.position.set(0, 0.22, 0.30);
+    tie.position.set(0, 0.08, 0.28);
     tie.rotation.x = Math.PI;
-    studentGroup.add(tie);
+    studentTorso.add(tie);
 
-    // Golden Student Crest on Left Pocket
-    const crest = new THREE.Mesh(new THREE.CircleGeometry(0.038, 16), this.matSpaceGold);
-    crest.position.set(-0.20, 0.28, 0.28);
-    studentGroup.add(crest);
+    const tieKnot = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.045, 0.03), this.matTieRed);
+    tieKnot.position.set(0, 0.22, 0.28);
+    studentTorso.add(tieKnot);
 
-    // Dark Uniform Pants Overlays for Both Legs
-    [-0.22, 0.22].forEach((px) => {
-      const pantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.095, 0.46, 16), this.matSuitNavy);
-      pantsThigh.position.set(px, -0.46, 0);
-      studentGroup.add(pantsThigh);
+    // Academic Crest Shield Symbol on Left Breast Pocket
+    const crestGroup = new THREE.Group();
+    crestGroup.position.set(-0.20, 0.14, 0.27);
 
-      const pantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.08, 0.48, 16), this.matSuitNavy);
-      pantsCalf.position.set(px, -0.96, 0);
-      studentGroup.add(pantsCalf);
+    const shield = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.10, 0.015), this.matSpaceGold);
+    crestGroup.add(shield);
 
-      // Polished Black Formal Oxford Shoes
-      const dressShoe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.30), this.matChassis);
-      dressShoe.position.set(px, -1.26, 0.05);
-      studentGroup.add(dressShoe);
+    const bookSymbol = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.04, 0.012), this.matSuitNavy);
+    bookSymbol.position.set(0, 0.01, 0.01);
+    crestGroup.add(bookSymbol);
+
+    const starSymbol = new THREE.Mesh(new THREE.CircleGeometry(0.015, 8), this.matSpaceGold);
+    starSymbol.position.set(0, -0.025, 0.016);
+    crestGroup.add(starSymbol);
+
+    studentTorso.add(crestGroup);
+
+    [-0.04, -0.12].forEach((by) => {
+      const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.015, 12), this.matSpaceGold);
+      btn.rotation.x = Math.PI / 2;
+      btn.position.set(0.02, by, 0.27);
+      studentTorso.add(btn);
     });
 
-    studentGroup.visible = false;
-    this.wardrobeGroup.add(studentGroup);
-    this.outfitMeshes["student"] = studentGroup;
+    register("student", studentTorso, this.torsoGroup);
 
-    // --- 2. SCIENTIST LAB COAT ---
-    const scientistGroup = new THREE.Group();
+    // Academic Graduation Mortarboard Cap
+    const studentCap = new THREE.Group();
+    studentCap.position.set(0, 0.38, 0);
 
-    // Long White Open Lab Coat (extending down past hips)
-    const labCoat = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.70, 0.30), this.matLabCoat);
-    labCoat.position.set(0, 0.10, 0.12);
-    scientistGroup.add(labCoat);
+    const capBase = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.35, 0.14, 24), this.matSuitNavy);
+    capBase.position.set(0, 0.02, 0);
+    studentCap.add(capBase);
 
-    // ID Badge Pinned to Chest
-    const badge = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.13, 0.02), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
-    badge.position.set(0.18, 0.28, 0.28);
-    scientistGroup.add(badge);
+    const capPlate = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.022, 0.70), this.matSuitNavy);
+    capPlate.position.set(0, 0.10, 0);
+    capPlate.rotation.x = 0.08;
+    studentCap.add(capPlate);
 
-    // Smart Research Spectacles / Glasses on Face
+    const tasselButton = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.02, 12), this.matSpaceGold);
+    tasselButton.position.set(0, 0.12, 0);
+    studentCap.add(tasselButton);
+
+    const tasselCord = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.014, 0.24, 8), this.matSpaceGold);
+    tasselCord.position.set(0.24, 0.02, 0.12);
+    tasselCord.rotation.z = -0.3;
+    studentCap.add(tasselCord);
+
+    register("student", studentCap, this.headGroup);
+
+    if (this.leftLeg && this.rightLeg) {
+      const leftPantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.46, 16), this.matSuitNavy);
+      leftPantsThigh.position.set(0, -0.24, 0);
+      register("student", leftPantsThigh, this.leftLeg.thigh);
+
+      const rightPantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.46, 16), this.matSuitNavy);
+      rightPantsThigh.position.set(0, -0.24, 0);
+      register("student", rightPantsThigh, this.rightLeg.thigh);
+
+      const leftPantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.078, 0.46, 16), this.matSuitNavy);
+      leftPantsCalf.position.set(0, -0.25, 0);
+      register("student", leftPantsCalf, this.leftLeg.calf);
+
+      const rightPantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.078, 0.46, 16), this.matSuitNavy);
+      rightPantsCalf.position.set(0, -0.25, 0);
+      register("student", rightPantsCalf, this.rightLeg.calf);
+
+      const leftOxford = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matChassis);
+      leftOxford.position.set(0, 0, 0.03);
+      register("student", leftOxford, this.leftLeg.foot);
+
+      const rightOxford = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matChassis);
+      rightOxford.position.set(0, 0, 0.03);
+      register("student", rightOxford, this.rightLeg.foot);
+    }
+
+    // ==========================================
+    // 2. SCIENTIST LAB COAT (ID BADGE, PENS, STETHOSCOPE & SMART SPECTACLES)
+    // ==========================================
+    const scientistTorso = new THREE.Group();
+    scientistTorso.position.set(0, 0, 0);
+
+    const labCoat = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.68, 0.28), this.matLabCoat);
+    labCoat.position.set(0, -0.02, 0.12);
+    scientistTorso.add(labCoat);
+
+    [-0.15, 0.15].forEach((lx) => {
+      const lapel = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.32, 0.02), this.matLabCoat);
+      lapel.position.set(lx, 0.12, 0.27);
+      scientistTorso.add(lapel);
+    });
+
+    // Pinned Research ID Badge Symbol
+    const badgeGroup = new THREE.Group();
+    badgeGroup.position.set(0.18, 0.14, 0.28);
+
+    const badgeBacking = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.13, 0.015), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 }));
+    badgeGroup.add(badgeBacking);
+
+    const badgePhoto = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.055, 0.01), this.matMissionBlue);
+    badgePhoto.position.set(0, 0.025, 0.01);
+    badgeGroup.add(badgePhoto);
+
+    const badgeBarcode = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.018, 0.01), this.matJoint);
+    badgeBarcode.position.set(0, -0.035, 0.01);
+    badgeGroup.add(badgeBarcode);
+
+    const badgeClip = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.025, 0.02), this.matChrome);
+    badgeClip.position.set(0, 0.075, 0.01);
+    badgeGroup.add(badgeClip);
+
+    scientistTorso.add(badgeGroup);
+
+    // Left Pocket with Dual Technical Pens
+    const pocket = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.10, 0.02), this.matLabCoat);
+    pocket.position.set(-0.18, 0.10, 0.27);
+    scientistTorso.add(pocket);
+
+    const silverPen = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.12, 8), this.matChrome);
+    silverPen.position.set(-0.16, 0.16, 0.28);
+    scientistTorso.add(silverPen);
+
+    const bluePen = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.12, 8), this.matMissionBlue);
+    bluePen.position.set(-0.20, 0.16, 0.28);
+    scientistTorso.add(bluePen);
+
+    // Scientific Stethoscope draped around neck
+    const stethTubing = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.016, 12, 28), this.matStethoscope);
+    stethTubing.position.set(0, 0.26, 0.06);
+    stethTubing.rotation.x = Math.PI / 2.3;
+    scientistTorso.add(stethTubing);
+
+    const chestPiece = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.042, 0.016, 16), this.matChrome);
+    chestPiece.rotation.x = Math.PI / 2;
+    chestPiece.position.set(0.08, -0.06, 0.27);
+    scientistTorso.add(chestPiece);
+
+    register("scientist", scientistTorso, this.torsoGroup);
+
+    // Smart Research Spectacles on Face
     const glassesGroup = new THREE.Group();
-    glassesGroup.position.set(0, 0.84, 0.54);
+    glassesGroup.position.set(0, 0.06, 0.50);
+
     [-0.18, 0.18].forEach((gx) => {
       const frame = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.012, 12, 24), this.matSpaceGold);
       frame.position.set(gx, 0, 0);
       glassesGroup.add(frame);
     });
+
     const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.014, 0.02), this.matSpaceGold);
     bridge.position.set(0, 0, 0);
     glassesGroup.add(bridge);
-    scientistGroup.add(glassesGroup);
 
-    // Formal Slate Tailored Trousers for Both Legs
-    [-0.22, 0.22].forEach((sx) => {
-      const labPantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.108, 0.092, 0.46, 16), this.matJoint);
-      labPantsThigh.position.set(sx, -0.46, 0);
-      scientistGroup.add(labPantsThigh);
+    register("scientist", glassesGroup, this.headGroup);
 
-      const labPantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.078, 0.48, 16), this.matJoint);
-      labPantsCalf.position.set(sx, -0.96, 0);
-      scientistGroup.add(labPantsCalf);
+    if (this.leftLeg && this.rightLeg) {
+      const leftSlacksThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.46, 16), this.matSlateTrousers);
+      leftSlacksThigh.position.set(0, -0.24, 0);
+      register("scientist", leftSlacksThigh, this.leftLeg.thigh);
 
-      // Cleanroom White Anti-Static Lab Shoes
-      const cleanShoe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.30), this.matLabCoat);
-      cleanShoe.position.set(sx, -1.26, 0.05);
-      scientistGroup.add(cleanShoe);
-    });
+      const rightSlacksThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.46, 16), this.matSlateTrousers);
+      rightSlacksThigh.position.set(0, -0.24, 0);
+      register("scientist", rightSlacksThigh, this.rightLeg.thigh);
 
-    scientistGroup.visible = false;
-    this.wardrobeGroup.add(scientistGroup);
-    this.outfitMeshes["scientist"] = scientistGroup;
+      const leftSlacksCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.078, 0.46, 16), this.matSlateTrousers);
+      leftSlacksCalf.position.set(0, -0.25, 0);
+      register("scientist", leftSlacksCalf, this.leftLeg.calf);
 
-    // --- 3. STREETWEAR HOODIE ---
-    const hoodieGroup = new THREE.Group();
+      const rightSlacksCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.078, 0.46, 16), this.matSlateTrousers);
+      rightSlacksCalf.position.set(0, -0.25, 0);
+      register("scientist", rightSlacksCalf, this.rightLeg.calf);
 
-    // Oversized Casual Streetwear Hoodie
-    const hoodieBody = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.50, 0.34), this.matHoodie);
-    hoodieBody.position.set(0, 0.22, 0.12);
-    hoodieGroup.add(hoodieBody);
+      const leftLabShoe = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matLabCoat);
+      leftLabShoe.position.set(0, 0, 0.03);
+      register("scientist", leftLabShoe, this.leftLeg.foot);
 
-    // Kangaroo Front Pocket
-    const pocket = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.18, 0.06), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-    pocket.position.set(0, 0.10, 0.30);
-    hoodieGroup.add(pocket);
+      const rightLabShoe = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matLabCoat);
+      rightLabShoe.position.set(0, 0, 0.03);
+      register("scientist", rightLabShoe, this.rightLeg.foot);
+    }
 
-    // Puffed Hood Collar draped behind neck
-    const hoodCollar = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.09, 12, 24), this.matHoodie);
-    hoodCollar.position.set(0, 0.50, -0.04);
+    // ==========================================
+    // 3. STREETWEAR HOODIE (GLOWING NEON CYBER SYMBOL & TECH DENIM)
+    // ==========================================
+    const hoodieTorso = new THREE.Group();
+    hoodieTorso.position.set(0, 0, 0);
+
+    const hoodieBody = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.50, 0.32), this.matHoodie);
+    hoodieBody.position.set(0, 0.08, 0.12);
+    hoodieTorso.add(hoodieBody);
+
+    const kPouch = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.18, 0.06), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 }));
+    kPouch.position.set(0, -0.04, 0.29);
+    hoodieTorso.add(kPouch);
+
+    const hoodCollar = new THREE.Mesh(new THREE.TorusGeometry(0.26, 0.09, 12, 24), this.matHoodie);
+    hoodCollar.position.set(0, 0.35, -0.04);
     hoodCollar.rotation.x = Math.PI / 2.6;
-    hoodieGroup.add(hoodCollar);
+    hoodieTorso.add(hoodCollar);
 
-    // Denim Tech Jeans Overlays for Both Legs
-    [-0.22, 0.22].forEach((jx) => {
-      const denimThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.098, 0.46, 16), this.matJeans);
-      denimThigh.position.set(jx, -0.46, 0);
-      hoodieGroup.add(denimThigh);
+    // Glowing Neon Cyber Tech Symbol on Center Chest
+    const neonSymbolGeo = new THREE.ConeGeometry(0.065, 0.11, 3);
+    const neonSymbol = new THREE.Mesh(neonSymbolGeo, this.matAccent);
+    neonSymbol.rotation.z = Math.PI;
+    neonSymbol.position.set(0, 0.14, 0.29);
+    hoodieTorso.add(neonSymbol);
 
-      const denimCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.084, 0.48, 16), this.matJeans);
-      denimCalf.position.set(jx, -0.96, 0);
-      hoodieGroup.add(denimCalf);
-
-      // Streetwear High-Top Sneaker
-      const sneaker = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.085, 0.31), this.matShirtWhite);
-      sneaker.position.set(jx, -1.26, 0.05);
-      hoodieGroup.add(sneaker);
-
-      const sneakerSole = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.02, 0.32), this.matAccent);
-      sneakerSole.position.set(jx, -1.30, 0.05);
-      hoodieGroup.add(sneakerSole);
+    [-0.08, 0.08].forEach((dx) => {
+      const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.20, 8), this.matShirtWhite);
+      cord.position.set(dx, 0.14, 0.29);
+      hoodieTorso.add(cord);
     });
 
-    hoodieGroup.visible = false;
-    this.wardrobeGroup.add(hoodieGroup);
-    this.outfitMeshes["hoodie"] = hoodieGroup;
+    register("hoodie", hoodieTorso, this.torsoGroup);
 
-    // --- 4. ASTRONAUT SPACE SUIT ---
-    const astroGroup = new THREE.Group();
+    if (this.leftLeg && this.rightLeg) {
+      const leftDenimThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.095, 0.46, 16), this.matJeans);
+      leftDenimThigh.position.set(0, -0.24, 0);
+      register("hoodie", leftDenimThigh, this.leftLeg.thigh);
 
-    // Heavy Pressurized EVA Torso Harness
-    const astroHarness = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.48, 0.36), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25 }));
-    astroHarness.position.set(0, 0.22, 0.12);
-    astroGroup.add(astroHarness);
+      const rightDenimThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.095, 0.46, 16), this.matJeans);
+      rightDenimThigh.position.set(0, -0.24, 0);
+      register("hoodie", rightDenimThigh, this.rightLeg.thigh);
 
-    // Dual Gold Life Support Oxygen Valves
+      const leftDenimCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.082, 0.46, 16), this.matJeans);
+      leftDenimCalf.position.set(0, -0.25, 0);
+      register("hoodie", leftDenimCalf, this.leftLeg.calf);
+
+      const rightDenimCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.082, 0.46, 16), this.matJeans);
+      rightDenimCalf.position.set(0, -0.25, 0);
+      register("hoodie", rightDenimCalf, this.rightLeg.calf);
+
+      [-1, 1].forEach((dir) => {
+        const foot = (dir === -1) ? this.leftLeg.foot : this.rightLeg.foot;
+        const sneaker = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.085, 0.31), this.matShirtWhite);
+        sneaker.position.set(0, 0, 0.03);
+        register("hoodie", sneaker, foot);
+
+        const sneakerSole = new THREE.Mesh(new THREE.BoxGeometry(0.175, 0.02, 0.32), this.matAccent);
+        sneakerSole.position.set(0, -0.045, 0.03);
+        register("hoodie", sneakerSole, foot);
+      });
+    }
+
+    // ==========================================
+    // 4. ASTRONAUT SPACE SUIT (MISSION PATCH, O2 VALVES, TELEMETRY CONSOLE & BACKPACK)
+    // ==========================================
+    const astroTorso = new THREE.Group();
+    astroTorso.position.set(0, 0, 0);
+
+    const astroHarness = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.48, 0.34), this.matSpaceSuit);
+    astroHarness.position.set(0, 0.08, 0.12);
+    astroTorso.add(astroHarness);
+
     [-0.16, 0.16].forEach((vx) => {
       const valve = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.05, 16), this.matSpaceGold);
       valve.rotation.x = Math.PI / 2;
-      valve.position.set(vx, 0.28, 0.31);
-      astroGroup.add(valve);
+      valve.position.set(vx, 0.14, 0.30);
+      astroTorso.add(valve);
     });
 
-    // Space Insignia on Sternum
-    const insignia = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.07, 0.02), this.matTieRed);
-    insignia.position.set(0, 0.14, 0.31);
-    astroGroup.add(insignia);
+    // Spaceflight Mission Patch Symbol on Chest
+    const patchGroup = new THREE.Group();
+    patchGroup.position.set(-0.18, 0.18, 0.30);
 
-    // Heavy Life Support Backpack behind shoulders
+    const patchBacking = new THREE.Mesh(new THREE.CircleGeometry(0.048, 20), this.matMissionBlue);
+    patchGroup.add(patchBacking);
+
+    const patchOrbit = new THREE.Mesh(new THREE.TorusGeometry(0.034, 0.007, 8, 16), this.matSpaceGold);
+    patchOrbit.position.set(0, 0, 0.005);
+    patchGroup.add(patchOrbit);
+
+    const patchStar = new THREE.Mesh(new THREE.CircleGeometry(0.012, 8), this.matShirtWhite);
+    patchStar.position.set(0, 0, 0.01);
+    patchGroup.add(patchStar);
+
+    astroTorso.add(patchGroup);
+
+    // Chest Telemetry Status Box with Multi-Colored LEDs
+    const telemetryBox = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.09, 0.035), this.matJoint);
+    telemetryBox.position.set(0, 0.01, 0.30);
+    astroTorso.add(telemetryBox);
+
+    [
+      { x: -0.07, color: 0x22c55e },
+      { x: 0.0, color: 0xf59e0b },
+      { x: 0.07, color: 0x38bdf8 }
+    ].forEach((led) => {
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), new THREE.MeshStandardMaterial({
+        color: led.color,
+        emissive: led.color,
+        emissiveIntensity: 0.9
+      }));
+      dot.position.set(led.x, 0.01, 0.32);
+      astroTorso.add(dot);
+    });
+
     const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.50, 0.24), this.matChassis);
-    backpack.position.set(0, 0.22, -0.23);
-    astroGroup.add(backpack);
+    backpack.position.set(0, 0.08, -0.22);
+    astroTorso.add(backpack);
 
-    // Pressurized Space Suit Legs for Both Legs
-    [-0.22, 0.22].forEach((ax) => {
-      const astroThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.105, 0.46, 16), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }));
-      astroThigh.position.set(ax, -0.46, 0);
-      astroGroup.add(astroThigh);
-
-      // Gold Knee Compression Joint Ring
-      const kneeRing = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.016, 12, 24), this.matSpaceGold);
-      kneeRing.rotation.x = Math.PI / 2;
-      kneeRing.position.set(ax, -0.70, 0);
-      astroGroup.add(kneeRing);
-
-      const astroCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.48, 16), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }));
-      astroCalf.position.set(ax, -0.96, 0);
-      astroGroup.add(astroCalf);
-
-      // Heavy Cosmic Moon Boots
-      const moonBoot = new THREE.Mesh(new THREE.BoxGeometry(0.175, 0.09, 0.32), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.2 }));
-      moonBoot.position.set(ax, -1.26, 0.05);
-      astroGroup.add(moonBoot);
+    [-0.20, 0.20].forEach((tx) => {
+      const thruster = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.048, 0.08, 16), this.matSpaceGold);
+      thruster.position.set(tx, 0.35, -0.22);
+      astroTorso.add(thruster);
     });
 
-    astroGroup.visible = false;
-    this.wardrobeGroup.add(astroGroup);
-    this.outfitMeshes["astronaut"] = astroGroup;
+    register("astronaut", astroTorso, this.torsoGroup);
 
-    // --- 5. CYBER MECHA (Default, built-in) ---
-    this.outfitMeshes["cyber"] = null;
+    const commsGroup = new THREE.Group();
+    commsGroup.position.set(0, 0, 0);
+
+    const commsBase = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.04, 16), this.matChassis);
+    commsBase.rotation.z = Math.PI / 2;
+    commsBase.position.set(0.58, 0.02, 0.05);
+    commsGroup.add(commsBase);
+
+    const micBoom = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.28, 8), this.matSpaceGold);
+    micBoom.rotation.x = Math.PI / 2.8;
+    micBoom.rotation.z = -Math.PI / 3.5;
+    micBoom.position.set(0.42, -0.06, 0.25);
+    commsGroup.add(micBoom);
+
+    register("astronaut", commsGroup, this.headGroup);
+
+    if (this.leftLeg && this.rightLeg) {
+      const leftAstroThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.098, 0.46, 16), this.matSpaceSuit);
+      leftAstroThigh.position.set(0, -0.24, 0);
+      register("astronaut", leftAstroThigh, this.leftLeg.thigh);
+
+      const rightAstroThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.098, 0.46, 16), this.matSpaceSuit);
+      rightAstroThigh.position.set(0, -0.24, 0);
+      register("astronaut", rightAstroThigh, this.rightLeg.thigh);
+
+      const leftAstroCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.085, 0.46, 16), this.matSpaceSuit);
+      leftAstroCalf.position.set(0, -0.25, 0);
+      register("astronaut", leftAstroCalf, this.leftLeg.calf);
+
+      const rightAstroCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.085, 0.46, 16), this.matSpaceSuit);
+      rightAstroCalf.position.set(0, -0.25, 0);
+      register("astronaut", rightAstroCalf, this.rightLeg.calf);
+
+      const leftMoonBoot = new THREE.Mesh(new THREE.BoxGeometry(0.175, 0.092, 0.32), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.25 }));
+      leftMoonBoot.position.set(0, 0, 0.03);
+      register("astronaut", leftMoonBoot, this.leftLeg.foot);
+
+      const rightMoonBoot = new THREE.Mesh(new THREE.BoxGeometry(0.175, 0.092, 0.32), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.25 }));
+      rightMoonBoot.position.set(0, 0, 0.03);
+      register("astronaut", rightMoonBoot, this.rightLeg.foot);
+    }
   }
 
   setOutfit(outfitKey) {
     if (!["cyber", "student", "scientist", "hoodie", "astronaut"].includes(outfitKey)) return;
     this.currentOutfit = outfitKey;
 
-    // Hide all outfit meshes
-    Object.keys(this.outfitMeshes).forEach((key) => {
-      if (this.outfitMeshes[key]) {
-        this.outfitMeshes[key].visible = false;
-      }
-    });
-
-    // Show chosen outfit
-    if (this.outfitMeshes[outfitKey]) {
-      this.outfitMeshes[outfitKey].visible = true;
+    if (this.wardrobeParts) {
+      Object.keys(this.wardrobeParts).forEach((key) => {
+        const isSelected = (key === outfitKey);
+        this.wardrobeParts[key].forEach((part) => {
+          part.visible = isSelected;
+        });
+      });
     }
 
     // Play transformation SFX
@@ -1276,30 +1470,48 @@ class Robot3D {
       }
     } else if (actionName === "kiss") {
       this.setExpression("happy");
-      this.spawnHeartParticles();
       if (window.AudioEngine) {
-        window.AudioEngine.playRobotChirp();
-        window.AudioEngine.speak("Sending you lots of love and good energy!");
+        if (window.AudioEngine.playKissSound) window.AudioEngine.playKissSound();
+        else window.AudioEngine.playRobotChirp();
+        window.AudioEngine.speak("Sending you lots of love and positive energy!");
       }
+      setTimeout(() => this.spawnHeartParticles(), 900);
     } else if (actionName === "salute") {
       this.setExpression("idle");
       if (window.AudioEngine) {
-        window.AudioEngine.playServoHum();
+        if (window.AudioEngine.playSalute) window.AudioEngine.playSalute();
+        else window.AudioEngine.playServoHum();
         window.AudioEngine.speak("Standing at attention! System fully operational!");
       }
     }
   }
 
   spawnHeartParticles() {
-    for (let i = 0; i < 7; i++) {
-      const heartGeo = new THREE.SphereGeometry(0.045, 12, 12);
-      heartGeo.scale(1.1, 1.2, 0.6);
+    const x = 0, y = 0;
+    const heartShape = new THREE.Shape();
+    heartShape.moveTo(x + 0.05, y + 0.05);
+    heartShape.bezierCurveTo(x + 0.05, y + 0.05, x + 0.04, y, x, y);
+    heartShape.bezierCurveTo(x - 0.06, y, x - 0.06, y + 0.07, x - 0.06, y + 0.07);
+    heartShape.bezierCurveTo(x - 0.06, y + 0.11, x - 0.03, y + 0.154, x + 0.05, y + 0.19);
+    heartShape.bezierCurveTo(x + 0.12, y + 0.154, x + 0.16, y + 0.11, x + 0.16, y + 0.07);
+    heartShape.bezierCurveTo(x + 0.16, y + 0.07, x + 0.16, y, x + 0.10, y);
+    heartShape.bezierCurveTo(x + 0.07, y, x + 0.05, y + 0.05, x + 0.05, y + 0.05);
+
+    for (let i = 0; i < 8; i++) {
+      const heartGeo = new THREE.ShapeGeometry(heartShape);
       const heart = new THREE.Mesh(heartGeo, this.matHeart);
-      heart.position.set(0.1 + (Math.random() - 0.5) * 0.15, 0.6 + Math.random() * 0.2, 0.5);
+      heart.rotation.z = Math.PI;
+      heart.scale.set(0.42, 0.42, 0.42);
+      heart.position.set(
+        (Math.random() - 0.5) * 0.18,
+        0.74 + (Math.random() - 0.5) * 0.12,
+        0.52 + Math.random() * 0.15
+      );
       heart.userData = {
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: 0.35 + Math.random() * 0.45,
-        vz: 0.6 + Math.random() * 0.5,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: 0.35 + Math.random() * 0.4,
+        vz: 0.7 + Math.random() * 0.6,
+        rotV: (Math.random() - 0.5) * 4.0,
         life: 1.0
       };
       this.heartParticles.push(heart);
@@ -1371,12 +1583,15 @@ class Robot3D {
     if (window.AudioEngine) {
       if (window.AudioEngine.playClap) window.AudioEngine.playClap();
       else if (window.AudioEngine.playHydraulicClick) window.AudioEngine.playHydraulicClick();
+      window.AudioEngine.speak("Awesome high-five! Let's conquer our study goals!");
     }
-    this.rightArm.hand.rotation.x = 0.8;
+    this.rightArm.hand.rotation.x = 0.45;
+    this.setExpression("happy");
     setTimeout(() => {
       this.rightArm.hand.rotation.x = -0.25;
       this.currentAction = null;
-    }, 600);
+      this.setExpression("idle");
+    }, 1200);
   }
 
   resetCameraView() {
@@ -1619,66 +1834,87 @@ class Robot3D {
     if (this.leftArm && this.rightArm) {
       if (this.currentAction === "hello") {
         this.actionTimer += delta;
-        // Warm waving gesture
-        this.rightArm.upperArm.rotation.z = -1.1;
-        this.rightArm.upperArm.rotation.x = 0.3;
-        this.rightArm.forearm.rotation.x = -1.8;
-        this.rightArm.hand.rotation.x = 0.5;
-        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 9) * 0.45;
+        // Warm waving gesture with open palm
+        this.rightArm.upperArm.rotation.z = -1.25;
+        this.rightArm.upperArm.rotation.x = 0.35;
+        this.rightArm.forearm.rotation.x = -1.82;
+        this.rightArm.hand.rotation.x = 0.52;
+        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 8.5) * 0.45;
+        this.rightArm.hand.rotation.z = Math.sin(this.actionTimer * 8.5) * 0.15;
+        if (this.headGroup) this.headGroup.rotation.z = 0.12;
 
-        if (this.actionTimer > 2.5) {
+        if (this.actionTimer > 2.8) {
           this.currentAction = null;
           this.setExpression("idle");
+          if (this.headGroup) this.headGroup.rotation.z = 0;
         }
       } else if (this.currentAction === "bye") {
         this.actionTimer += delta;
-        // Gentle farewell wave
-        this.rightArm.upperArm.rotation.z = -0.9;
-        this.rightArm.upperArm.rotation.x = 0.2;
-        this.rightArm.forearm.rotation.x = -1.6;
+        // Gentle farewell wave with wrist sway
+        this.rightArm.upperArm.rotation.z = -1.0;
+        this.rightArm.upperArm.rotation.x = 0.22;
+        this.rightArm.forearm.rotation.x = -1.65;
         this.rightArm.hand.rotation.x = 0.4;
-        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 5) * 0.35;
+        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 4.5) * 0.38;
+        if (this.headGroup) this.headGroup.rotation.z = -0.10;
 
-        if (this.actionTimer > 2.5) {
+        if (this.actionTimer > 2.8) {
+          this.currentAction = null;
+          this.setExpression("idle");
+          if (this.headGroup) this.headGroup.rotation.z = 0;
+        }
+      } else if (this.currentAction === "hifi") {
+        this.actionTimer += delta;
+        // High-five ready stance: palm upright facing viewer at eye height
+        this.rightArm.upperArm.rotation.z = -0.42;
+        this.rightArm.upperArm.rotation.x = 0.78;
+        this.rightArm.forearm.rotation.x = -0.52;
+        this.rightArm.hand.rotation.x = 1.05;
+        this.rightArm.hand.rotation.y = 0.0;
+        if (this.actionTimer > 6.0) {
+          this.isHifiReady = false;
           this.currentAction = null;
           this.setExpression("idle");
         }
-      } else if (this.currentAction === "hifi") {
-        // High-five ready stance: palm facing straight toward viewer at eye height
-        this.rightArm.upperArm.rotation.z = -0.5;
-        this.rightArm.upperArm.rotation.x = 0.7;
-        this.rightArm.forearm.rotation.x = -0.6;
-        this.rightArm.hand.rotation.x = 0.9;
-        this.rightArm.hand.rotation.y = 0.0;
       } else if (this.currentAction === "kiss") {
         this.actionTimer += delta;
         if (this.actionTimer < 1.0) {
-          // Bring hand to mouth
-          this.rightArm.upperArm.rotation.z = -0.4;
-          this.rightArm.upperArm.rotation.x = 0.8;
-          this.rightArm.forearm.rotation.x = -2.1;
-          this.rightArm.hand.rotation.x = 0.6;
-        } else if (this.actionTimer < 3.2) {
+          // Bring hand right to lips
+          this.rightArm.upperArm.rotation.z = -0.38;
+          this.rightArm.upperArm.rotation.x = 0.85;
+          this.rightArm.forearm.rotation.x = -2.28;
+          this.rightArm.hand.rotation.x = 0.7;
+          if (this.headGroup) this.headGroup.rotation.x = -0.12;
+        } else if (this.actionTimer < 3.5) {
           // Open hand outward blowing kiss toward user
-          this.rightArm.forearm.rotation.x = -0.8;
-          this.rightArm.hand.rotation.x = 0.4;
-          this.rightArm.hand.rotation.y = Math.sin(time * 3) * 0.15;
+          this.rightArm.forearm.rotation.x = -0.75;
+          this.rightArm.hand.rotation.x = 0.35;
+          this.rightArm.hand.rotation.y = Math.sin(time * 4) * 0.20;
+          if (this.headGroup) this.headGroup.rotation.x = 0.10;
         } else {
           this.currentAction = null;
           this.setExpression("idle");
+          if (this.headGroup) this.headGroup.rotation.x = 0;
         }
       } else if (this.currentAction === "salute") {
         this.actionTimer += delta;
+        // Left arm pinned straight down at attention
+        this.leftArm.upperArm.rotation.set(0, 0, 0.1);
+        this.leftArm.forearm.rotation.set(0, 0, 0);
+        this.leftArm.hand.rotation.set(0, 0, 0);
+
         // Sharp military salute: fingertips touch right temple/brow
-        this.rightArm.upperArm.rotation.z = -1.2;
-        this.rightArm.upperArm.rotation.x = 0.4;
-        this.rightArm.forearm.rotation.x = -2.35;
-        this.rightArm.hand.rotation.x = 0.2;
-        this.rightArm.hand.rotation.z = 0.3;
+        this.rightArm.upperArm.rotation.z = -1.35;
+        this.rightArm.upperArm.rotation.x = 0.45;
+        this.rightArm.forearm.rotation.x = -2.45;
+        this.rightArm.hand.rotation.x = 0.15;
+        this.rightArm.hand.rotation.z = 0.38;
+        if (this.headGroup) this.headGroup.rotation.x = 0.08;
 
         if (this.actionTimer > 2.5) {
           this.currentAction = null;
           this.setExpression("idle");
+          if (this.headGroup) this.headGroup.rotation.x = 0;
         }
       } else if (this.expression === "speaking") {
         // Conversational Gesturing: Both hands articulate in rhythm
@@ -1706,8 +1942,8 @@ class Robot3D {
       f.rotation.x = fingerCurl + i * 0.03;
     });
     this.rightFingers.forEach((f, i) => {
-      if (this.currentAction === "hifi" || this.currentAction === "salute") {
-        f.rotation.x = 0.02; // Flat straight fingers for high-five or salute
+      if (this.currentAction === "hifi" || this.currentAction === "salute" || this.currentAction === "hello") {
+        f.rotation.x = 0.02; // Flat straight open fingers
       } else {
         f.rotation.x = fingerCurl + i * 0.03;
       }
