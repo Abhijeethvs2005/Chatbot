@@ -957,7 +957,7 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
         "formulas": [],
         "steps": [
             "1. **Creator & Purpose**: Conceived, designed, and developed by **Abhijeeth V S** to provide students and learners with an ultra-responsive, highly accurate, and engaging STEM study companion.",
-            "2. **3D Interactive Avatar**: Features an articulated humanoid 3D robot avatar with animated head-tracking, facial expressions (thinking, speaking, smiling), five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
+            "2. **3D Interactive Avatar**: Features an articulated humanoid 3D avatar sculpted with athletic masculine human anatomy and dressed in tailored modern menswear (navy blazer, collared dress shirt, silk tie, leather belt, slacks, and Oxford dress shoes) with animated head-tracking, expressive eyes, five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
             "3. **Multi-Discipline Intelligence**: Equipped with sub-millisecond symbolic mathematical solvers (Calculus, Polynomial Integration, Differentiation, Molar Mass chemistry), comprehensive physics/biology/computer science encyclopedias, and professional communication skills coaching.",
             "4. **Zero-Latency Architecture**: Answers common academic and factual queries deterministically in under 1 millisecond, complete with step-by-step reasoning, KaTeX mathematical formulas, intuitive analogies, and exam pitfalls."
         ],
@@ -2623,7 +2623,7 @@ async def health_check():
         "version": "4.0.0",
         "openai_configured": has_key,
         "features": [
-            "Real 3D Robot with Clear Expressive Eyes & Articulated 5-Digit Hands",
+            "Real 3D Humanoid Robot Dressed in Tailored Modern Menswear with Expressive Eyes & 5-Digit Hands",
             "Deterministic Math & Quadratic Equation Solver",
             "Multi-Domain Academic Knowledge Base",
             "Live Free Wikipedia Encyclopedic Factual Engine",

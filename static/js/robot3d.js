@@ -326,10 +326,145 @@ class Robot3D {
       metalness: 0.98
     });
 
+    // --- HUMAN ANATOMY & FACIAL MATERIALS ---
+    this.matSkin = new THREE.MeshStandardMaterial({
+      color: 0xdfaa8b, // Healthy, warm masculine human skin tone
+      roughness: 0.58,
+      metalness: 0.02
+    });
+
+    this.matSkinShadow = new THREE.MeshStandardMaterial({
+      color: 0xc89274,
+      roughness: 0.65,
+      metalness: 0.02
+    });
+
+    this.matHair = new THREE.MeshStandardMaterial({
+      color: 0x1c1917, // Refined dark espresso brunette hair
+      roughness: 0.72,
+      metalness: 0.05
+    });
+
+    this.matEyebrow = new THREE.MeshStandardMaterial({
+      color: 0x181512,
+      roughness: 0.85
+    });
+
+    this.matLips = new THREE.MeshStandardMaterial({
+      color: 0xc97a70, // Natural masculine lips
+      roughness: 0.50,
+      metalness: 0.02
+    });
+
+    this.matSclera = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc, // Pure pearlescent clean white sclera
+      roughness: 0.12,
+      metalness: 0.05
+    });
+
+    this.matCaruncle = new THREE.MeshStandardMaterial({
+      color: 0xe08f88,
+      roughness: 0.40
+    });
+
+    this.matNails = new THREE.MeshStandardMaterial({
+      color: 0xf2d5c4, // Natural male fingernails with subtle healthy sheen
+      roughness: 0.30,
+      metalness: 0.04
+    });
+
+    // --- REFINED HUMAN MENSWEAR CLOTHING MATERIALS ---
+    this.matSuitNavy = new THREE.MeshStandardMaterial({
+      color: 0x1e293b, // Tailored navy/slate fine wool blazer
+      roughness: 0.74,
+      metalness: 0.04
+    });
+
+    this.matSuitLapel = new THREE.MeshStandardMaterial({
+      color: 0x172033, // Fine grosgrain/satin lapel finish
+      roughness: 0.56,
+      metalness: 0.08
+    });
+
+    this.matSuitButtons = new THREE.MeshStandardMaterial({
+      color: 0x0f172a, // Polished dark horn button
+      roughness: 0.32,
+      metalness: 0.15
+    });
+
+    this.matShirtWhite = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc, // Crisp poplin dress shirt
+      roughness: 0.44,
+      metalness: 0.02
+    });
+
+    this.matShirtCollar = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.38,
+      metalness: 0.02
+    });
+
+    this.matTieRed = new THREE.MeshStandardMaterial({
+      color: 0x991b1b, // Luxurious rich crimson woven silk tie
+      roughness: 0.32,
+      metalness: 0.14,
+      emissive: 0x450a0a,
+      emissiveIntensity: 0.15
+    });
+
+    this.matTieClip = new THREE.MeshStandardMaterial({
+      color: 0xd4af37, // Polished 18k gold tie bar & cufflinks
+      roughness: 0.18,
+      metalness: 0.95
+    });
+
+    this.matPocketSquare = new THREE.MeshStandardMaterial({
+      color: 0xffffff, // Crisp linen pocket square
+      roughness: 0.35
+    });
+
+    this.matBelt = new THREE.MeshStandardMaterial({
+      color: 0x18181b, // Italian dark leather
+      roughness: 0.38,
+      metalness: 0.05
+    });
+
+    this.matBeltBuckle = new THREE.MeshStandardMaterial({
+      color: 0xe2e8f0, // Polished brushed steel/palladium buckle
+      roughness: 0.18,
+      metalness: 0.96
+    });
+
+    this.matTrousers = new THREE.MeshStandardMaterial({
+      color: 0x1e293b, // Tailored wool trousers matching jacket
+      roughness: 0.75,
+      metalness: 0.04
+    });
+
+    this.matTrouserCrease = new THREE.MeshStandardMaterial({
+      color: 0x172130, // Sharp pressed trouser crease accent
+      roughness: 0.68,
+      metalness: 0.04
+    });
+
+    this.matShoes = new THREE.MeshStandardMaterial({
+      color: 0x1c120c, // Hand-burnished mahogany espresso Oxford leather
+      roughness: 0.32,
+      metalness: 0.08
+    });
+
+    this.matSole = new THREE.MeshStandardMaterial({
+      color: 0x0c0a09, // Leather welt & stacked heel sole
+      roughness: 0.65,
+      metalness: 0.05
+    });
+
+    this.matLaces = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      roughness: 0.75
+    });
+
     // Wardrobe Specific Materials
-    this.matSuitNavy = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65 });
-    this.matShirtWhite = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
-    this.matTieRed = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.3, emissive: 0x991b1b, emissiveIntensity: 0.2 });
     this.matLabCoat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 });
     this.matHoodie = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.75 });
     this.matJeans = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.7 });
@@ -710,51 +845,195 @@ class Robot3D {
     this.torsoGroup = new THREE.Group();
     this.torsoGroup.position.set(0, 0.15, 0);
 
-    // Chest & Pectoral Armor
-    const chest = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.42, 0.24), this.matArmor);
-    chest.position.set(0, 0.08, 0.12);
-    this.torsoGroup.add(chest);
+    // ==========================================
+    // 1. ATHLETIC MASCULINE V-TAPER TORSO FOUNDATION
+    // ==========================================
+    // Inner torso chest foundation
+    const innerTorso = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.52, 0.22), this.matShirtWhite);
+    innerTorso.position.set(0, 0.02, 0.06);
+    this.torsoGroup.add(innerTorso);
 
-    // Central Arc Reactor Core
-    const coreRim = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.025, 16, 32), this.matChrome);
-    coreRim.position.set(0, 0.08, 0.25);
-    this.torsoGroup.add(coreRim);
+    // ==========================================
+    // 2. CRISP BUTTON-DOWN DRESS SHIRT (COLLAR, PLACKET, BUTTONS)
+    // ==========================================
+    // Central shirt chest visible through blazer V-opening
+    const shirtChest = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.38, 0.25), this.matShirtWhite);
+    shirtChest.position.set(0, 0.12, 0.08);
+    this.torsoGroup.add(shirtChest);
 
-    this.coreMesh = new THREE.Mesh(new THREE.CircleGeometry(0.105, 32), this.matAccent);
-    this.coreMesh.position.set(0, 0.08, 0.26);
-    this.torsoGroup.add(this.coreMesh);
+    // Vertical shirt placket
+    const placket = new THREE.Mesh(new THREE.BoxGeometry(0.032, 0.36, 0.015), this.matShirtCollar);
+    placket.position.set(0, 0.11, 0.21);
+    this.torsoGroup.add(placket);
 
-    // Spine Column & Back Plating
-    const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.65, 16), this.matJoint);
-    spine.position.set(0, -0.05, -0.05);
-    this.torsoGroup.add(spine);
-
-    // Humanoid Waist & Abdominal Actuators
-    [-0.14, -0.24].forEach((y) => {
-      const rib = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.065, 0.20), this.matChassis);
-      rib.position.set(0, y, 0.1);
-      this.torsoGroup.add(rib);
+    // Mother-of-pearl shirt buttons
+    [0.23, 0.14, 0.05, -0.04].forEach((by) => {
+      const btn = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.008, 12), this.matShirtCollar);
+      btn.rotation.x = Math.PI / 2;
+      btn.position.set(0, by, 0.22);
+      this.torsoGroup.add(btn);
     });
 
-    // Pelvis / Hip Chassis Connecting to Legs
-    const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.18, 0.24), this.matArmor);
-    pelvis.position.set(0, -0.38, 0.06);
-    this.torsoGroup.add(pelvis);
-
-    // Dual Pelvic Hip Sockets
-    [-0.22, 0.22].forEach((px) => {
-      const hipSocket = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.08, 16), this.matJoint);
-      hipSocket.rotation.z = Math.PI / 2;
-      hipSocket.position.set(px, -0.38, 0.06);
-      this.torsoGroup.add(hipSocket);
+    // Stiff Spread Collar Wings framing neck
+    [-0.085, 0.085].forEach((cx) => {
+      const isLeft = cx < 0;
+      const collarWing = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.055, 0.018), this.matShirtCollar);
+      collarWing.position.set(cx, 0.27, 0.18);
+      collarWing.rotation.z = isLeft ? 0.32 : -0.32;
+      collarWing.rotation.y = isLeft ? 0.24 : -0.24;
+      collarWing.rotation.x = 0.18;
+      this.torsoGroup.add(collarWing);
     });
+
+    // ==========================================
+    // 3. ELEGANT SILK NECKTIE WITH FOUR-IN-HAND KNOT & GOLD TIE BAR
+    // ==========================================
+    // Four-in-hand tie knot nestled at collar
+    const tieKnotGeo = new THREE.ConeGeometry(0.042, 0.055, 4);
+    tieKnotGeo.scale(1.2, 1.0, 0.85);
+    const tieKnot = new THREE.Mesh(tieKnotGeo, this.matTieRed);
+    tieKnot.rotation.x = Math.PI;
+    tieKnot.position.set(0, 0.24, 0.215);
+    this.torsoGroup.add(tieKnot);
+
+    // Tie blade draped down shirt
+    const tieBlade = new THREE.Mesh(new THREE.BoxGeometry(0.062, 0.34, 0.018), this.matTieRed);
+    tieBlade.position.set(0, 0.05, 0.22);
+    this.torsoGroup.add(tieBlade);
+
+    // Tie pointed tip
+    const tieTip = new THREE.Mesh(new THREE.ConeGeometry(0.031, 0.05, 4), this.matTieRed);
+    tieTip.position.set(0, -0.14, 0.22);
+    tieTip.rotation.z = Math.PI;
+    this.torsoGroup.add(tieTip);
+
+    // Polished 18k Gold Tie Bar / Clip
+    const tieClip = new THREE.Mesh(new THREE.BoxGeometry(0.068, 0.012, 0.014), this.matTieClip);
+    tieClip.position.set(0.005, 0.08, 0.232);
+    this.torsoGroup.add(tieClip);
+
+    // ==========================================
+    // 4. TAILORED SUIT JACKET / MODERN SLIM-FIT BLAZER
+    // ==========================================
+    // Broad masculine shoulder yoke
+    const shoulderYoke = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.16, 0.28), this.matSuitNavy);
+    shoulderYoke.position.set(0, 0.22, 0.05);
+    this.torsoGroup.add(shoulderYoke);
+
+    // Left & Right Chest / Front Quarters of Blazer
+    [-0.24, 0.24].forEach((qx) => {
+      const isLeft = qx < 0;
+      const quarter = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.44, 0.26), this.matSuitNavy);
+      quarter.position.set(qx, 0.06, 0.06);
+      quarter.rotation.y = isLeft ? 0.06 : -0.06;
+      this.torsoGroup.add(quarter);
+    });
+
+    // Jacket Back & Spine Contouring
+    const jacketBack = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.46, 0.14), this.matSuitNavy);
+    jacketBack.position.set(0, 0.05, -0.08);
+    this.torsoGroup.add(jacketBack);
+
+    // Tailored Notch Lapels
+    [-0.14, 0.14].forEach((lx) => {
+      const isLeft = lx < 0;
+      const lapel = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.32, 0.024), this.matSuitLapel);
+      lapel.position.set(lx, 0.12, 0.20);
+      lapel.rotation.z = isLeft ? -0.28 : 0.28;
+      lapel.rotation.y = isLeft ? 0.15 : -0.15;
+      lapel.rotation.x = -0.06;
+      this.torsoGroup.add(lapel);
+    });
+
+    // Welt Breast Pocket on Left Chest
+    const breastPocket = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.018, 0.016), this.matSuitLapel);
+    breastPocket.position.set(-0.21, 0.15, 0.198);
+    this.torsoGroup.add(breastPocket);
+
+    // Folded White Silk / Linen Pocket Square
+    const pocketSquare = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.038, 0.012), this.matPocketSquare);
+    pocketSquare.position.set(-0.21, 0.178, 0.202);
+    pocketSquare.rotation.z = -0.08;
+    this.torsoGroup.add(pocketSquare);
+
+    // Front Jacket Buttons (Dark horn buttons)
+    [-0.01, -0.11].forEach((by) => {
+      const jBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.012, 16), this.matSuitButtons);
+      jBtn.rotation.x = Math.PI / 2;
+      jBtn.position.set(0.02, by, 0.215);
+      this.torsoGroup.add(jBtn);
+    });
+
+    // Left and Right Flap Waist Pockets
+    [-0.24, 0.24].forEach((wx) => {
+      const pocketFlap = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.024, 0.022), this.matSuitNavy);
+      pocketFlap.position.set(wx, -0.12, 0.185);
+      this.torsoGroup.add(pocketFlap);
+    });
+
+    // ==========================================
+    // 5. HIGH-TECH QUANTUM AI LAPEL PIN / BROOCH CORE
+    // ==========================================
+    // Sophisticated lapel brooch representing the robot's AI intellect
+    const broochGroup = new THREE.Group();
+    broochGroup.position.set(-0.16, 0.22, 0.22);
+
+    const broochBezel = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.007, 16, 24), this.matChrome);
+    broochGroup.add(broochBezel);
+
+    this.coreMesh = new THREE.Mesh(new THREE.CircleGeometry(0.026, 24), this.matAccent);
+    this.coreMesh.position.set(0, 0, 0.005);
+    broochGroup.add(this.coreMesh);
+
+    this.torsoGroup.add(broochGroup);
+
+    // ==========================================
+    // 6. LEATHER BELT & POLISHED BUCKLE AT WAIST
+    // ==========================================
+    // Waistband
+    const waistband = new THREE.Mesh(new THREE.BoxGeometry(0.53, 0.05, 0.23), this.matTrousers);
+    waistband.position.set(0, -0.22, 0.05);
+    this.torsoGroup.add(waistband);
+
+    // Genuine Dark Leather Belt Strap
+    const belt = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.042, 0.235), this.matBelt);
+    belt.position.set(0, -0.22, 0.05);
+    this.torsoGroup.add(belt);
+
+    // Belt Loops
+    [-0.18, -0.07, 0.07, 0.18].forEach((lx) => {
+      const loop = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.048, 0.012), this.matTrousers);
+      loop.position.set(lx, -0.22, 0.17);
+      this.torsoGroup.add(loop);
+    });
+
+    // Polished Metal Belt Buckle
+    const buckleFrame = new THREE.Mesh(new THREE.BoxGeometry(0.082, 0.052, 0.015), this.matBeltBuckle);
+    buckleFrame.position.set(0, -0.22, 0.172);
+    this.torsoGroup.add(buckleFrame);
+
+    const buckleProng = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.038, 0.018), this.matChrome);
+    buckleProng.position.set(0, -0.22, 0.175);
+    this.torsoGroup.add(buckleProng);
+
+    // ==========================================
+    // 7. TAILORED TROUSER PELVIS / HIP CONNECTION
+    // ==========================================
+    const pelvisSlacks = new THREE.Mesh(new THREE.BoxGeometry(0.53, 0.18, 0.23), this.matTrousers);
+    pelvisSlacks.position.set(0, -0.32, 0.045);
+    this.torsoGroup.add(pelvisSlacks);
+
+    // Front trouser fly placket seam
+    const trouserFly = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.14, 0.014), this.matTrouserCrease);
+    trouserFly.position.set(0, -0.30, 0.162);
+    this.torsoGroup.add(trouserFly);
 
     this.robotGroup.add(this.torsoGroup);
   }
 
   buildHumanoidArmsAndHands() {
-    this.leftArm = this.createHumanoidArm(-0.52, "left");
-    this.rightArm = this.createHumanoidArm(0.52, "right");
+    this.leftArm = this.createHumanoidArm(-0.46, "left");
+    this.rightArm = this.createHumanoidArm(0.46, "right");
     this.robotGroup.add(this.leftArm.group);
     this.robotGroup.add(this.rightArm.group);
   }
@@ -762,59 +1041,77 @@ class Robot3D {
   createHumanoidArm(shoulderX, side) {
     const isLeft = side === "left";
     const armGroup = new THREE.Group();
-    armGroup.position.set(shoulderX, 0.32, 0);
+    armGroup.position.set(shoulderX, 0.32, 0.04);
 
-    // Shoulder Ball Joint & Armored Epaulet
-    const shoulderBall = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), this.matJoint);
-    armGroup.add(shoulderBall);
+    // Tailored suit jacket shoulder head / roping
+    const shoulderHead = new THREE.Mesh(new THREE.SphereGeometry(0.125, 16, 16), this.matSuitNavy);
+    shoulderHead.scale.set(1.15, 0.95, 1.05);
+    shoulderHead.position.set(isLeft ? -0.03 : 0.03, 0.02, 0);
+    armGroup.add(shoulderHead);
 
-    const shoulderCap = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), this.matArmor);
-    shoulderCap.scale.set(1.1, 0.85, 1);
-    shoulderCap.position.set(isLeft ? -0.05 : 0.05, 0.04, 0);
-    armGroup.add(shoulderCap);
-
-    // Upper Arm (Bicep/Tricep)
+    // Upper Arm (Bicep/Tricep dressed in suit jacket sleeve)
     const upperArm = new THREE.Group();
     upperArm.position.set(isLeft ? -0.04 : 0.04, -0.04, 0);
     upperArm.rotation.x = 0.25;
     upperArm.rotation.z = isLeft ? 0.12 : -0.12;
     armGroup.add(upperArm);
 
-    const bicep = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.32, 16), this.matChassis);
-    bicep.position.set(0, -0.16, 0);
-    upperArm.add(bicep);
+    // Suited bicep sleeve
+    const bicepSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.076, 0.32, 16), this.matSuitNavy);
+    bicepSleeve.position.set(0, -0.16, 0);
+    upperArm.add(bicepSleeve);
 
-    // Elbow Hinge Joint
+    // Elbow Hinge Joint (Fabric elbow fold)
     const elbow = new THREE.Group();
     elbow.position.set(0, -0.32, 0);
     upperArm.add(elbow);
 
-    const elbowMesh = new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 16), this.matChrome);
-    elbow.add(elbowMesh);
+    const elbowFold = new THREE.Mesh(new THREE.SphereGeometry(0.078, 16, 16), this.matSuitNavy);
+    elbow.add(elbowFold);
 
-    // Forearm angled forward
+    // Forearm angled forward in conversational gentleman pose
     const forearm = new THREE.Group();
     forearm.rotation.x = -1.1; // bent forward in active conversational pose
     forearm.rotation.y = isLeft ? 0.35 : -0.35;
     elbow.add(forearm);
 
-    const forearmMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.30, 16), this.matArmor);
-    forearmMesh.position.set(0, -0.15, 0);
-    forearm.add(forearmMesh);
+    // Forearm suit sleeve tapering toward wrist
+    const forearmSleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.065, 0.28, 16), this.matSuitNavy);
+    forearmSleeve.position.set(0, -0.14, 0);
+    forearm.add(forearmSleeve);
+
+    // 4 Tailored Horn Cuff Buttons on outer wrist
+    [-0.11, -0.14, -0.17, -0.20].forEach((by) => {
+      const cuffBtn = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.008, 12), this.matSuitButtons);
+      cuffBtn.rotation.z = Math.PI / 2;
+      cuffBtn.position.set(isLeft ? -0.066 : 0.066, by, 0.015);
+      forearm.add(cuffBtn);
+    });
+
+    // Crisp White Shirt Cuff Peeking Out of Sleeve
+    const shirtCuff = new THREE.Mesh(new THREE.CylinderGeometry(0.066, 0.063, 0.06, 16), this.matShirtWhite);
+    shirtCuff.position.set(0, -0.28, 0);
+    forearm.add(shirtCuff);
+
+    // Polished 18k Gold Cufflink
+    const cufflink = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.014, 0.008), this.matTieClip);
+    cufflink.position.set(isLeft ? -0.064 : 0.064, -0.28, 0.02);
+    forearm.add(cufflink);
 
     // Wrist Joint
     const wrist = new THREE.Group();
-    wrist.position.set(0, -0.30, 0);
+    wrist.position.set(0, -0.31, 0);
     forearm.add(wrist);
 
-    const wristMesh = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 14), this.matJoint);
-    wrist.add(wristMesh);
+    // Human Male Wrist in matSkin
+    const wristSkin = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.050, 0.04, 16), this.matSkin);
+    wrist.add(wristSkin);
 
-    // CLEAR 5-DIGIT ARTICULATED ROBOT HAND
+    // HANDSOME HUMAN MALE 5-DIGIT ARTICULATED HAND
     const hand = this.createHumanoidHand(side);
-    hand.position.set(0, -0.08, 0);
+    hand.position.set(0, -0.04, 0);
     hand.rotation.x = -0.25;
-    hand.rotation.y = isLeft ? 0.4 : -0.4;
+    hand.rotation.y = isLeft ? 0.35 : -0.35;
     wrist.add(hand);
 
     return {
@@ -832,86 +1129,105 @@ class Robot3D {
     const isLeft = side === "left";
     const handGroup = new THREE.Group();
 
-    // Palm Chassis Base
-    const palm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.055), this.matArmor);
+    // 1. Natural Human Male Palm Base in matSkin
+    const palm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.13, 0.042), this.matSkin);
+    palm.position.set(0, -0.06, 0);
     handGroup.add(palm);
 
-    // Glowing Central Palm Repulsor Core
-    const palmRim = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.01, 16, 24), this.matChrome);
-    palmRim.position.set(0, 0, 0.03);
-    handGroup.add(palmRim);
+    // Thenar Eminence (Thumb base muscle cushion)
+    const thenar = new THREE.Mesh(new THREE.SphereGeometry(0.038, 12, 12), this.matSkin);
+    thenar.scale.set(1.2, 1.4, 0.9);
+    thenar.position.set(isLeft ? 0.05 : -0.05, -0.045, 0.014);
+    handGroup.add(thenar);
 
-    const palmCore = new THREE.Mesh(new THREE.CircleGeometry(0.033, 16), this.matAccent);
-    palmCore.position.set(0, 0, 0.031);
-    handGroup.add(palmCore);
+    // Hypothenar Eminence (Outer palm pad)
+    const hypothenar = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 12), this.matSkin);
+    hypothenar.scale.set(1.0, 1.5, 0.8);
+    hypothenar.position.set(isLeft ? -0.05 : 0.05, -0.055, 0.012);
+    handGroup.add(hypothenar);
+
+    // Subtle High-Tech AI Gentleman Signet Ring (on pinky/ring finger)
+    const ringSignet = new THREE.Mesh(new THREE.TorusGeometry(0.016, 0.005, 12, 24), this.matTieClip);
+    ringSignet.position.set(isLeft ? -0.036 : 0.036, -0.095, 0.012);
+    handGroup.add(ringSignet);
 
     const fingers = [];
 
-    // 4 Articulated Fingers along natural curved knuckle arch
+    // 4 Articulated Human Male Fingers along natural curved knuckle arch
     const specs = [
-      { name: "index",  x: isLeft ? 0.052 : -0.052, len: 0.13,  yArch: 0.005 },
-      { name: "middle", x: isLeft ? 0.018 : -0.018, len: 0.145, yArch: 0.012 }, // longest
-      { name: "ring",   x: isLeft ? -0.018 : 0.018, len: 0.135, yArch: 0.006 },
-      { name: "pinky",  x: isLeft ? -0.052 : 0.052, len: 0.11,  yArch: -0.006 } // shortest
+      { name: "index",  x: isLeft ? 0.042 : -0.042, len: 0.125, yArch: 0.003 },
+      { name: "middle", x: isLeft ? 0.014 : -0.014, len: 0.138, yArch: 0.009 }, // Longest finger
+      { name: "ring",   x: isLeft ? -0.014 : 0.014, len: 0.128, yArch: 0.004 },
+      { name: "pinky",  x: isLeft ? -0.042 : 0.042, len: 0.104, yArch: -0.006 } // Shortest finger
     ];
 
     specs.forEach((s) => {
       const fGroup = new THREE.Group();
-      fGroup.position.set(s.x, -0.08 + s.yArch, 0);
+      fGroup.position.set(s.x, -0.12 + s.yArch, 0);
 
-      // Knuckle Joint
-      const knuckle = new THREE.Mesh(new THREE.SphereGeometry(0.017, 10, 10), this.matChrome);
+      // Metacarpophalangeal (MCP) Knuckle in matSkin
+      const knuckle = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 12), this.matSkin);
       fGroup.add(knuckle);
 
       // Proximal Phalanx
       const p1Len = s.len * 0.44;
-      const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.011, p1Len, 8), this.matArmor);
-      p1.position.set(0, -p1Len / 2, 0.005);
+      const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.0125, 0.011, p1Len, 10), this.matSkin);
+      p1.position.set(0, -p1Len / 2, 0.003);
       fGroup.add(p1);
 
-      // Interphalangeal Joint
-      const pip = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), this.matJoint);
-      pip.position.set(0, -p1Len, 0.008);
+      // Interphalangeal Joint (PIP)
+      const pip = new THREE.Mesh(new THREE.SphereGeometry(0.0115, 10, 10), this.matSkin);
+      pip.position.set(0, -p1Len, 0.005);
       fGroup.add(pip);
 
-      // Intermediate & Distal Phalanx
+      // Intermediate & Distal Phalanx with realistic pad
       const p2Len = s.len * 0.40;
-      const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.009, p2Len, 8), this.matChassis);
-      p2.position.set(0, -p1Len - p2Len / 2, 0.016);
-      p2.rotation.x = 0.15;
+      const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.0095, p2Len, 10), this.matSkin);
+      p2.position.set(0, -p1Len - p2Len / 2, 0.010);
+      p2.rotation.x = 0.12;
       fGroup.add(p2);
 
-      // Glowing Cyber Fingertip
-      const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 8), this.matAccent);
-      tip.position.set(0, -p1Len - p2Len - 0.005, 0.024);
-      fGroup.add(tip);
+      // Natural Human Fingertip Pad
+      const tipPad = new THREE.Mesh(new THREE.SphereGeometry(0.0095, 10, 10), this.matSkin);
+      tipPad.position.set(0, -p1Len - p2Len - 0.004, 0.016);
+      fGroup.add(tipPad);
+
+      // Natural Groomed Fingernail (Dorsal side of fingertip)
+      const nail = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.014, 0.004), this.matNails);
+      nail.position.set(0, -p1Len - p2Len - 0.002, 0.024);
+      nail.rotation.x = 0.12;
+      fGroup.add(nail);
 
       handGroup.add(fGroup);
       fingers.push(fGroup);
     });
 
-    // Opposable Articulated Thumb
+    // Naturally Opposable Articulated Male Thumb
     const thumbGroup = new THREE.Group();
-    const tx = isLeft ? 0.095 : -0.095;
-    thumbGroup.position.set(tx, -0.01, 0.02);
-    thumbGroup.rotation.z = isLeft ? -0.55 : 0.55;
-    thumbGroup.rotation.y = isLeft ? -0.45 : 0.45;
-    thumbGroup.rotation.x = 0.2;
+    const tx = isLeft ? 0.076 : -0.076;
+    thumbGroup.position.set(tx, -0.045, 0.016);
+    thumbGroup.rotation.z = isLeft ? -0.52 : 0.52;
+    thumbGroup.rotation.y = isLeft ? -0.42 : 0.42;
+    thumbGroup.rotation.x = 0.22;
 
-    const tKnuckle = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 10), this.matChrome);
+    const tKnuckle = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), this.matSkin);
     thumbGroup.add(tKnuckle);
 
-    const tp1 = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.012, 0.055, 8), this.matArmor);
-    tp1.position.set(0, -0.028, 0);
+    const tp1 = new THREE.Mesh(new THREE.CylinderGeometry(0.0135, 0.012, 0.052, 10), this.matSkin);
+    tp1.position.set(0, -0.026, 0);
     thumbGroup.add(tp1);
 
-    const tp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.009, 0.045, 8), this.matChassis);
-    tp2.position.set(0, -0.076, 0.012);
+    const tp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.010, 0.042, 10), this.matSkin);
+    tp2.position.set(0, -0.068, 0.008);
     thumbGroup.add(tp2);
 
-    const thumbTip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 8), this.matAccent);
-    thumbTip.position.set(0, -0.10, 0.018);
-    thumbGroup.add(thumbTip);
+    const thumbPad = new THREE.Mesh(new THREE.SphereGeometry(0.010, 10, 10), this.matSkin);
+    thumbPad.position.set(0, -0.092, 0.014);
+    thumbGroup.add(thumbPad);
+
+    const thumbNail = new THREE.Mesh(new THREE.BoxGeometry(0.013, 0.015, 0.004), this.matNails);
+    thumbNail.position.set(0, -0.090, 0.022);
+    thumbGroup.add(thumbNail);
 
     handGroup.add(thumbGroup);
     fingers.push(thumbGroup);
@@ -922,11 +1238,11 @@ class Robot3D {
     return handGroup;
   }
 
-  // --- TWO REAL ARTICULATED HUMANOID LEGS ---
+  // --- TWO REAL ARTICULATED HUMANOID LEGS DRESSED IN TAILORED TROUSERS & OXFORD SHOES ---
   buildHumanoidLegs() {
     this.legsGroup = new THREE.Group();
-    this.leftLeg = this.createHumanoidLeg(-0.22, "left");
-    this.rightLeg = this.createHumanoidLeg(0.22, "right");
+    this.leftLeg = this.createHumanoidLeg(-0.19, "left");
+    this.rightLeg = this.createHumanoidLeg(0.19, "right");
     this.legsGroup.add(this.leftLeg.group);
     this.legsGroup.add(this.rightLeg.group);
     this.robotGroup.add(this.legsGroup);
@@ -935,163 +1251,114 @@ class Robot3D {
   createHumanoidLeg(hipX, side) {
     const isLeft = side === "left";
     const legGroup = new THREE.Group();
-    legGroup.position.set(hipX, -0.22, 0);
+    legGroup.position.set(hipX, -0.22, 0.04);
 
-    // 1. Hip Joint Assembly & Pelvic Socket
-    const hipSocket = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.12, 16), this.matJoint);
-    hipSocket.rotation.z = Math.PI / 2;
-    legGroup.add(hipSocket);
+    // 1. Pelvic Trouser Hip Yoke & Joint
+    const hipJoint = new THREE.Mesh(new THREE.SphereGeometry(0.105, 16, 16), this.matTrousers);
+    legGroup.add(hipJoint);
 
-    const hipBall = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 16), this.matChrome);
-    legGroup.add(hipBall);
-
-    const hipRing = new THREE.Mesh(new THREE.TorusGeometry(0.10, 0.016, 12, 24), this.matAccent);
-    hipRing.rotation.y = Math.PI / 2;
-    legGroup.add(hipRing);
-
-    // Outer Hip Armor Shield
-    const hipArmor = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 0.18), this.matArmor);
-    hipArmor.position.set(isLeft ? -0.06 : 0.06, -0.02, 0);
-    legGroup.add(hipArmor);
-
-    // 2. Thigh Group (Femur with Armor & Actuators)
+    // 2. Thigh Group (Tailored Wool Trousers with Sharp Front Crease)
     const thighGroup = new THREE.Group();
     legGroup.add(thighGroup);
 
-    // Structural Femur Cylinder
-    const femur = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.08, 0.44, 16), this.matChassis);
-    femur.position.set(0, -0.24, 0);
-    thighGroup.add(femur);
+    // Tailored Trouser Thigh (Athletic male drape)
+    const thighTrousers = new THREE.Mesh(new THREE.CylinderGeometry(0.108, 0.088, 0.44, 18), this.matTrousers);
+    thighTrousers.position.set(0, -0.24, 0);
+    thighGroup.add(thighTrousers);
 
-    // Front Quadricep Armor Shield
-    const quadShield = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.38, 0.06), this.matArmor);
-    quadShield.position.set(0, -0.24, 0.075);
-    thighGroup.add(quadShield);
+    // Razor-Sharp Pressed Front Trouser Crease
+    const thighCrease = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.42, 0.014), this.matTrouserCrease);
+    thighCrease.position.set(0, -0.24, 0.102);
+    thighGroup.add(thighCrease);
 
-    // Glowing Neon Energy Conduit Strip on Quadricep
-    const quadConduit = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.30, 0.015), this.matAccent);
-    quadConduit.position.set(0, -0.24, 0.108);
-    thighGroup.add(quadConduit);
-
-    // Lateral Outer Thigh Armor
-    const latThighArmor = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.32, 0.12), this.matArmor);
-    latThighArmor.position.set(isLeft ? -0.09 : 0.09, -0.24, 0);
-    thighGroup.add(latThighArmor);
-
-    // Rear Hamstring Hydraulic Cylinder
-    const hamstringCylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.30, 12), this.matJoint);
-    hamstringCylinder.position.set(0, -0.24, -0.075);
-    thighGroup.add(hamstringCylinder);
-
-    const hamstringPiston = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.32, 12), this.matChrome);
-    hamstringPiston.position.set(0, -0.24, -0.075);
-    thighGroup.add(hamstringPiston);
-
-    // 3. Knee Joint Assembly (Knee Cap & Hinge)
+    // 3. Knee Joint Assembly (Tailored knee drape with subtle patellar tension)
     const kneeGroup = new THREE.Group();
     kneeGroup.position.set(0, -0.48, 0);
     thighGroup.add(kneeGroup);
 
-    // Knee Hinge Core
-    const kneeHinge = new THREE.Mesh(new THREE.SphereGeometry(0.082, 16, 16), this.matJoint);
-    kneeGroup.add(kneeHinge);
+    // Trouser Knee Fold
+    const kneeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.086, 16, 16), this.matTrousers);
+    kneeGroup.add(kneeMesh);
 
-    // Lateral Chrome Pivot Studs
-    const kneePins = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.19, 16), this.matChrome);
-    kneePins.rotation.z = Math.PI / 2;
-    kneeGroup.add(kneePins);
-
-    // Heavy Chrome Patellar Knee Cap
-    const kneeCapGeo = new THREE.SphereGeometry(0.088, 16, 16);
-    kneeCapGeo.scale(1.0, 1.15, 1.3);
-    const kneeCap = new THREE.Mesh(kneeCapGeo, this.matChrome);
-    kneeCap.position.set(0, 0, 0.025);
-    kneeGroup.add(kneeCap);
-
-    // Glowing Neon Energy Halo Ring on Knee Cap
-    const kneeHalo = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.012, 12, 24), this.matAccent);
-    kneeHalo.position.set(0, 0, 0.095);
-    kneeGroup.add(kneeHalo);
-
-    // 4. Shin & Calf Group (Tibia with Armor, Cooling Vents & Shocks)
+    // 4. Shin & Calf Group (Tailored Slacks Tapering to Clean Hem)
     const calfGroup = new THREE.Group();
     kneeGroup.add(calfGroup);
 
-    // Structural Tibia Cylinder
-    const shinCore = new THREE.Mesh(new THREE.CylinderGeometry(0.078, 0.062, 0.46, 16), this.matChassis);
-    shinCore.position.set(0, -0.25, 0);
-    calfGroup.add(shinCore);
+    // Tailored Trouser Calf/Shin
+    const calfTrousers = new THREE.Mesh(new THREE.CylinderGeometry(0.086, 0.074, 0.46, 18), this.matTrousers);
+    calfTrousers.position.set(0, -0.25, 0);
+    calfGroup.add(calfTrousers);
 
-    // Sculpted Front Shin Armor Plate
-    const shinGuard = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.40, 0.06), this.matArmor);
-    shinGuard.position.set(0, -0.25, 0.07);
-    calfGroup.add(shinGuard);
+    // Pressed Shin Crease continuing down leg
+    const calfCrease = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.44, 0.014), this.matTrouserCrease);
+    calfCrease.position.set(0, -0.25, 0.082);
+    calfGroup.add(calfCrease);
 
-    // Glowing Shin Energy Conduit
-    const shinConduit = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.34, 0.015), this.matAccent);
-    shinConduit.position.set(0, -0.25, 0.102);
-    calfGroup.add(shinConduit);
+    // Tailored Trouser Cuff / Hem (Folded trouser bottom resting over shoe)
+    const trouserHem = new THREE.Mesh(new THREE.CylinderGeometry(0.082, 0.084, 0.045, 18), this.matTrousers);
+    trouserHem.position.set(0, -0.47, 0);
+    calfGroup.add(trouserHem);
 
-    // Rear Calf Mechanical Thruster Vents / Cooling Fins
-    const calfVents = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.24, 0.08), this.matArmor);
-    calfVents.position.set(0, -0.22, -0.065);
-    calfGroup.add(calfVents);
-
-    // Twin Posterior Chrome Suspension Struts
-    [-0.035, 0.035].forEach((sx) => {
-      const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.38, 12), this.matChrome);
-      strut.position.set(sx, -0.25, -0.04);
-      calfGroup.add(strut);
-    });
-
-    // 5. Dual-Axis Ankle Gimbal Joint
+    // 5. Ankle Joint
     const ankleGroup = new THREE.Group();
     ankleGroup.position.set(0, -0.50, 0);
     calfGroup.add(ankleGroup);
 
-    const ankleBall = new THREE.Mesh(new THREE.SphereGeometry(0.062, 14, 14), this.matJoint);
-    ankleGroup.add(ankleBall);
+    // Dark dress sock visible at ankle
+    const sock = new THREE.Mesh(new THREE.CylinderGeometry(0.056, 0.054, 0.08, 16), this.matSuitButtons);
+    sock.position.set(0, -0.02, 0);
+    ankleGroup.add(sock);
 
-    const ankleRings = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.15, 16), this.matChrome);
-    ankleRings.rotation.z = Math.PI / 2;
-    ankleGroup.add(ankleRings);
-
-    // 6. Articulated Cyber Combat Boot Planted Firmly on Ground
+    // 6. HANDCRAFTED OXFORD DRESS SHOES IN POLISHED LEATHER
     const footGroup = new THREE.Group();
     footGroup.position.set(0, -0.06, 0.05);
-    // Slight heroic outward stance rotation
-    footGroup.rotation.y = isLeft ? 0.07 : -0.07;
+    footGroup.rotation.y = isLeft ? 0.08 : -0.08; // Confident gentleman standing stance
     ankleGroup.add(footGroup);
 
-    // Boot Upper Armor
-    const bootUpper = new THREE.Mesh(new THREE.BoxGeometry(0.155, 0.085, 0.28), this.matArmor);
-    bootUpper.position.set(0, 0, 0.03);
-    footGroup.add(bootUpper);
+    // Oxford Shoe Upper Body (Vamp & Quarters in rich burnished espresso leather)
+    const shoeUpper = new THREE.Mesh(new THREE.BoxGeometry(0.148, 0.082, 0.28), this.matShoes);
+    shoeUpper.position.set(0, 0.01, 0.03);
+    footGroup.add(shoeUpper);
 
-    // Reinforced Chrome Toe Guard
-    const toeGuard = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.072, 0.145, 16), this.matChrome);
-    toeGuard.rotation.z = Math.PI / 2;
-    toeGuard.position.set(0, -0.01, 0.15);
-    footGroup.add(toeGuard);
+    // Elegant Almond Cap Toe (Curved leather toe cap)
+    const toeCapGeo = new THREE.CylinderGeometry(0.066, 0.072, 0.138, 18);
+    toeCapGeo.scale(1.0, 1.0, 1.25);
+    const toeCap = new THREE.Mesh(toeCapGeo, this.matShoes);
+    toeCap.rotation.z = Math.PI / 2;
+    toeCap.position.set(0, 0, 0.155);
+    footGroup.add(toeCap);
 
-    // Rear Heel Chassis & Chrome Stabilizer Spur
-    const heelChassis = new THREE.Mesh(new THREE.BoxGeometry(0.135, 0.08, 0.10), this.matChassis);
-    heelChassis.position.set(0, 0, -0.08);
-    footGroup.add(heelChassis);
+    // Cap Toe Stitching Detail
+    const capStitch = new THREE.Mesh(new THREE.BoxGeometry(0.140, 0.008, 0.010), this.matSole);
+    capStitch.position.set(0, 0.038, 0.10);
+    footGroup.add(capStitch);
 
-    const heelSpur = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.04), this.matChrome);
-    heelSpur.position.set(0, -0.02, -0.13);
-    footGroup.add(heelSpur);
+    // Oxford Closed-Lacing Instep Facing
+    const instepFacing = new THREE.Mesh(new THREE.BoxGeometry(0.056, 0.035, 0.12), this.matShoes);
+    instepFacing.position.set(0, 0.042, 0.03);
+    footGroup.add(instepFacing);
 
-    // Heavy Traction Ground Contact Sole Plate
-    const sole = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.03, 0.31), this.matChassis);
-    sole.position.set(0, -0.046, 0.04);
-    footGroup.add(sole);
+    // Delicate Thin Waxed Dress Shoelaces (3 parallel bar laces)
+    [-0.01, 0.02, 0.05].forEach((lz) => {
+      const laceBar = new THREE.Mesh(new THREE.BoxGeometry(0.042, 0.008, 0.008), this.matLaces);
+      laceBar.position.set(0, 0.061, lz);
+      footGroup.add(laceBar);
+    });
 
-    // Dual Glowing Neon Cyber Energy Treads on Sole
-    const soleTread = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.014, 0.32), this.matAccent);
-    soleTread.position.set(0, -0.054, 0.04);
-    footGroup.add(soleTread);
+    // Sculpted Heel Counter cupping the back of the foot
+    const heelCounter = new THREE.Mesh(new THREE.BoxGeometry(0.138, 0.082, 0.10), this.matShoes);
+    heelCounter.position.set(0, 0.01, -0.09);
+    footGroup.add(heelCounter);
+
+    // Stacked Leather Welt & Outsole
+    const weltSole = new THREE.Mesh(new THREE.BoxGeometry(0.156, 0.022, 0.32), this.matSole);
+    weltSole.position.set(0, -0.038, 0.04);
+    footGroup.add(weltSole);
+
+    // Stacked Leather Dress Shoe Heel
+    const dressHeel = new THREE.Mesh(new THREE.BoxGeometry(0.146, 0.024, 0.11), this.matSole);
+    dressHeel.position.set(0, -0.056, -0.075);
+    footGroup.add(dressHeel);
 
     return {
       group: legGroup,
