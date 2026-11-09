@@ -225,25 +225,30 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
             "confidence": "100% Deterministic Calculus Standard"
         }
 
-    # 3. Linear Equation Solver: e.g. "solve 3x + 9 = 24" or "5x - 15 = 35"
-    m_lin = re.search(r'([+-]?\s*\d*(?:\.\d+)?)\s*x\s*([+-]\s*\d*(?:\.\d+)?)\s*=\s*([+-]?\s*\d*(?:\.\d+)?)', raw_lower)
+    # 3. Linear Equation Solver: e.g. "solve 3x + 9 = 24", "5x - 15 = 35", "3x = 15"
+    m_lin = re.search(r'(?:solve\s+)?([+-]?\s*\d*(?:\.\d+)?)\s*x(?:\s*([+-]\s*\d*(?:\.\d+)?))?\s*=\s*([+-]?\s*\d*(?:\.\d+)?)', raw_lower)
     if m_lin and "x^2" not in raw_lower:
         try:
             a_str = (m_lin.group(1) or "1").replace(" ", "")
             a = float(a_str) if a_str not in ["", "+", "-"] else float(a_str + "1")
-            b = float(m_lin.group(2).replace(" ", ""))
+            b_str = m_lin.group(2)
+            b = float(b_str.replace(" ", "")) if b_str else 0.0
             c = float(m_lin.group(3).replace(" ", ""))
             if a != 0:
                 x = (c - b) / a
                 x_fmt = int(x) if x.is_integer() else round(x, 4)
+                a_fmt = int(a) if a.is_integer() else round(a, 4)
+                b_fmt = int(b) if b.is_integer() else round(b, 4)
+                c_fmt = int(c) if c.is_integer() else round(c, 4)
+                eq_label = f"{a_fmt}x" + (f" + {b_fmt}" if b_fmt > 0 else (f" - {abs(b_fmt)}" if b_fmt < 0 else "")) + f" = {c_fmt}"
                 return {
-                    "title": f"Linear Equation Solution: {a}x + ({b}) = {c}",
-                    "core": f"The solution to the equation $${a}x + ({b}) = {c}$$ is **x = {x_fmt}**.",
-                    "formulas": [f"{a}x + ({b}) = {c} \\implies {a}x = {c - b} \\implies x = {x_fmt}"],
+                    "title": f"Linear Equation Solution: {eq_label}",
+                    "core": f"The solution to the equation $${eq_label}$$ is **x = {x_fmt}**.",
+                    "formulas": [f"{eq_label} \\implies {a_fmt}x = {c_fmt - b_fmt} \\implies x = {x_fmt}"],
                     "steps": [
-                        f"1. **Isolate Variable Term**: Subtract {b} from both sides: {a}x = {c} - ({b}) = {c - b}.",
-                        f"2. **Divide by Coefficient**: Divide both sides by {a}: x = {c - b} / {a} = {x_fmt}.",
-                        f"3. **Verification**: {a}({x_fmt}) + ({b}) = {a * x_fmt + b} (Matches {c})."
+                        f"1. **Isolate Variable Term**: Move constant to right: {a_fmt}x = {c_fmt} - ({b_fmt}) = {c_fmt - b_fmt}." if b_fmt != 0 else f"1. **Analyze Equation**: Term is already isolated: {a_fmt}x = {c_fmt}.",
+                        f"2. **Divide by Coefficient**: Divide both sides by {a_fmt}: x = {c_fmt - b_fmt} / {a_fmt} = {x_fmt}.",
+                        f"3. **Verification**: {a_fmt}({x_fmt}) + ({b_fmt}) = {a * x_fmt + b} (Matches {c_fmt})."
                     ],
                     "analogy": "Like balancing a scale: whatever operation you perform on one side, you must mirror on the other.",
                     "pitfalls": "Watch out for negative signs when subtracting constant terms across the equals sign!",
@@ -252,16 +257,16 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
         except Exception:
             pass
 
-    # 4. Quadratic Equation Solver: e.g. "x^2 - 5x + 6 = 0"
-    m_quad = re.search(r'([+-]?\s*\d*(?:\.\d+)?)\s*x\^2\s*([+-]\s*\d*(?:\.\d+)?)\s*x\s*([+-]\s*\d*(?:\.\d+)?)\s*(?:=\s*0)?', raw_lower)
-    if m_quad:
+    # 4. Quadratic Equation Solver: e.g. "x^2 - 5x + 6 = 0", "x^2 - 9 = 0", "2x^2 + 4x = 0"
+    m_quad = re.search(r'(?:solve\s+)?([+-]?\s*\d*(?:\.\d+)?)\s*x\^2(?:\s*([+-]\s*\d*(?:\.\d+)?)\s*x)?(?:\s*([+-]\s*\d*(?:\.\d+)?))?\s*(?:=\s*0)?', raw_lower)
+    if m_quad and ("x^2" in raw_lower or "x^ 2" in raw_lower):
         try:
             a_str = (m_quad.group(1) or "1").replace(" ", "")
             a = float(a_str) if a_str not in ["", "+", "-"] else float(a_str + "1")
-            b_str = (m_quad.group(2) or "+0").replace(" ", "")
-            b = float(b_str) if b_str not in ["", "+", "-"] else float(b_str + "1")
-            c_str = (m_quad.group(3) or "+0").replace(" ", "")
-            c = float(c_str) if c_str not in ["", "+", "-"] else float(c_str + "1")
+            b_str = m_quad.group(2)
+            b = float(b_str.replace(" ", "")) if b_str else 0.0
+            c_str = m_quad.group(3)
+            c = float(c_str.replace(" ", "")) if c_str else 0.0
             
             discriminant = b**2 - 4*a*c
             if discriminant > 0:
@@ -401,6 +406,77 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
                 "analogy": "Speed measures the rate at which distance is covered per tick of the clock.",
                 "pitfalls": "Make sure distance and time units match (e.g., km with hours, or meters with seconds).",
                 "confidence": "100% Kinematics Standard"
+            }
+
+    # 8b. Physics: Ohm's Law (V = I * R)
+    if ("ohm" in raw_lower or "voltage" in raw_lower or "current" in raw_lower or "resistance" in raw_lower) and any(w in raw_lower for w in ["amp", "ohm", "volt"]):
+        i_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*(?:amps?|a\b)', r'current\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: i_val = float(m.group(1)); break
+        r_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*(?:ohms?|Ω)', r'resistance\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: r_val = float(m.group(1)); break
+        v_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*(?:volts?|v\b)', r'voltage\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: v_val = float(m.group(1)); break
+        if i_val is not None and r_val is not None:
+            v_res = i_val * r_val
+            v_fmt = int(v_res) if v_res.is_integer() else round(v_res, 4)
+            return {
+                "title": f"Ohm's Law Voltage Calculation (I = {i_val} A, R = {r_val} Ω)",
+                "core": f"The electric potential difference (voltage) is **{v_fmt} Volts (V)**.",
+                "formulas": [f"V = I \\cdot R = ({i_val} \\text{{ A}}) \\times ({r_val} \\,\\Omega) = {v_fmt} \\text{{ V}}"],
+                "steps": [
+                    "1. **Ohm's Law**: Voltage across a conductor equals current multiplied by resistance (V = I · R).",
+                    f"2. **Compute**: V = {i_val} × {r_val} = {v_fmt} V."
+                ],
+                "analogy": "Voltage is water pressure, current is the volume flow rate of water, and resistance is the narrowness of the pipe.",
+                "pitfalls": "Ensure current is in Amperes (A) and resistance in Ohms (Ω). If milliAmps (mA) are given, divide by 1000 first!",
+                "confidence": "100% Electromagnetism Standard"
+            }
+        elif v_val is not None and r_val is not None and r_val > 0:
+            i_res = v_val / r_val
+            i_fmt = int(i_res) if i_res.is_integer() else round(i_res, 4)
+            return {
+                "title": f"Ohm's Law Current Calculation (V = {v_val} V, R = {r_val} Ω)",
+                "core": f"The resulting electric current is **{i_fmt} Amperes (A)**.",
+                "formulas": [f"I = \\frac{{V}}{{R}} = \\frac{{{v_val} \\text{{ V}}}}{{{r_val} \\,\\Omega}} = {i_fmt} \\text{{ A}}"],
+                "steps": [
+                    "1. **Ohm's Law**: Current is electric potential divided by resistance (I = V / R).",
+                    f"2. **Compute**: I = {v_val} / {r_val} = {i_fmt} A."
+                ],
+                "analogy": "Higher resistance restricts the flow of electrons, lowering the current for a fixed voltage pressure.",
+                "pitfalls": "Short circuits occur when resistance R approaches zero, causing current I to surge toward infinity!",
+                "confidence": "100% Electromagnetism Standard"
+            }
+
+    # 8c. Physics: Work & Mechanical Energy (W = F * d)
+    if "work" in raw_lower and ("force" in raw_lower or "newton" in raw_lower or "joule" in raw_lower) and ("distance" in raw_lower or "meter" in raw_lower or "m\b" in raw_lower):
+        f_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*(?:newtons?|n\b)', r'force\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: f_val = float(m.group(1)); break
+        d_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*(?:meters?|m\b)', r'distance\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: d_val = float(m.group(1)); break
+        if f_val is not None and d_val is not None:
+            w_res = f_val * d_val
+            w_fmt = int(w_res) if w_res.is_integer() else round(w_res, 4)
+            return {
+                "title": f"Physics Calculation: Mechanical Work (F = {f_val} N, d = {d_val} m)",
+                "core": f"The mechanical work done is **{w_fmt} Joules (J)**.",
+                "formulas": [f"W = F \\cdot d = ({f_val} \\text{{ N}}) \\times ({d_val} \\text{{ m}}) = {w_fmt} \\text{{ J}}"],
+                "steps": [
+                    "1. **Work Definition**: Work is force applied through a parallel displacement (W = F · d · cos θ).",
+                    f"2. **Compute**: W = {f_val} × {d_val} = {w_fmt} J."
+                ],
+                "analogy": "Holding a heavy barbell motionless does zero work in physics (d = 0); lifting it overhead requires mechanical work.",
+                "pitfalls": "Work is strictly zero if the displacement is perpendicular to the applied force vector (cos 90° = 0).",
+                "confidence": "100% Classical Mechanics Standard"
             }
 
     # 9. Temperature Conversions: C to F, F to C
@@ -577,6 +653,57 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
             "analogy": "Cutting diagonally across a rectangular courtyard is always shorter than walking the two sidewalk edges.",
             "pitfalls": "This formula applies strictly to right triangles (90°). For other triangles, use the Law of Cosines.",
             "confidence": "100% Deterministic Pythagorean Theorem"
+        }
+
+    # 16b. Geometry: Rectangle Area and Perimeter
+    m_rect = re.search(r'(?:area|perimeter) of (?:a )?rectangle.*?(?:length\s*(\d+(?:\.\d+)?).*?width\s*(\d+(?:\.\d+)?)|width\s*(\d+(?:\.\d+)?).*?length\s*(\d+(?:\.\d+)?))', clean)
+    if m_rect:
+        l = float(m_rect.group(1) or m_rect.group(4))
+        w = float(m_rect.group(2) or m_rect.group(3))
+        is_perim = "perimeter" in clean
+        if is_perim:
+            p = 2 * (l + w)
+            p_fmt = int(p) if p.is_integer() else round(p, 4)
+            return {
+                "title": f"Rectangle Perimeter (length={l}, width={w})",
+                "core": f"The perimeter of the rectangle is **{p_fmt}** units.",
+                "formulas": [f"P = 2(l + w) = 2({l} + {w}) = {p_fmt}"],
+                "steps": [f"1. **Formula**: P = 2 × (length + width).", f"2. **Compute**: 2 × ({l} + {w}) = {p_fmt}."],
+                "analogy": "Perimeter is the length of fence needed to completely surround the field.",
+                "pitfalls": "Perimeter is measured in linear units, not square units!",
+                "confidence": "100% Geometric Standard"
+            }
+        else:
+            area = l * w
+            a_fmt = int(area) if area.is_integer() else round(area, 4)
+            return {
+                "title": f"Rectangle Area (length={l}, width={w})",
+                "core": f"The area of the rectangle is **{a_fmt}** square units.",
+                "formulas": [f"A = l \\cdot w = ({l}) \\times ({w}) = {a_fmt}"],
+                "steps": [f"1. **Formula**: Area = length × width.", f"2. **Compute**: {l} × {w} = {a_fmt}."],
+                "analogy": "Area counts how many 1×1 unit square tiles fit on the floor.",
+                "pitfalls": "Ensure both length and width are in the same units before multiplying!",
+                "confidence": "100% Geometric Standard"
+            }
+
+    # 16c. Geometry: Sphere Volume (4/3 * pi * r^3)
+    m_sphere = re.search(r'(?:volume of (?:a )?sphere.*?radius\s*(\d+(?:\.\d+)?)|sphere.*?radius\s*(\d+(?:\.\d+)?).*?volume)', clean)
+    if m_sphere:
+        r = float(m_sphere.group(1) or m_sphere.group(2))
+        vol = (4.0 / 3.0) * math.pi * (r ** 3)
+        v_fmt = int(vol) if vol.is_integer() else round(vol, 4)
+        return {
+            "title": f"Sphere Volume Calculation (radius = {r})",
+            "core": f"The volume of the sphere is approximately **{v_fmt}** cubic units.",
+            "formulas": [f"V = \\frac{{4}}{{3}} \\pi r^3 = \\frac{{4}}{{3}} \\pi ({r})^3 \\approx {v_fmt}"],
+            "steps": [
+                f"1. **Formula**: V = (4/3) · π · r³.",
+                f"2. **Cube Radius**: r³ = ({r})³ = {r**3}.",
+                f"3. **Compute**: (4/3) × π × {r**3} ≈ {v_fmt}."
+            ],
+            "analogy": "A sphere's volume is exactly 2/3 the volume of a cylinder that tightly encloses it (discovered by Archimedes).",
+            "pitfalls": "Do not confuse radius with diameter, and remember radius is CUBED (r³), not squared!",
+            "confidence": "100% Geometric Standard"
         }
 
     # 17. Arithmetic Expressions (e.g. "25 * 16", "100 / 4 + 7", "2^8")
@@ -825,6 +952,149 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
             "analogy": "A fungal defense weapon repurposed into a human medical shield.",
             "pitfalls": "Fleming discovered penicillin, but Florey and Chain were responsible for purifying and mass-producing it into a medicine (all three shared the 1945 Nobel Prize).",
             "confidence": "100% Medical History Standard"
+        }),
+        # PHOTOSYNTHESIS
+        (r'what\s+is\s+photosynthesis', {
+            "title": "Plant Biology: Photosynthesis",
+            "core": "**Photosynthesis** is the biological process by which green plants, algae, and cyanobacteria convert light energy into chemical energy (glucose) using water and carbon dioxide.",
+            "formulas": [r"6\text{CO}_2 + 6\text{H}_2\text{O} + \text{photons} \xrightarrow{\text{chlorophyll}} \text{C}_6\text{H}_{12}\text{O}_6 + 6\text{O}_2"],
+            "steps": [
+                "1. **Light Reactions (Thylakoid Membrane)**: Solar photons excite electrons in chlorophyll, photolyzing water and generating ATP + NADPH + O₂ byproduct.",
+                "2. **Calvin Cycle (Stroma)**: Light-independent fixation of atmospheric CO₂ into 3-carbon sugars using ATP and NADPH (catalyzed by RuBisCO)."
+            ],
+            "analogy": "Leaves are natural solar panel factories taking ambient air (CO₂) and ground water to fabricate sugar fuel blocks.",
+            "pitfalls": "The oxygen released during photosynthesis comes entirely from splitting H₂O, NOT from CO₂!",
+            "confidence": "100% Biochemical Standard"
+        }),
+        # DNA
+        (r'what\s+is\s+dna', {
+            "title": "Molecular Biology: DNA (Deoxyribonucleic Acid)",
+            "core": "**DNA** (Deoxyribonucleic Acid) is the double-stranded helical polymer carrying genetic instructions for the development, functioning, growth, and reproduction of all known living organisms.",
+            "formulas": [r"\text{Base Pairing: } \text{A} = \text{T} \quad (2\text{ H-bonds}), \quad \text{G} \equiv \text{C} \quad (3\text{ H-bonds})"],
+            "steps": [
+                "1. **Nucleotide Monomers**: Composed of a deoxyribose 5-carbon sugar, a phosphate backbone, and one of four nitrogenous bases (A, T, C, G).",
+                "2. **Double Helix**: Two antiparallel strands (5' to 3' and 3' to 5') twisted in a right-handed spiral, held by complementary hydrogen bonds.",
+                "3. **Discovery**: Structural double-helix model solved in 1953 by James Watson and Francis Crick, utilizing crucial X-ray diffraction data from Rosalind Franklin."
+            ],
+            "analogy": "DNA is the master architectural blueprint encoded into every living cell.",
+            "pitfalls": "RNA substitutes Uracil (U) for Thymine (T) and contains ribose sugar with an extra 2' hydroxyl group (-OH).",
+            "confidence": "100% Genetics Standard"
+        }),
+        # OSMOSIS
+        (r'what\s+is\s+osmosis', {
+            "title": "Cell Biology: Osmosis",
+            "core": "**Osmosis** is the net passive diffusion of water molecules across a selectively permeable membrane from an area of higher water potential (lower solute concentration) to lower water potential (higher solute concentration).",
+            "formulas": [r"\Pi = i \cdot M \cdot R \cdot T \quad \text{(Van 't Hoff Equation for Osmotic Pressure)}"],
+            "steps": [
+                "1. **Semi-Permeable Barrier**: Membrane allows small solvent molecules (water) to pass via aquaporin channels while blocking large solute particles.",
+                "2. **Equilibrium Drive**: Continues until osmotic pressure balances hydrostatic pressure or equal chemical potential is achieved."
+            ],
+            "analogy": "Water naturally rushes to dilute the more concentrated syrup side of a porous fence.",
+            "pitfalls": "Water moves toward the HIGHER solute concentration, which corresponds to the LOWER water concentration!",
+            "confidence": "100% Cellular Biophysics Standard"
+        }),
+        # ENTROPY
+        (r'what\s+is\s+entropy', {
+            "title": "Thermodynamics: Entropy (S)",
+            "core": "**Entropy** is a fundamental thermodynamic property quantifying the degree of microscopic disorder, randomness, or thermal energy unavailable to do mechanical work.",
+            "formulas": [r"\Delta S \ge \frac{Q_{\text{rev}}}{T}, \quad S = k_B \ln \Omega \quad \text{(Boltzmann's Formula)}", r"\Delta S_{\text{universe}} \ge 0 \quad \text{(Second Law of Thermodynamics)}"],
+            "steps": [
+                "1. **Statistical Definition**: S = k_B · ln(Ω), where Ω is the number of accessible microstates corresponding to the macrostate.",
+                "2. **Second Law**: In any spontaneous process in an isolated system, the total entropy always increases over time (arrow of time)."
+            ],
+            "analogy": "An egg falling and shattering increases entropy: assembling it back together spontaneously is astronomically improbable.",
+            "pitfalls": "Local entropy CAN decrease (like water freezing or life growing), as long as the surrounding environmental entropy increases by a greater amount!",
+            "confidence": "100% Thermodynamic Standard"
+        }),
+        # HARDEST NATURAL SUBSTANCE
+        (r'hardest\s+natural\s+substance', {
+            "title": "Materials Science: Hardest Natural Substance",
+            "core": "**Diamond** is the hardest naturally occurring substance on Earth, rated at a maximum **10 on the Mohs Hardness Scale**.",
+            "steps": [
+                "1. **Crystal Lattice**: Allotrope of pure carbon where each carbon atom forms four rigid covalent sp³ hybridized bonds in a tetrahedral diamond-cubic lattice.",
+                "2. **Bond Strength**: Extremely short (1.54 Å) and rigid carbon-carbon bonds require immense energy to cleave or indent."
+            ],
+            "formulas": [],
+            "analogy": "A three-dimensional architectural carbon scaffold with zero weak angles.",
+            "pitfalls": "Hardness (resistance to scratching) is NOT toughness! A diamond can still shatter if struck sharply with a household hammer because of its cleavage planes.",
+            "confidence": "100% Mineralogy Standard"
+        }),
+        # TELEPHONE INVENTION
+        (r'who\s+invented\s+(?:the\s+)?telephone', {
+            "title": "History of Technology: The Telephone",
+            "core": "**Alexander Graham Bell** is officially credited with patenting the first practical telephone on **March 7, 1876** (US Patent 174,465).",
+            "steps": [
+                "1. **Acoustic Telegraphy**: Bell developed electromagnetic transmitters that converted acoustic vibrations of human speech into variable electrical current.",
+                "2. **First Speech**: On March 10, 1876, Bell transmitted the famous words to his assistant: *'Mr. Watson, come here, I want to see you.'*",
+                "3. **Controversy**: Elisha Gray filed a patent caveat on the exact same day, and Antonio Meucci developed earlier prototypes ('telettrofono')."
+            ],
+            "formulas": [],
+            "analogy": "Turning acoustic sound waves into electric pulses, then vibrating a receiver diaphragm to recreate the sound waves.",
+            "pitfalls": "While Bell holds the official patent, the US Congress recognized Antonio Meucci's pioneer contributions in 2002.",
+            "confidence": "100% History of Science Standard"
+        }),
+        # RELATIVITY
+        (r'(?:who\s+proposed|who\s+discovered|who\s+came\s+up\s+with)\s+(?:the\s+)?theory\s+of\s+relativity', {
+            "title": "Theoretical Physics: Theory of Relativity",
+            "core": "**Albert Einstein** developed the Theory of Relativity: **Special Relativity in 1905** and **General Relativity in 1915**.",
+            "formulas": [r"E = m c^2 \quad \text{(Mass-Energy Equivalence)}", r"G_{\mu\nu} + \Lambda g_{\mu\nu} = \frac{8\pi G}{c^4} T_{\mu\nu} \quad \text{(Einstein Field Equations)}"],
+            "steps": [
+                "1. **Special Relativity (1905)**: Establishes that the speed of light c is constant for all inertial observers, leading to time dilation, length contraction, and E = mc².",
+                "2. **General Relativity (1915)**: Redefines gravity not as a Newtonian pull, but as the geometric warping of four-dimensional spacetime caused by mass and energy."
+            ],
+            "analogy": "A heavy bowling ball sitting on a stretched rubber sheet causes surrounding marbles to roll in curved orbits around it.",
+            "pitfalls": "Einstein won his 1921 Nobel Prize for explaining the Photoelectric Effect, NOT directly for Relativity!",
+            "confidence": "100% Relativistic Physics Standard"
+        }),
+        # GEOGRAPHY: MOUNTAIN, RIVER, OCEAN, CONTINENTS
+        (r'(?:tallest|highest)\s+mountain\s+in\s+(?:the\s+)?world', {
+            "title": "Physical Geography: Tallest Mountain",
+            "core": "**Mount Everest** (Sagarmatha / Chomolungma) in the Himalayas is the highest mountain above sea level at **8,848.86 meters (29,031.7 feet)**.",
+            "steps": [
+                "1. **Location**: Straddles the international border between Nepal and China (Tibet Autonomous Region).",
+                "2. **Tectonic Origin**: Formed and continuously pushed upward by the ongoing tectonic collision between the Indian Plate and the Eurasian Plate."
+            ],
+            "formulas": [],
+            "analogy": "The crowning rooftop of planet Earth.",
+            "pitfalls": "Mauna Kea in Hawaii is taller measured base-to-peak (~10,210 m), but Everest is highest above sea level.",
+            "confidence": "100% Geographic Standard"
+        }),
+        (r'longest\s+river\s+in\s+(?:the\s+)?world', {
+            "title": "Physical Geography: Longest River",
+            "core": "**The Nile River** in northeastern Africa is traditionally recognized as the longest river in the world, stretching approximately **6,650 km (4,132 miles)**.",
+            "steps": [
+                "1. **Basin**: Flows northward through 11 countries into the Mediterranean Sea.",
+                "2. **Two Tributaries**: The White Nile (originating in equatorial Africa) and the Blue Nile (originating in Lake Tana, Ethiopia)."
+            ],
+            "formulas": [],
+            "analogy": "The perennial water ribbon that sustained ancient and modern Egyptian civilizations.",
+            "pitfalls": "The Amazon River has the greatest water discharge volume by far, but the Nile is traditionally the longest.",
+            "confidence": "100% Geographic Standard"
+        }),
+        (r'largest\s+ocean\s+in\s+(?:the\s+)?world', {
+            "title": "Physical Geography: Largest Ocean",
+            "core": "**The Pacific Ocean** is the largest and deepest ocean on Earth, covering approximately **165.25 million square kilometers (63.8 million sq mi)**.",
+            "steps": [
+                "1. **Extents**: Covers over 30% of Earth's total surface area—larger than all land masses combined.",
+                "2. **Deepest Trench**: Contains the Mariana Trench, plunging to Challenger Deep at ~10,994 meters (36,070 feet) below sea level."
+            ],
+            "formulas": [],
+            "analogy": "An ocean so vast that if you stood on the opposite side of Earth, you would still look at water.",
+            "pitfalls": "Contains the Ring of Fire where roughly 75% of the world's active volcanoes reside.",
+            "confidence": "100% Geographic Standard"
+        }),
+        (r'how\s+many\s+continents\s+(?:are\s+there|exist)', {
+            "title": "Global Geography: The Continents",
+            "core": "By the standard English-speaking geographical model, there are **7 continents**: **Asia, Africa, North America, South America, Antarctica, Europe, and Australia**.",
+            "steps": [
+                "1. **Largest by Area & Population**: Asia (~44.6 million km², ~4.7 billion people).",
+                "2. **Smallest Continent**: Australia (~8.6 million km²).",
+                "3. **Coldest & Most Isolated**: Antarctica (covered by ice sheets up to 4 km thick)."
+            ],
+            "formulas": [],
+            "analogy": "The seven grand puzzle pieces of continental crust resting on the mantle.",
+            "pitfalls": "Some countries use a 6-continent model (combining Europe and Asia into Eurasia, or the Americas into a single continent).",
+            "confidence": "100% Geographic Standard"
         })
     ]
     

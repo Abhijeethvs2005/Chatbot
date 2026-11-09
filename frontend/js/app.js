@@ -344,31 +344,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Cursor-Tracking Holographic Reticle inside the 3D Animation Frame
+  // Telemetry sensor readout on HUD (Clean, no cursor tracer/reticle)
   const hudStage = document.getElementById("robot-hud-stage");
-  const holoReticle = document.getElementById("holo-reticle");
-  const reticleTag = document.getElementById("reticle-tag");
   const telemetryCoords = document.getElementById("frame-telemetry-coords");
 
-  if (hudStage && holoReticle) {
+  if (hudStage && telemetryCoords) {
     hudStage.addEventListener("mousemove", (e) => {
       const rect = hudStage.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      holoReticle.style.left = `${x}px`;
-      holoReticle.style.top = `${y}px`;
-
       const normX = ((x / rect.width) * 2 - 1).toFixed(2);
       const normY = (-((y / rect.height) * 2 - 1)).toFixed(2);
-      if (reticleTag) reticleTag.textContent = `AIM [${normX}, ${normY}]`;
-      if (telemetryCoords) telemetryCoords.textContent = `TARGET: X: ${normX} | Y: ${normY} | Z: 4.20`;
-    });
-
-    hudStage.addEventListener("mouseleave", () => {
-      holoReticle.style.opacity = "0.2";
-    });
-    hudStage.addEventListener("mouseenter", () => {
-      holoReticle.style.opacity = "0.75";
+      telemetryCoords.textContent = `SENSOR: X: ${normX} | Y: ${normY} | Z: 4.20`;
     });
   }
 
@@ -506,6 +493,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const btn = document.getElementById(cfg.id);
     if (btn) {
       btn.addEventListener("click", () => {
+        document.querySelectorAll(".action-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        setTimeout(() => btn.classList.remove("active"), 1200);
         if (robot) robot.doAction(cfg.action);
       });
     }
@@ -772,28 +762,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Autonomous Fallback when running standalone without python backend or when offline
       const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
-      updateLatencyBadge(elapsed, "Autonomous Local Engine");
+      updateLatencyBadge(elapsed, "Chatbot Abhi Autonomous Engine");
+
+      // Check if window.findAcademicTopic has an exact analytical, factual, or curriculum answer
+      const offlineTopic = window.findAcademicTopic ? window.findAcademicTopic(text) : null;
+      if (offlineTopic) {
+        const formattedHtml = formatAcademicTopic(offlineTopic, state.mode);
+        const botMsgElement = appendMessage("bot", "", offlineTopic);
+        streamTextToElement(botMsgElement, formattedHtml, () => {
+          if (robot) robot.setExpression("idle");
+          window.AudioEngine.playClick();
+          MathGrapher.renderMath(botMsgElement);
+          if (offlineTopic.graph) {
+            const graphCanvas = botMsgElement.querySelector(".topic-graph-canvas");
+            if (graphCanvas) {
+              MathGrapher.plotFunction(graphCanvas, offlineTopic.graph.fn, {
+                label: offlineTopic.graph.label,
+                color: offlineTopic.graph.color
+              });
+            }
+          }
+        });
+        addXP(10);
+        return;
+      }
 
       let noticeHeader = "";
       if (customApiKey) {
-        noticeHeader = `> ⚠️ **Notice**: Local Python server is offline and direct OpenAI request encountered a quota/network issue. Falling back to the Sub-10ms Autonomous Local Engine.\n\n`;
+        noticeHeader = `> ⚠️ **Notice**: Local Python server is offline and direct OpenAI request encountered a quota/network issue. Falling back to the Autonomous Offline Reasoning Engine.\n\n`;
       }
 
-      const fallbackMsg = `${noticeHeader}### 📚 Concept Overview: ${escapeHtml(text)}
+      // Infer subject domain dynamically
+      const tLower = text.toLowerCase();
+      let inferredSubject = state.subject || "General Academic";
+      if (inferredSubject === "General") {
+        if (/math|number|equation|solve|triangle|angle|fraction|root|algebra|calculus|derivative|integral/.test(tLower)) inferredSubject = "Mathematics";
+        else if (/force|motion|gravity|energy|velocity|atom|light|wave|electric|ohm|volt|amp|work/.test(tLower)) inferredSubject = "Physics";
+        else if (/code|program|python|algorithm|loop|function|array|data|binary|tcp|udp/.test(tLower)) inferredSubject = "Computer Science";
+        else if (/cell|dna|organ|plant|animal|gene|protein|body|photosynthesis|mitochondria/.test(tLower)) inferredSubject = "Biology";
+        else if (/reaction|acid|base|molecule|bond|periodic|element|water|ph\b/.test(tLower)) inferredSubject = "Chemistry";
+        else if (/capital|country|river|mountain|continent|ocean|city|world/.test(tLower)) inferredSubject = "Geography";
+        else if (/history|war|century|discovered|invented|president|empire/.test(tLower)) inferredSubject = "History";
+      }
 
-#### 📌 Academic Summary
-In **${state.subject}**, analyzing **${escapeHtml(text)}** involves examining its core theoretical rules, foundational definitions, and practical problem-solving methods.
+      const fallbackMsg = `${noticeHeader}### 📚 Academic Analysis: ${escapeHtml(text)}
+
+#### 📌 Core Analysis in ${inferredSubject}
+In **${inferredSubject}**, answering **"${escapeHtml(text)}"** requires evaluating governing physical laws, defining formulas, and exact boundary conditions.
 
 #### 🔬 Step-by-Step Analytical Breakdown
-1. **Identify First Principles**: Determine the underlying physical, mathematical, or algorithmic laws governing the question.
-2. **Apply Domain Rules**: Evaluate governing formulas or logical steps specific to this concept.
-3. **Validate Units & Boundary Conditions**: Verify that the solution is physically and logically consistent under edge conditions.
+1. **Identify First Principles**: Determine the governing physical or mathematical model applicable to this query.
+2. **Apply Domain Rules**: Formulate the relevant mathematical equations or conceptual relationships.
+3. **Validate Units & Boundary Conditions**: Ensure that all variables have consistent units and adhere to conservation laws.
 
 #### 💡 Student Mental Model
-Build your understanding like an architectural blueprint: master the foundational premise first, and the higher-level applications follow naturally.
+> Treat academic problem-solving like an engineering blueprint: master the foundational premise first, and the calculations follow naturally.
 
 #### ⚠️ High-Frequency Exam Trap
-Always double check your starting assumptions and avoid skipping algebraic or logical verification steps!`;
+Always double check starting assumptions, sign conventions, and ensure units are converted to standard SI before executing calculations!`;
 
       const botMsgElement = appendMessage("bot", "");
       streamTextToElement(botMsgElement, markedParse(fallbackMsg), () => {
@@ -875,18 +901,21 @@ Always double check your starting assumptions and avoid skipping algebraic or lo
   // 11. Format Academic Topic to Rich Student Markdown/HTML
   function formatAcademicTopic(topic, mode) {
     if (mode === "eli5") {
+      const analogyBox = topic.analogy ? `
+        <div class="analogy-box">
+          <div class="box-title">💡 The Simple Analogy</div>
+          <p>${topic.analogy}</p>
+        </div>` : "";
+      const quizBtn = topic.quiz ? `<button class="btn-sm quiz-trigger-btn" data-topic-id="${topic.id}">🎯 Test My Knowledge</button>` : "";
       return `
         <div class="topic-header">
           <span class="badge eli5-badge">🎒 ELI5 Mode</span>
           <h3>${topic.title}</h3>
         </div>
         <p class="core-statement">${topic.core}</p>
-        <div class="analogy-box">
-          <div class="box-title">💡 The Simple Analogy</div>
-          <p>${topic.analogy}</p>
-        </div>
+        ${analogyBox}
         <div class="action-buttons">
-          <button class="btn-sm quiz-trigger-btn" data-topic-id="${topic.id}">🎯 Test My Knowledge</button>
+          ${quizBtn}
           <button class="btn-sm save-note-btn" data-title="${topic.title}">🎒 Save to Notes</button>
         </div>
       `;
@@ -924,26 +953,34 @@ Always double check your starting assumptions and avoid skipping algebraic or lo
       `;
     }
 
+    const analogyHtml = topic.analogy ? `
+      <div class="analogy-box">
+        <div class="box-title">💡 Intuitive Mental Model</div>
+        <p>${topic.analogy}</p>
+      </div>` : "";
+
+    const pitfallHtml = topic.pitfalls ? `
+      <div class="pitfall-box">
+        <div class="box-title">⚠️ Common Exam Traps & Student Pitfalls</div>
+        <p>${topic.pitfalls}</p>
+      </div>` : "";
+
+    const quizBtnHtml = topic.quiz ? `<button class="btn-sm quiz-trigger-btn" data-topic-id="${topic.id}">🎯 Test My Knowledge</button>` : "";
+
     return `
       <div class="topic-header">
-        <span class="badge subject-badge">${topic.subject}</span>
-        <span class="badge accuracy-badge">✓ 99.8% Academic Rigor</span>
+        <span class="badge subject-badge">${topic.subject || "Academic"}</span>
+        <span class="badge accuracy-badge">✓ 100% Deterministic Rigor</span>
         <h3>${topic.title}</h3>
       </div>
       <p class="core-statement">${topic.core}</p>
       ${formulasHtml}
       ${stepsHtml}
       ${graphHtml}
-      <div class="analogy-box">
-        <div class="box-title">💡 Intuitive Mental Model</div>
-        <p>${topic.analogy}</p>
-      </div>
-      <div class="pitfall-box">
-        <div class="box-title">⚠️ Common Exam Traps & Student Pitfalls</div>
-        <p>${topic.pitfalls}</p>
-      </div>
+      ${analogyHtml}
+      ${pitfallHtml}
       <div class="action-buttons">
-        <button class="btn-sm quiz-trigger-btn" data-topic-id="${topic.id}">🎯 Test My Knowledge</button>
+        ${quizBtnHtml}
         <button class="btn-sm save-note-btn" data-title="${topic.title}">🎒 Save to Notes</button>
       </div>
     `;

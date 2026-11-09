@@ -337,87 +337,1276 @@ const ACADEMIC_TOPICS = [
 ];
 
 /**
- * High-speed topic finder (< 2ms lookup) with Deterministic Math Calculator
+ * Polynomial Differentiation via Power Rule (100% Deterministic)
  */
-function findAcademicTopic(query) {
-  if (!query || typeof query !== "string") return null;
-  const q = query.toLowerCase().trim();
+function differentiatePolynomial(polyStr) {
+  const clean = polyStr.replace(/\s+/g, "");
+  const termRegex = /([+-]?)(\d*(?:\.\d+)?)(x)?(?:\^(\d+))?/gi;
+  let match;
+  const terms = [];
+  while ((match = termRegex.exec(clean)) !== null) {
+    if (match[0].length === 0) break;
+    const sign = match[1] === "-" ? -1 : 1;
+    const coeffStr = match[2];
+    const hasX = !!match[3];
+    const powerStr = match[4];
+    if (!hasX && !coeffStr) continue;
+    let coeff = coeffStr ? parseFloat(coeffStr) : (hasX ? 1 : 0);
+    coeff *= sign;
+    const power = powerStr ? parseInt(powerStr, 10) : (hasX ? 1 : 0);
+    if (power === 0) continue;
+    const newCoeff = coeff * power;
+    const newPower = power - 1;
+    const cFmt = Number.isInteger(newCoeff) ? newCoeff : Math.round(newCoeff * 10000) / 10000;
+    let termStr = "";
+    if (newPower === 0) {
+      termStr = String(Math.abs(cFmt));
+    } else if (newPower === 1) {
+      termStr = Math.abs(cFmt) === 1 ? "x" : Math.abs(cFmt) + "x";
+    } else {
+      termStr = Math.abs(cFmt) === 1 ? "x^" + newPower : Math.abs(cFmt) + "x^" + newPower;
+    }
+    terms.push({ coeff: cFmt, str: termStr });
+  }
+  if (terms.length === 0) return "0";
+  let res = "";
+  for (let i = 0; i < terms.length; i++) {
+    const t = terms[i];
+    if (i === 0) {
+      res += (t.coeff < 0 ? "-" : "") + t.str;
+    } else {
+      res += (t.coeff > 0 ? " + " : " - ") + t.str;
+    }
+  }
+  return res || "0";
+}
 
-  // A. Safe Arithmetic & Math Evaluator
-  const cleanMath = q.replace(/^(what is|calculate|evaluate|solve|compute)\s+/, "").replace(/[?=]/g, "").trim();
-  if (/^[\d\s\+\-\*\/\^\(\)\.\%xX]+$/.test(cleanMath) && /[\+\-\*\/\^xX\%]/.test(cleanMath)) {
+/**
+ * Polynomial Indefinite Integration via Reverse Power Rule (100% Deterministic)
+ */
+function integratePolynomial(polyStr) {
+  const clean = polyStr.replace(/\s+/g, "");
+  const termRegex = /([+-]?)(\d*(?:\.\d+)?)(x)?(?:\^(\d+))?/gi;
+  let match;
+  const terms = [];
+  while ((match = termRegex.exec(clean)) !== null) {
+    if (match[0].length === 0) break;
+    const sign = match[1] === "-" ? -1 : 1;
+    const coeffStr = match[2];
+    const hasX = !!match[3];
+    const powerStr = match[4];
+    if (!hasX && !coeffStr) continue;
+    let coeff = coeffStr ? parseFloat(coeffStr) : (hasX ? 1 : 0);
+    coeff *= sign;
+    const power = powerStr ? parseInt(powerStr, 10) : (hasX ? 1 : 0);
+    const newPower = power + 1;
+    const newCoeff = coeff / newPower;
+    const cFmt = Number.isInteger(newCoeff) ? newCoeff : Math.round(newCoeff * 10000) / 10000;
+    let termStr = "";
+    if (newPower === 1) {
+      termStr = Math.abs(cFmt) === 1 ? "x" : Math.abs(cFmt) + "x";
+    } else {
+      termStr = Math.abs(cFmt) === 1 ? "x^" + newPower : Math.abs(cFmt) + "x^" + newPower;
+    }
+    terms.push({ coeff: cFmt, str: termStr });
+  }
+  if (terms.length === 0) return "C";
+  let res = "";
+  for (let i = 0; i < terms.length; i++) {
+    const t = terms[i];
+    if (i === 0) {
+      res += (t.coeff < 0 ? "-" : "") + t.str;
+    } else {
+      res += (t.coeff > 0 ? " + " : " - ") + t.str;
+    }
+  }
+  return res ? res + " + C" : "C";
+}
+
+/**
+ * High-Precision Mathematical & Physics Problem Analytical Solver
+ */
+function solveAnalyticalProblem(query) {
+  if (!query || typeof query !== "string") return null;
+  const raw = query.trim();
+  const qLower = raw.toLowerCase();
+
+  // 1. Calculus Differentiation: e.g. "derivative of 3x^2 + 5x - 7", "d/dx(4x^3 - 6x^2)"
+  const diffMatch = qLower.match(/(?:derivative of|differentiate|d\/dx\s*\(?)\s*([0-9xX\^\+\-\s\.\*]+)\)?/);
+  if (diffMatch) {
+    const polyStr = diffMatch[1].trim();
+    const ans = differentiatePolynomial(polyStr);
+    return {
+      id: "calculus_diff",
+      title: `Calculus Derivative: d/dx (${polyStr})`,
+      subject: "Mathematics",
+      core: `The derivative of $${polyStr}$ with respect to $x$ is **$${ans}$**.`,
+      formulas: [
+        "\\frac{d}{dx}[x^n] = n \\cdot x^{n-1} \\quad \\text{(Power Rule)}",
+        `\\frac{d}{dx}\\left(${polyStr}\\right) = ${ans}`
+      ],
+      steps: [
+        "1. **Apply Power Rule**: Multiply each coefficient by its exponent, then decrement the exponent by 1.",
+        "2. **Differentiate Constants**: Constant terms have zero rate of change: \\frac{d}{dx}[c] = 0.",
+        `3. **Exact Result**: $$\\mathbf{\\frac{d}{dx}[${polyStr}] = ${ans}}$$`
+      ],
+      analogy: "Differentiating a function gives its instantaneous speedometer reading or slope at any chosen point.",
+      pitfalls: "Remember the derivative of any isolated constant term is 0!",
+      quiz: {
+        question: `What is the derivative of ${polyStr}?`,
+        options: [`${ans}`, `${ans} + x`, `${ans} - 1`, `0`],
+        correct: 0,
+        explanation: `Using the power rule term-by-term yields ${ans}.`
+      }
+    };
+  }
+
+  // 2. Calculus Integration: e.g. "integral of 6x^2 + 4x - 1"
+  const integMatch = qLower.match(/(?:integral of|integrate|antiderivative of)\s*([0-9xX\^\+\-\s\.\*]+)/);
+  if (integMatch && !["circuit", "system", "chip"].some(w => qLower.includes(w))) {
+    const polyStr = integMatch[1].trim();
+    const ans = integratePolynomial(polyStr);
+    return {
+      id: "calculus_integ",
+      title: `Calculus Indefinite Integral: ∫ (${polyStr}) dx`,
+      subject: "Mathematics",
+      core: `The indefinite integral of $${polyStr}$ is **$${ans}$**.`,
+      formulas: [
+        "\\int x^n \\, dx = \\frac{x^{n+1}}{n+1} + C \\quad (n \\neq -1)",
+        `\\int \\left(${polyStr}\\right) dx = ${ans}`
+      ],
+      steps: [
+        "1. **Apply Reverse Power Rule**: Increment each power by 1 and divide by the new power.",
+        "2. **Integrate Constants**: \\int c \\, dx = c x.",
+        "3. **Add Constant of Integration**: Always append + C for indefinite integrals.",
+        `4. **Exact Result**: $$\\mathbf{\\int (${polyStr}) \\, dx = ${ans}}$$`
+      ],
+      analogy: "Integration sums infinitely many infinitesimally narrow strips to calculate the exact accumulated total area under the curve.",
+      pitfalls: "Never forget the arbitrary constant of integration + C on indefinite integrals!",
+      quiz: {
+        question: `What is the indefinite integral of ${polyStr}?`,
+        options: [`${ans}`, `${ans.replace("+ C", "")}`, `0`, `x`],
+        correct: 0,
+        explanation: `Reverse power rule produces ${ans}.`
+      }
+    };
+  }
+
+  // 3. Linear Equations: e.g. "solve 3x + 9 = 24", "5x - 15 = 35", "3x = 15"
+  const linMatch = qLower.match(/(?:solve\s+)?([+-]?\s*\d*(?:\.\d+)?)\s*x(?:\s*([+-]\s*\d*(?:\.\d+)?))?\s*=\s*([+-]?\s*\d*(?:\.\d+)?)/);
+  if (linMatch && !qLower.includes("x^2") && !qLower.includes("x^ 2")) {
     try {
-      const sanitized = cleanMath.replace(/\^/g, "**").replace(/x/gi, "*");
-      // Safe math evaluate using Function with limited scope
+      const aStr = (linMatch[1] || "1").replace(/\s+/g, "");
+      const a = (aStr === "" || aStr === "+") ? 1 : (aStr === "-" ? -1 : parseFloat(aStr));
+      const bStr = linMatch[2];
+      const b = bStr ? parseFloat(bStr.replace(/\s+/g, "")) : 0.0;
+      const c = parseFloat(linMatch[3].replace(/\s+/g, ""));
+      if (!isNaN(a) && !isNaN(b) && !isNaN(c) && a !== 0) {
+        const x = (c - b) / a;
+        const xFmt = Number.isInteger(x) ? x : Math.round(x * 10000) / 10000;
+        const aFmt = Number.isInteger(a) ? a : Math.round(a * 10000) / 10000;
+        const bFmt = Number.isInteger(b) ? b : Math.round(b * 10000) / 10000;
+        const cFmt = Number.isInteger(c) ? c : Math.round(c * 10000) / 10000;
+        const eqLabel = `${aFmt}x` + (bFmt > 0 ? ` + ${bFmt}` : (bFmt < 0 ? ` - ${Math.abs(bFmt)}` : "")) + ` = ${cFmt}`;
+        return {
+          id: "linear_equation",
+          title: `Linear Equation Solution: ${eqLabel}`,
+          subject: "Mathematics",
+          core: `The exact solution to the equation $${eqLabel}$ is **x = ${xFmt}**.`,
+          formulas: [`${eqLabel} \\implies ${aFmt}x = ${cFmt - bFmt} \\implies x = ${xFmt}`],
+          steps: [
+            bFmt !== 0 ? `1. **Isolate Variable Term**: Move constant to right side: ${aFmt}x = ${cFmt} - (${bFmt}) = ${cFmt - bFmt}.` : `1. **Analyze Equation**: Term is already isolated: ${aFmt}x = ${cFmt}.`,
+            `2. **Divide by Coefficient**: Divide both sides by ${aFmt}: x = ${cFmt - bFmt} / ${aFmt} = ${xFmt}.`,
+            `3. **Verification**: ${aFmt}(${xFmt}) + (${bFmt}) = ${aFmt * xFmt + bFmt} (Matches ${cFmt}).`
+          ],
+          analogy: "A balanced scale: whatever arithmetic operation you perform on one side, you mirror identically on the other side.",
+          pitfalls: "Watch out for negative signs when subtracting constant terms across the equals sign!",
+          quiz: {
+            question: `What is the value of x in ${eqLabel}?`,
+            options: [`${xFmt}`, `${xFmt + 1}`, `${xFmt - 2}`, `${xFmt * 2}`],
+            correct: 0,
+            explanation: `Isolating x yields ${xFmt}.`
+          }
+        };
+      }
+    } catch (e) {}
+  }
+
+  // 4. Quadratic Equations: e.g. "x^2 - 5x + 6 = 0", "x^2 - 9 = 0", "2x^2 + 4x = 0"
+  const quadMatch = qLower.match(/(?:solve\s+)?([+-]?\s*\d*(?:\.\d+)?)\s*x\^2(?:\s*([+-]\s*\d*(?:\.\d+)?)\s*x)?(?:\s*([+-]\s*\d*(?:\.\d+)?))?\s*(?:=\s*0)?/);
+  if (quadMatch && (qLower.includes("x^2") || qLower.includes("x^ 2"))) {
+    try {
+      const aStr = (quadMatch[1] || "1").replace(/\s+/g, "");
+      const a = (aStr === "" || aStr === "+") ? 1 : (aStr === "-" ? -1 : parseFloat(aStr));
+      const bStr = quadMatch[2];
+      const b = bStr ? parseFloat(bStr.replace(/\s+/g, "")) : 0.0;
+      const cStr = quadMatch[3];
+      const c = cStr ? parseFloat(cStr.replace(/\s+/g, "")) : 0.0;
+      if (!isNaN(a) && !isNaN(b) && !isNaN(c) && a !== 0) {
+        const disc = b * b - 4 * a * c;
+        let root1, root2, rootsDesc, rootsStr;
+        if (disc > 0) {
+          root1 = (-b + Math.sqrt(disc)) / (2 * a);
+          root2 = (-b - Math.sqrt(disc)) / (2 * a);
+          const r1Fmt = Number.isInteger(root1) ? root1 : Math.round(root1 * 10000) / 10000;
+          const r2Fmt = Number.isInteger(root2) ? root2 : Math.round(root2 * 10000) / 10000;
+          rootsStr = `x_1 = ${r1Fmt}, \\quad x_2 = ${r2Fmt}`;
+          rootsDesc = `Two distinct real roots exist: **${r1Fmt}** and **${r2Fmt}**.`;
+        } else if (disc === 0) {
+          const root = -b / (2 * a);
+          const rFmt = Number.isInteger(root) ? root : Math.round(root * 10000) / 10000;
+          rootsStr = `x = ${rFmt} \\quad \\text{(repeated root)}`;
+          rootsDesc = `One repeated real root exists: **${rFmt}**.`;
+        } else {
+          const realPart = Math.round((-b / (2 * a)) * 10000) / 10000;
+          const imagPart = Math.round((Math.sqrt(-disc) / (2 * a)) * 10000) / 10000;
+          rootsStr = `x = ${realPart} \\pm ${Math.abs(imagPart)}i`;
+          rootsDesc = `Complex conjugate roots exist: **${realPart} ± ${Math.abs(imagPart)}i**.`;
+        }
+        return {
+          id: "quadratic_equation",
+          title: `Quadratic Equation: ${a}x² + ${b}x + ${c} = 0`,
+          subject: "Mathematics",
+          core: rootsDesc,
+          formulas: [
+            "ax^2 + bx + c = 0 \\implies x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}",
+            `\\Delta = b^2 - 4ac = (${b})^2 - 4(${a})(${c}) = ${Math.round(disc * 10000) / 10000}`,
+            rootsStr
+          ],
+          steps: [
+            `1. **Identify Coefficients**: a = ${a}, b = ${b}, c = ${c}.`,
+            `2. **Compute Discriminant (Δ)**: Δ = b² - 4ac = ${Math.round(disc * 10000) / 10000}.`,
+            `3. **Apply Quadratic Formula**: Substitute into x = (-b ± √Δ) / (2a).`,
+            `4. **Exact Solutions**: $$${rootsStr}$$`
+          ],
+          analogy: "A quadratic equation graphs a parabola. The roots mark where the trajectory crosses the ground level (x-axis).",
+          pitfalls: "Remember dividing by 2a applies to the entire numerator (-b ± √Δ)!",
+          quiz: {
+            question: `What is the discriminant of ${a}x² + ${b}x + ${c} = 0?`,
+            options: [`${Math.round(disc * 10000) / 10000}`, `${Math.round((disc + 5) * 10000) / 10000}`, `0`, `-1`],
+            correct: 0,
+            explanation: `b² - 4ac = (${b})² - 4(${a})(${c}) = ${disc}.`
+          }
+        };
+      }
+    } catch (e) {}
+  }
+
+  // 5. Percentages: e.g. "15% of 240", "what is 20 percent of 850"
+  const pctMatch = qLower.match(/(\d+(?:\.\d+)?)\s*(?:%|percent)\s+of\s+(\d+(?:\.\d+)?)/);
+  if (pctMatch) {
+    const pct = parseFloat(pctMatch[1]);
+    const tot = parseFloat(pctMatch[2]);
+    const val = (pct / 100.0) * tot;
+    const valFmt = Number.isInteger(val) ? val : Math.round(val * 10000) / 10000;
+    return {
+      id: "percentage_calc",
+      title: `Percentage Calculation: ${pct}% of ${tot}`,
+      subject: "Mathematics",
+      core: `**${pct}% of ${tot} is ${valFmt}**.`,
+      formulas: [`\\text{Value} = \\left(\\frac{${pct}}{100}\\right) \\times ${tot} = ${valFmt}`],
+      steps: [
+        `1. **Convert Percent to Decimal**: ${pct}% = ${pct} / 100 = ${pct / 100}.`,
+        `2. **Multiply by Whole**: ${pct / 100} × ${tot} = ${valFmt}.`
+      ],
+      analogy: `If you divide ${tot} into 100 equal parts, grouping ${pct} of those parts together yields ${valFmt}.`,
+      pitfalls: "Remember that 'of' translates directly to multiplication in percentage problems.",
+      quiz: {
+        question: `What is ${pct}% of ${tot}?`,
+        options: [`${valFmt}`, `${valFmt + 5}`, `${valFmt * 2}`, `${Math.round(valFmt / 2)}`],
+        correct: 0,
+        explanation: `(${pct} / 100) * ${tot} = ${valFmt}.`
+      }
+    };
+  }
+
+  // 6. Physics Word Problem: Force (F = m * a)
+  if ((qLower.includes("force") || qLower.includes("f=ma")) && (qLower.includes("mass") || qLower.includes("kg"))) {
+    let mVal = null, aVal = null;
+    const mMatch = qLower.match(/(\d+(?:\.\d+)?)\s*kg/) || qLower.match(/mass\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (mMatch) mVal = parseFloat(mMatch[1]);
+    const aMatch = qLower.match(/(\d+(?:\.\d+)?)\s*m\/s(?:\^2|2)?/) || qLower.match(/accel\w*\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (aMatch) aVal = parseFloat(aMatch[1]);
+    if (mVal !== null && aVal !== null) {
+      const f = mVal * aVal;
+      const fFmt = Number.isInteger(f) ? f : Math.round(f * 10000) / 10000;
+      return {
+        id: "physics_force_calc",
+        title: `Physics Calculation: Force (m = ${mVal} kg, a = ${aVal} m/s²)`,
+        subject: "Physics",
+        core: `The required net force is **${fFmt} Newtons (N)**.`,
+        formulas: [`F = m \\cdot a = (${mVal} \\text{ kg}) \\times (${aVal} \\text{ m/s}^2) = ${fFmt} \\text{ N}`],
+        steps: [
+          "1. **Newton's Second Law of Motion**: F_net = m × a.",
+          `2. **Substitute Known Parameters**: Mass m = ${mVal} kg, Acceleration a = ${aVal} m/s².`,
+          `3. **Compute**: F = ${mVal} × ${aVal} = ${fFmt} N.`
+        ],
+        analogy: "The heavier an object (mass) and the faster you want to change its velocity (acceleration), the harder you must push (force).",
+        pitfalls: "Ensure mass is in kilograms (kg) and acceleration in m/s² so the resulting unit is in standard SI Newtons.",
+        quiz: {
+          question: `What force is required to accelerate ${mVal} kg at ${aVal} m/s²?`,
+          options: [`${fFmt} N`, `${fFmt + 10} N`, `${fFmt * 2} N`, `${mVal} N`],
+          correct: 0,
+          explanation: `F = m * a = ${mVal} * ${aVal} = ${fFmt} N.`
+        }
+      };
+    }
+  }
+
+  // 7. Physics Word Problem: Kinetic Energy (1/2 m v^2)
+  if ((qLower.includes("kinetic energy") || qLower.includes("ke")) && (qLower.includes("mass") || qLower.includes("kg"))) {
+    let mVal = null, vVal = null;
+    const mMatch = qLower.match(/(\d+(?:\.\d+)?)\s*kg/) || qLower.match(/mass\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (mMatch) mVal = parseFloat(mMatch[1]);
+    const vMatch = qLower.match(/(\d+(?:\.\d+)?)\s*m\/s/) || qLower.match(/(?:speed|veloc\w*)\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (vMatch) vVal = parseFloat(vMatch[1]);
+    if (mVal !== null && vVal !== null) {
+      const ke = 0.5 * mVal * (vVal ** 2);
+      const keFmt = Number.isInteger(ke) ? ke : Math.round(ke * 10000) / 10000;
+      return {
+        id: "physics_ke_calc",
+        title: `Physics Calculation: Kinetic Energy (m = ${mVal} kg, v = ${vVal} m/s)`,
+        subject: "Physics",
+        core: `The kinetic energy of the object is **${keFmt} Joules (J)**.`,
+        formulas: [`E_k = \\frac{1}{2} m v^2 = \\frac{1}{2} (${mVal}) (${vVal})^2 = ${keFmt} \\text{ J}`],
+        steps: [
+          "1. **Kinetic Energy Formula**: E_k = 1/2 · m · v².",
+          `2. **Square Velocity**: v² = (${vVal})² = ${vVal ** 2}.`,
+          `3. **Compute**: 0.5 × ${mVal} × ${vVal ** 2} = ${keFmt} J.`
+        ],
+        analogy: "Doubling your vehicle's speed quadruples its braking energy because kinetic energy scales with the square of velocity.",
+        pitfalls: "Do not forget to square the velocity BEFORE multiplying by 1/2 mass!",
+        quiz: {
+          question: `What is the kinetic energy of ${mVal} kg at ${vVal} m/s?`,
+          options: [`${keFmt} J`, `${keFmt * 2} J`, `${mVal * vVal} J`, `0 J`],
+          correct: 0,
+          explanation: `0.5 * ${mVal} * (${vVal})^2 = ${keFmt} J.`
+        }
+      };
+    }
+  }
+
+  // 8. Physics Word Problem: Speed (v = d / t)
+  if ((qLower.includes("speed") || qLower.includes("velocity")) && (qLower.includes("distance") || qLower.includes("km") || qLower.includes("miles"))) {
+    let dVal = null, tVal = null;
+    const dMatch = qLower.match(/(\d+(?:\.\d+)?)\s*(?:km|miles|meters|m\b)/) || qLower.match(/distance\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (dMatch) dVal = parseFloat(dMatch[1]);
+    const tMatch = qLower.match(/(\d+(?:\.\d+)?)\s*(?:hours|hrs|hr|seconds|sec|s\b|minutes|min)/) || qLower.match(/time\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (tMatch) tVal = parseFloat(tMatch[1]);
+    if (dVal !== null && tVal !== null && tVal > 0) {
+      const spd = dVal / tVal;
+      const spdFmt = Number.isInteger(spd) ? spd : Math.round(spd * 10000) / 10000;
+      return {
+        id: "physics_speed_calc",
+        title: `Kinematics Speed Calculation (d = ${dVal}, t = ${tVal})`,
+        subject: "Physics",
+        core: `The average speed is **${spdFmt}** units per time.`,
+        formulas: [`v = \\frac{d}{t} = \\frac{${dVal}}{${tVal}} = ${spdFmt}`],
+        steps: [
+          "1. **Definition**: Average speed is total distance divided by elapsed time.",
+          `2. **Compute**: v = ${dVal} / ${tVal} = ${spdFmt}.`
+        ],
+        analogy: "Speed measures the rate at which distance is covered per tick of the clock.",
+        pitfalls: "Make sure distance and time units match (e.g. km with hours, or meters with seconds).",
+        quiz: {
+          question: `What is the speed for distance ${dVal} and time ${tVal}?`,
+          options: [`${spdFmt}`, `${spdFmt * 2}`, `${dVal * tVal}`, `0`],
+          correct: 0,
+          explanation: `v = d / t = ${dVal} / ${tVal} = ${spdFmt}.`
+        }
+      };
+    }
+  }
+
+  // 9. Ohm's Law (V = I * R)
+  if ((qLower.includes("ohm") || qLower.includes("voltage") || qLower.includes("current") || qLower.includes("resistance")) && (qLower.includes("amp") || qLower.includes("ohm") || qLower.includes("volt"))) {
+    let iVal = null, rVal = null, vVal = null;
+    const iMatch = qLower.match(/(\d+(?:\.\d+)?)\s*(?:amps?|a\b)/) || qLower.match(/current\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (iMatch) iVal = parseFloat(iMatch[1]);
+    const rMatch = qLower.match(/(\d+(?:\.\d+)?)\s*(?:ohms?|Ω)/) || qLower.match(/resistance\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (rMatch) rVal = parseFloat(rMatch[1]);
+    const vMatch = qLower.match(/(\d+(?:\.\d+)?)\s*(?:volts?|v\b)/) || qLower.match(/voltage\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)/);
+    if (vMatch) vVal = parseFloat(vMatch[1]);
+
+    if (iVal !== null && rVal !== null) {
+      const vRes = iVal * rVal;
+      const vFmt = Number.isInteger(vRes) ? vRes : Math.round(vRes * 10000) / 10000;
+      return {
+        id: "physics_ohm_calc",
+        title: `Ohm's Law Voltage Calculation (I = ${iVal} A, R = ${rVal} Ω)`,
+        subject: "Physics",
+        core: `The electric potential difference (voltage) is **${vFmt} Volts (V)**.`,
+        formulas: [`V = I \\cdot R = (${iVal} \\text{ A}) \\times (${rVal} \\,\\Omega) = ${vFmt} \\text{ V}`],
+        steps: [
+          "1. **Ohm's Law**: Voltage across a conductor equals current multiplied by resistance (V = I · R).",
+          `2. **Compute**: V = ${iVal} × ${rVal} = ${vFmt} V.`
+        ],
+        analogy: "Voltage is water pressure, current is volume flow rate, and resistance is pipe narrowness.",
+        pitfalls: "Ensure current is in Amperes (A) and resistance in Ohms (Ω).",
+        quiz: {
+          question: `What is the voltage across ${rVal} Ω with ${iVal} A current?`,
+          options: [`${vFmt} V`, `${vFmt + 5} V`, `${iVal + rVal} V`, `0 V`],
+          correct: 0,
+          explanation: `V = I * R = ${iVal} * ${rVal} = ${vFmt} V.`
+        }
+      };
+    }
+  }
+
+  // 10. Temperature Conversions
+  const c2fMatch = qLower.match(/convert\s*(-?\d+(?:\.\d+)?)\s*(?:c|celsius)\s*to\s*(?:f|fahrenheit)/);
+  if (c2fMatch) {
+    const c = parseFloat(c2fMatch[1]);
+    const f = (c * 9.0 / 5.0) + 32.0;
+    const fFmt = Number.isInteger(f) ? f : Math.round(f * 100) / 100;
+    return {
+      id: "temp_c2f",
+      title: `Temperature Conversion: ${c}°C to Fahrenheit`,
+      subject: "Physics",
+      core: `**${c}°C is equal to ${fFmt}°F**.`,
+      formulas: [`F = \\left(C \\times \\frac{9}{5}\\right) + 32 = \\left(${c} \\times 1.8\\right) + 32 = ${fFmt}^\\circ\\text{F}`],
+      steps: [
+        `1. **Multiply by 1.8 (9/5)**: ${c} × 1.8 = ${Math.round(c * 1.8 * 100) / 100}.`,
+        `2. **Add 32**: ${Math.round(c * 1.8 * 100) / 100} + 32 = ${fFmt}°F.`
+      ],
+      analogy: "Water freezes at 0°C (32°F) and boils at 100°C (212°F).",
+      pitfalls: "Remember to add 32 AFTER multiplying by 9/5, not before!",
+      quiz: {
+        question: `What is ${c}°C in Fahrenheit?`,
+        options: [`${fFmt}°F`, `${fFmt + 10}°F`, `${c + 32}°F`, `0°F`],
+        correct: 0,
+        explanation: `(${c} * 1.8) + 32 = ${fFmt}°F.`
+      }
+    };
+  }
+
+  const f2cMatch = qLower.match(/convert\s*(-?\d+(?:\.\d+)?)\s*(?:f|fahrenheit)\s*to\s*(?:c|celsius)/);
+  if (f2cMatch) {
+    const f = parseFloat(f2cMatch[1]);
+    const c = (f - 32.0) * 5.0 / 9.0;
+    const cFmt = Number.isInteger(c) ? c : Math.round(c * 100) / 100;
+    return {
+      id: "temp_f2c",
+      title: `Temperature Conversion: ${f}°F to Celsius`,
+      subject: "Physics",
+      core: `**${f}°F is equal to ${cFmt}°C**.`,
+      formulas: [`C = (F - 32) \\times \\frac{5}{9} = (${f} - 32) \\times \\frac{5}{9} = ${cFmt}^\\circ\\text{C}`],
+      steps: [
+        `1. **Subtract 32**: ${f} - 32 = ${Math.round((f - 32) * 100) / 100}.`,
+        `2. **Multiply by 5/9**: ${Math.round((f - 32) * 100) / 100} × (5/9) = ${cFmt}°C.`
+      ],
+      analogy: "Subtracting 32 aligns zero points; multiplying by 5/9 rescales the degree interval.",
+      pitfalls: "Subtract 32 first before multiplying by 5/9!",
+      quiz: {
+        question: `What is ${f}°F in Celsius?`,
+        options: [`${cFmt}°C`, `${cFmt + 10}°C`, `${f - 32}°C`, `100°C`],
+        correct: 0,
+        explanation: `(${f} - 32) * (5/9) = ${cFmt}°C.`
+      }
+    };
+  }
+
+  // 11. Factorial: e.g. "factorial of 6" or "6!"
+  const factMatch = qLower.match(/(?:factorial of\s+(\d+)|(\d+)\s*!)/);
+  if (factMatch) {
+    const n = parseInt(factMatch[1] || factMatch[2], 10);
+    if (n <= 100) {
+      let val = 1;
+      for (let i = 2; i <= n; i++) val *= i;
+      return {
+        id: "math_factorial",
+        title: `Factorial Calculation: ${n}!`,
+        subject: "Mathematics",
+        core: `**${n}! = ${val}**.`,
+        formulas: [`${n}! = \\prod_{i=1}^{${n}} i = ${val}`],
+        steps: [
+          "1. **Definition**: The factorial n! is the product of all positive integers less than or equal to n.",
+          `2. **Compute**: Multiplying sequential integers yields ${val}.`
+        ],
+        analogy: `The number of unique ways to arrange ${n} books in order on a shelf is exactly ${n}!.`,
+        pitfalls: "Remember that by definition, 0! = 1.",
+        quiz: {
+          question: `What is ${n}!?`,
+          options: [`${val}`, `${val * 2}`, `${val + 10}`, `${n * 2}`],
+          correct: 0,
+          explanation: `n! is the product of all integers up to n, giving ${val}.`
+        }
+      };
+    }
+  }
+
+  // 12. GCD / Greatest Common Divisor
+  const gcdMatch = qLower.match(/gcd\s+(?:of\s+)?(\d+)\s*(?:and|,)\s*(\d+)/);
+  if (gcdMatch) {
+    const a = parseInt(gcdMatch[1], 10);
+    const b = parseInt(gcdMatch[2], 10);
+    function _gcd(x, y) { return y === 0 ? x : _gcd(y, x % y); }
+    const g = _gcd(a, b);
+    return {
+      id: "math_gcd",
+      title: `Greatest Common Divisor: GCD(${a}, ${b})`,
+      subject: "Mathematics",
+      core: `The greatest common divisor of ${a} and ${b} is **${g}**.`,
+      formulas: [`\\gcd(${a}, ${b}) = ${g}`],
+      steps: [
+        `1. **Euclidean Algorithm**: Repeatedly divide larger by smaller and take remainders: ${a} mod ${b}.`,
+        `2. **Result**: The greatest integer that divides both evenly is ${g}.`
+      ],
+      analogy: `The largest square tile that can tile a floor of dimensions ${a} × ${b} without cutting tiles.`,
+      pitfalls: "Do not confuse GCD (greatest divisor) with LCM (least common multiple).",
+      quiz: {
+        question: `What is GCD(${a}, ${b})?`,
+        options: [`${g}`, `${g + 1}`, `${Math.max(a, b)}`, `1`],
+        correct: 0,
+        explanation: `Euclidean algorithm gives ${g}.`
+      }
+    };
+  }
+
+  // 13. Prime Test: e.g. "is 29 prime"
+  const primeMatch = qLower.match(/is\s+(\d+)\s+prime/);
+  if (primeMatch) {
+    const n = parseInt(primeMatch[1], 10);
+    let isP = n > 1;
+    for (let i = 2; i * i <= n; i++) {
+      if (n % i === 0) { isP = false; break; }
+    }
+    const verdict = isP ? `**${n} IS a prime number** (it has no divisors other than 1 and itself).` : `**${n} is NOT a prime number** (it is composite).`;
+    return {
+      id: "math_prime_test",
+      title: `Primality Test: Is ${n} Prime?`,
+      subject: "Mathematics",
+      core: verdict,
+      formulas: [`\\text{Prime}(${n}) = ${isP}`],
+      steps: [
+        `1. **Trial Division**: Test divisibility by all primes up to √${n} ≈ ${Math.floor(Math.sqrt(n))}.`,
+        `2. **Divisibility Check**: ${isP ? "No divisors found." : "At least one integer divisor exists."}`
+      ],
+      analogy: "Primes are the elementary 'atoms' of arithmetic; all other positive integers are composite molecules.",
+      pitfalls: "1 is neither prime nor composite by definition. 2 is the only even prime number.",
+      quiz: {
+        question: `Is ${n} a prime number?`,
+        options: [isP ? "Yes, it is prime" : "No, it is composite", isP ? "No, it is composite" : "Yes, it is prime"],
+        correct: 0,
+        explanation: `${n} ${isP ? "has no factors other than 1 and itself" : "has factors other than 1 and itself"}.`
+      }
+    };
+  }
+
+  // Clean query for geometric & arithmetic evaluation
+  let clean = qLower.replace(/[?=]/g, "").trim();
+  clean = clean.replace(/^(what is|calculate|evaluate|solve|compute|find|tell me)\s+/, "").trim();
+
+  // 14. Square Root: sqrt(144)
+  const sqrtMatch = clean.match(/(?:sqrt|square root of)\s*\(?(\d+(?:\.\d+)?)\)?/);
+  if (sqrtMatch) {
+    const val = parseFloat(sqrtMatch[1]);
+    const ans = Math.sqrt(val);
+    const ansFmt = Number.isInteger(ans) ? ans : Math.round(ans * 10000) / 10000;
+    return {
+      id: "math_sqrt",
+      title: `Square Root Calculation: √${val}`,
+      subject: "Mathematics",
+      core: `The principal square root of $${val}$ is **${ansFmt}** (since $${ansFmt}^2 = ${val}$).`,
+      formulas: [`\\sqrt{${val}} = ${ansFmt}`],
+      steps: [
+        "1. **Definition**: The principal square root √x is the unique non-negative number r such that r² = x.",
+        `2. **Result**: $$\\mathbf{\\sqrt{${val}} = ${ansFmt}}$$`
+      ],
+      analogy: `Finding a square root is finding the side length of a square whose surface area equals ${val}.`,
+      pitfalls: "The square root radical symbol √ strictly designates the non-negative principal root.",
+      quiz: {
+        question: `What is √${val}?`,
+        options: [`${ansFmt}`, `${ansFmt + 2}`, `${val / 2}`, `0`],
+        correct: 0,
+        explanation: `${ansFmt} * ${ansFmt} = ${val}.`
+      }
+    };
+  }
+
+  // 15. Geometry: Circle Area & Circumference
+  const circleMatch = clean.match(/area of (?:a )?circle.*?radius\s*(\d+(?:\.\d+)?)/);
+  if (circleMatch) {
+    const r = parseFloat(circleMatch[1]);
+    const area = Math.PI * r * r;
+    const roundedArea = Math.round(area * 10000) / 10000;
+    return {
+      id: "geom_circle_area",
+      title: `Circle Area Calculation (radius = ${r})`,
+      subject: "Mathematics",
+      core: `The area of a circle with radius $${r}$ is approximately **${roundedArea}** square units.`,
+      formulas: [`A = \\pi r^2 = \\pi (${r})^2 \\approx ${roundedArea}`],
+      steps: [
+        "1. **Area Formula**: A = πr².",
+        `2. **Square the Radius**: r = ${r} ⟹ r² = ${r * r}.`,
+        `3. **Multiply by Pi (π ≈ 3.14159)**: A = π × ${r * r} ≈ ${roundedArea}.`
+      ],
+      analogy: "Unwinding concentric rings of a circle forms a triangle of base 2πr and height r: Area = 1/2 × (2πr) × r = πr².",
+      pitfalls: "Do not confuse radius with diameter! If diameter is given, divide by 2 before squaring.",
+      quiz: {
+        question: `What is the area of a circle with radius ${r}?`,
+        options: [`${roundedArea}`, `${Math.round(2 * Math.PI * r * 100) / 100}`, `${r * r}`, `0`],
+        correct: 0,
+        explanation: `π * (${r})^2 ≈ ${roundedArea}.`
+      }
+    };
+  }
+
+  // 16. Geometry: Triangle Area
+  const triMatch = clean.match(/area of (?:a )?triangle.*?(?:base\s*(\d+(?:\.\d+)?).*?height\s*(\d+(?:\.\d+)?)|height\s*(\d+(?:\.\d+)?).*?base\s*(\d+(?:\.\d+)?))/);
+  if (triMatch) {
+    const b = parseFloat(triMatch[1] || triMatch[4]);
+    const h = parseFloat(triMatch[2] || triMatch[3]);
+    const area = 0.5 * b * h;
+    const aFmt = Number.isInteger(area) ? area : Math.round(area * 10000) / 10000;
+    return {
+      id: "geom_triangle_area",
+      title: `Triangle Area Calculation (base = ${b}, height = ${h})`,
+      subject: "Mathematics",
+      core: `The area of the triangle is **${aFmt}** square units.`,
+      formulas: [`A = \\frac{1}{2} b \\cdot h = \\frac{1}{2} (${b}) (${h}) = ${aFmt}`],
+      steps: [
+        "1. **Formula**: Area = 1/2 × base × height.",
+        `2. **Compute**: 0.5 × ${b} × ${h} = ${aFmt}.`
+      ],
+      analogy: "Any triangle is exactly half of a parallelogram with the same base and height.",
+      pitfalls: "Height must be measured perpendicular to the base, not along the slanted side!",
+      quiz: {
+        question: `What is the area of a triangle with base ${b} and height ${h}?`,
+        options: [`${aFmt}`, `${b * h}`, `${aFmt * 2}`, `0`],
+        correct: 0,
+        explanation: `0.5 * ${b} * ${h} = ${aFmt}.`
+      }
+    };
+  }
+
+  // 17. Geometry: Pythagorean Hypotenuse
+  const pythMatch = clean.match(/hypotenuse.*?(?:sides?|legs?)\s*(\d+(?:\.\d+)?)\s*(?:and|,)\s*(\d+(?:\.\d+)?)/);
+  if (pythMatch) {
+    const a = parseFloat(pythMatch[1]);
+    const b = parseFloat(pythMatch[2]);
+    const c = Math.sqrt(a * a + b * b);
+    const cFmt = Number.isInteger(c) ? c : Math.round(c * 10000) / 10000;
+    return {
+      id: "geom_pythagoras",
+      title: `Pythagorean Hypotenuse Calculation (a = ${a}, b = ${b})`,
+      subject: "Mathematics",
+      core: `For a right triangle with legs ${a} and ${b}, the hypotenuse is **${cFmt}**.`,
+      formulas: [`c = \\sqrt{a^2 + b^2} = \\sqrt{${a}^2 + ${b}^2} = ${cFmt}`],
+      steps: [
+        "1. **Pythagorean Theorem**: In any right triangle, a² + b² = c².",
+        `2. **Compute Squares**: ${a}² = ${a * a}, ${b}² = ${b * b}, sum = ${a * a + b * b}.`,
+        `3. **Take Square Root**: c = √(${a * a + b * b}) = ${cFmt}.`
+      ],
+      analogy: "Walking diagonally across a rectangular courtyard is always shorter than walking both sidewalk edges.",
+      pitfalls: "This theorem applies strictly to right triangles (90°). For other triangles, use the Law of Cosines.",
+      quiz: {
+        question: `What is the hypotenuse of legs ${a} and ${b}?`,
+        options: [`${cFmt}`, `${a + b}`, `${Math.max(a, b)}`, `0`],
+        correct: 0,
+        explanation: `√((${a})² + (${b})²) = ${cFmt}.`
+      }
+    };
+  }
+
+  // 18. General Arithmetic Expression Evaluator
+  if (/^[\d\s\+\-\*\/\^\(\)\.\%xX]+$/.test(clean) && /[\+\-\*\/\^xX\%]/.test(clean)) {
+    try {
+      const sanitized = clean.replace(/\^/g, "**").replace(/x/gi, "*");
       const val = new Function(`return (${sanitized});`)();
       if (typeof val === "number" && !isNaN(val) && isFinite(val)) {
         const rounded = Number.isInteger(val) ? val : Math.round(val * 10000) / 10000;
         return {
           id: "math_calc",
-          title: `Mathematical Calculation: ${cleanMath}`,
+          title: `Mathematical Calculation: ${clean}`,
           subject: "Mathematics",
-          core: `The exact numerical result of $${cleanMath}$ is **${rounded}**.`,
-          formulas: [`${cleanMath} = ${rounded}`],
+          core: `The exact numerical result of $${clean}$ is **${rounded}**.`,
+          formulas: [`${clean} = ${rounded}`],
           steps: [
             "1. **Analyze Expression**: Deconstruct operators following standard operator precedence (PEMDAS/BODMAS).",
-            `2. **Compute**: Systematically evaluate operations.`,
-            `3. **Exact Solution**: $$\\mathbf{${cleanMath} = ${rounded}}$$`
+            "2. **Compute**: Systematically evaluate operations.",
+            `3. **Exact Solution**: $$\\mathbf{${clean} = ${rounded}}$$`
           ],
           analogy: "Arithmetic is the universal language of counting and scaling physical quantities with zero uncertainty.",
           pitfalls: "Always follow order of operations: Parentheses -> Exponents -> Multiplication/Division -> Addition/Subtraction.",
           quiz: {
-            question: `What is the result of ${cleanMath}?`,
+            question: `What is the result of ${clean}?`,
             options: [`${rounded}`, `${rounded + 1}`, `${rounded - 2}`, `${rounded * 2}`],
             correct: 0,
             explanation: `Direct arithmetic evaluation yields ${rounded}.`
           }
         };
       }
-    } catch (e) {
-      // Not a valid math expression, proceed to knowledge search
+    } catch (e) {}
+  }
+
+  return null;
+}
+
+/**
+ * 100% Accurate Verified Factual & Scientific Knowledge Database
+ */
+function lookupFactualKnowledge(query) {
+  if (!query || typeof query !== "string") return null;
+  const q = query.toLowerCase().trim();
+
+  const FACTS = [
+    // CELL BIOLOGY: MITOCHONDRIA
+    {
+      pattern: /power\s*house\s+of\s+(?:the\s+)?cell/,
+      data: {
+        id: "bio_mitochondria",
+        title: "Cellular Biology: Mitochondria",
+        subject: "Biology",
+        core: "**The Mitochondria** (singular: mitochondrion) is the powerhouse of the cell.",
+        formulas: ["\\text{C}_6\\text{H}_{12}\\text{O}_6 + 6\\text{O}_2 \\to 6\\text{CO}_2 + 6\\text{H}_2\\text{O} + 36\\text{-}38\\text{ ATP}"],
+        steps: [
+          "1. **Primary Role**: Mitochondria generate over 90% of cellular chemical energy stored in Adenosine Triphosphate (ATP).",
+          "2. **Stages**: Cellular respiration proceeds through Glycolysis ⟶ Krebs Cycle (matrix) ⟶ Electron Transport Chain (cristae).",
+          "3. **Endosymbiotic Origin**: Mitochondria carry independent circular DNA (mtDNA) and double membranes, indicating bacterial ancestry."
+        ],
+        analogy: "Mitochondria are like the electrical power plants of a bustling city, converting incoming sugar fuel into universal ATP electricity.",
+        pitfalls: "Red blood cells (erythrocytes) do NOT contain mitochondria; they produce energy exclusively via anaerobic glycolysis!",
+        quiz: {
+          question: "Which organelle is universally known as the powerhouse of the cell?",
+          options: ["Mitochondria", "Ribosome", "Golgi Apparatus", "Endoplasmic Reticulum"],
+          correct: 0,
+          explanation: "Mitochondria synthesize ATP through oxidative phosphorylation."
+        }
+      }
+    },
+    // SPEED OF LIGHT
+    {
+      pattern: /speed\s+of\s+light/,
+      data: {
+        id: "phys_c",
+        title: "Fundamental Constant: Speed of Light (c)",
+        subject: "Physics",
+        core: "The speed of light in a vacuum is exactly **299,792,458 m/s** (commonly approximated as $$3.0 \\times 10^8\\text{ m/s}$$).",
+        formulas: [
+          "c = 299{,}792{,}458 \\, \\text{m/s} \\approx 3.0 \\times 10^8 \\, \\text{m/s}",
+          "E = m c^2"
+        ],
+        steps: [
+          "1. **Universal Invariant**: Under Einstein's Special Relativity, the speed of light in vacuum is identical for all inertial observers.",
+          "2. **Cosmic Speed Limit**: No massive particle or information can travel faster than c in vacuum."
+        ],
+        analogy: "Light travels fast enough to circumnavigate Earth's equator roughly 7.5 times in a single second.",
+        pitfalls: "The speed of light is only exactly 299,792,458 m/s in a true vacuum; inside glass or water, refraction slows its phase velocity (v = c / n).",
+        quiz: {
+          question: "What is the speed of light in vacuum?",
+          options: ["299,792,458 m/s", "300,000 m/s", "150,000,000 m/s", "330 m/s"],
+          correct: 0,
+          explanation: "c is defined exactly as 299,792,458 m/s in SI units."
+        }
+      }
+    },
+    // PLANCK'S CONSTANT
+    {
+      pattern: /planck(?:'s)?\s*constant/,
+      data: {
+        id: "phys_planck",
+        title: "Quantum Constant: Planck's Constant (h)",
+        subject: "Physics",
+        core: "Planck's constant is **$$6.62607015 \\times 10^{-34} \\text{ J}\\cdot\\text{s}$$**.",
+        formulas: [
+          "h = 6.62607015 \\times 10^{-34} \\, \\text{J}\\cdot\\text{s}",
+          "E = h\\nu = \\frac{hc}{\\lambda}"
+        ],
+        steps: [
+          "1. **Quantum of Action**: Relates photon energy directly to its electromagnetic frequency: E = h·ν.",
+          "2. **SI Definition**: Since 2019, the kilogram is officially defined in terms of Planck's constant."
+        ],
+        analogy: "Planck's constant is the universal 'pixel resolution' of quantum energy exchanges.",
+        pitfalls: "Do not confuse Planck's constant h with reduced Planck's constant ħ (h-bar = h / 2π).",
+        quiz: {
+          question: "What does Planck's constant h relate photon energy to?",
+          options: ["Frequency (E = hν)", "Mass (E = mc²)", "Speed of sound", "Temperature"],
+          correct: 0,
+          explanation: "E = hν directly links photon energy to its wave frequency."
+        }
+      }
+    },
+    // AVOGADRO'S NUMBER
+    {
+      pattern: /avogadro(?:'s)?\s*(?:number|constant)?/,
+      data: {
+        id: "chem_avogadro",
+        title: "Chemical Constant: Avogadro's Number (N_A)",
+        subject: "Chemistry",
+        core: "Avogadro's constant is **$$6.02214076 \\times 10^{23} \\text{ mol}^{-1}$$**.",
+        formulas: [
+          "N_A = 6.02214076 \\times 10^{23} \\, \\text{particles/mol}",
+          "n = \\frac{N}{N_A}"
+        ],
+        steps: [
+          "1. **Mole Definition**: One mole of any pure chemical substance contains exactly 6.022 × 10²³ constituent particles.",
+          "2. **Atomic Weight Link**: Makes atomic mass units numerically equal to grams per mole."
+        ],
+        analogy: "Just like a 'dozen' represents 12 items, a 'mole' represents 6.022 × 10²³ chemical items.",
+        pitfalls: "Avogadro's number is a pure count; it applies equally to atoms, molecules, or ions.",
+        quiz: {
+          question: "How many particles are contained in one mole of a substance?",
+          options: ["6.022 × 10²³", "3.0 × 10⁸", "9.81 × 10²⁴", "1.602 × 10⁻¹⁹"],
+          correct: 0,
+          explanation: "One mole contains Avogadro's number: 6.022 × 10²³ particles."
+        }
+      }
+    },
+    // GRAVITY ON EARTH
+    {
+      pattern: /(?:acceleration due to gravity|gravity on earth)/,
+      data: {
+        id: "phys_gravity_earth",
+        title: "Earth Surface Gravity (g)",
+        subject: "Physics",
+        core: "Standard acceleration due to gravity at Earth's surface is **$$g \\approx 9.80665 \\text{ m/s}^2$$** (commonly rounded to $$9.81 \\text{ m/s}^2$$).",
+        formulas: ["g = \\frac{G M_{\\text{earth}}}{R_{\\text{earth}}^2} \\approx 9.81 \\, \\text{m/s}^2", "W = m \\cdot g"],
+        steps: [
+          "1. **Free Fall**: Every second an object falls in vacuum near Earth, its downward velocity increases by ~9.81 m/s.",
+          "2. **Variation**: Slightly higher at the poles (~9.83 m/s²) than at the equator (~9.78 m/s²)."
+        ],
+        analogy: "Dropping a ball from rest: speed is 9.8 m/s after 1s, 19.6 m/s after 2s, and 29.4 m/s after 3s.",
+        pitfalls: "g is an acceleration (m/s²), whereas weight W = mg is a force measured in Newtons (N)!",
+        quiz: {
+          question: "What is the standard acceleration due to gravity on Earth's surface?",
+          options: ["9.81 m/s²", "98.1 m/s²", "3.0 × 10⁸ m/s²", "1.62 m/s²"],
+          correct: 0,
+          explanation: "Standard acceleration due to Earth's gravity is 9.81 m/s²."
+        }
+      }
+    },
+    // PHOTOSYNTHESIS
+    {
+      pattern: /what\s+is\s+photosynthesis/,
+      data: {
+        id: "bio_photosynthesis",
+        title: "Plant Biology: Photosynthesis",
+        subject: "Biology",
+        core: "**Photosynthesis** is the process by which green plants and algae convert light energy into chemical energy (glucose) using water and carbon dioxide.",
+        formulas: ["6\\text{CO}_2 + 6\\text{H}_2\\text{O} + \\text{light} \\to \\text{C}_6\\text{H}_{12}\\text{O}_6 + 6\\text{O}_2"],
+        steps: [
+          "1. **Light Reactions (Thylakoids)**: Solar photons photolyze water, releasing O₂ and producing ATP + NADPH.",
+          "2. **Calvin Cycle (Stroma)**: Fixes atmospheric CO₂ into glucose using ATP and NADPH."
+        ],
+        analogy: "Leaves are natural solar factories taking ambient air (CO₂) and ground water to synthesize sugar fuel blocks.",
+        pitfalls: "The oxygen gas released during photosynthesis originates from splitting H₂O, NOT from CO₂!",
+        quiz: {
+          question: "What gas is released as a byproduct of photosynthesis?",
+          options: ["Oxygen (O₂)", "Carbon Dioxide (CO₂)", "Nitrogen (N₂)", "Methane (CH₄)"],
+          correct: 0,
+          explanation: "Water photolysis in light reactions releases O₂ gas."
+        }
+      }
+    },
+    // DNA
+    {
+      pattern: /what\s+is\s+dna/,
+      data: {
+        id: "bio_dna",
+        title: "Molecular Biology: DNA (Deoxyribonucleic Acid)",
+        subject: "Biology",
+        core: "**DNA** (Deoxyribonucleic Acid) is the double-stranded helical polymer encoding genetic instructions for living organisms.",
+        formulas: ["\\text{Base Pairs: } \\text{A}=\\text{T} \\quad (2\\text{ H-bonds}), \\quad \\text{G}\\equiv\\text{C} \\quad (3\\text{ H-bonds})"],
+        steps: [
+          "1. **Composition**: Deoxyribose sugar, phosphate backbone, and four nitrogenous bases (A, T, C, G).",
+          "2. **Double Helix**: Solved in 1953 by Watson, Crick, and Franklin.",
+          "3. **Antiparallel Strands**: One strand runs 5' to 3', while the complementary strand runs 3' to 5'."
+        ],
+        analogy: "DNA is the master encrypted software code stored in every nucleus.",
+        pitfalls: "RNA replaces Thymine with Uracil (U) and contains ribose sugar instead of deoxyribose.",
+        quiz: {
+          question: "Which base pairs with Adenine (A) in double-stranded DNA?",
+          options: ["Thymine (T)", "Guanine (G)", "Cytosine (C)", "Uracil (U)"],
+          correct: 0,
+          explanation: "Adenine forms two hydrogen bonds with Thymine in DNA."
+        }
+      }
+    },
+    // WORLD CAPITALS
+    { pattern: /capital\s+of\s+france/, data: { id: "cap_fr", title: "World Capital: France", subject: "Geography", core: "The capital of France is **Paris**.", formulas: [], steps: ["1. Paris is situated along the Seine River in northern France.", "2. Global hub for politics, fashion, science, and the arts."], analogy: "The City of Light.", pitfalls: "None.", quiz: { question: "What is the capital of France?", options: ["Paris", "Lyon", "Marseille", "Nice"], correct: 0, explanation: "Paris is France's historic capital." } } },
+    { pattern: /capital\s+of\s+japan/, data: { id: "cap_jp", title: "World Capital: Japan", subject: "Geography", core: "The capital of Japan is **Tokyo**.", formulas: [], steps: ["1. Tokyo is the most populous metropolitan area on Earth.", "2. Formerly known as Edo before 1868."], analogy: "Global center of technology and finance.", pitfalls: "Kyoto was Japan's imperial capital before Tokyo.", quiz: { question: "What is the capital of Japan?", options: ["Tokyo", "Kyoto", "Osaka", "Nagoya"], correct: 0, explanation: "Tokyo is Japan's current capital." } } },
+    { pattern: /capital\s+of\s+(?:the\s+)?(?:united\s+states|usa|america)/, data: { id: "cap_us", title: "World Capital: United States", subject: "Geography", core: "The capital of the United States is **Washington, D.C.**", formulas: [], steps: ["1. D.C. stands for the District of Columbia, a federal district not part of any state.", "2. Established along the Potomac River in 1790."], analogy: "Seat of the three branches of the US federal government.", pitfalls: "New York City is the largest city, but NOT the capital!", quiz: { question: "What is the capital of the USA?", options: ["Washington, D.C.", "New York City", "Los Angeles", "Chicago"], correct: 0, explanation: "Washington, D.C. is the US federal capital." } } },
+    { pattern: /capital\s+of\s+(?:the\s+)?(?:united\s+kingdom|uk|england)/, data: { id: "cap_uk", title: "World Capital: United Kingdom", subject: "Geography", core: "The capital of the United Kingdom and England is **London**.", formulas: [], steps: ["1. Located on the River Thames in southeastern England.", "2. Founded by the Romans as Londinium."], analogy: "Global center of finance, history, and culture.", pitfalls: "London is the capital of both England and the wider UK.", quiz: { question: "What is the capital of the United Kingdom?", options: ["London", "Manchester", "Edinburgh", "Birmingham"], correct: 0, explanation: "London is the capital." } } },
+    { pattern: /capital\s+of\s+germany/, data: { id: "cap_de", title: "World Capital: Germany", subject: "Geography", core: "The capital of Germany is **Berlin**.", formulas: [], steps: ["1. Berlin is Germany's largest city and seat of the Bundestag.", "2. Re-unified as capital following the fall of the Berlin Wall."], analogy: "Cultural and political heart of Central Europe.", pitfalls: "Bonn served as West Germany's provisional capital from 1949 to 1990.", quiz: { question: "What is the capital of Germany?", options: ["Berlin", "Munich", "Frankfurt", "Hamburg"], correct: 0, explanation: "Berlin is Germany's capital." } } },
+    { pattern: /capital\s+of\s+india/, data: { id: "cap_in", title: "World Capital: India", subject: "Geography", core: "The capital of India is **New Delhi**.", formulas: [], steps: ["1. Located within the National Capital Territory of Delhi.", "2. Capital moved from Calcutta in 1911."], analogy: "Administrative center of the world's most populous democracy.", pitfalls: "New Delhi is the specific capital territory, within Delhi.", quiz: { question: "What is the capital of India?", options: ["New Delhi", "Mumbai", "Kolkata", "Bengaluru"], correct: 0, explanation: "New Delhi is India's capital." } } },
+    { pattern: /capital\s+of\s+italy/, data: { id: "cap_it", title: "World Capital: Italy", subject: "Geography", core: "The capital of Italy is **Rome**.", formulas: [], steps: ["1. Rome is known as the 'Eternal City'.", "2. Encompasses Vatican City within its borders."], analogy: "Cradle of Western civilization and Roman law.", pitfalls: "Milan is Italy's financial center, but Rome is the political capital.", quiz: { question: "What is the capital of Italy?", options: ["Rome", "Milan", "Venice", "Florence"], correct: 0, explanation: "Rome is Italy's capital." } } },
+    { pattern: /capital\s+of\s+spain/, data: { id: "cap_es", title: "World Capital: Spain", subject: "Geography", core: "The capital of Spain is **Madrid**.", formulas: [], steps: ["1. Located in the geographic center of the Iberian Peninsula.", "2. Home to the royal palace and the Prado Museum."], analogy: "Center of Spanish culture, language, and art.", pitfalls: "Barcelona is Catalonia's regional capital, but Madrid is Spain's national capital.", quiz: { question: "What is the capital of Spain?", options: ["Madrid", "Barcelona", "Seville", "Valencia"], correct: 0, explanation: "Madrid is Spain's capital." } } },
+    { pattern: /capital\s+of\s+canada/, data: { id: "cap_ca", title: "World Capital: Canada", subject: "Geography", core: "The capital of Canada is **Ottawa**.", formulas: [], steps: ["1. Located in Ontario along the border with Quebec.", "2. Selected by Queen Victoria in 1857 as a compromise."], analogy: "Seat of Canadian Parliament on Parliament Hill.", pitfalls: "Toronto and Montreal are larger, but Ottawa is the capital!", quiz: { question: "What is the capital of Canada?", options: ["Ottawa", "Toronto", "Montreal", "Vancouver"], correct: 0, explanation: "Ottawa is Canada's capital." } } },
+    { pattern: /capital\s+of\s+australia/, data: { id: "cap_au", title: "World Capital: Australia", subject: "Geography", core: "The capital of Australia is **Canberra**.", formulas: [], steps: ["1. Located in the Australian Capital Territory (ACT).", "2. Planned garden city chosen to resolve Sydney vs Melbourne rivalry."], analogy: "A purpose-built federal capital.", pitfalls: "Sydney and Melbourne are NOT the capital of Australia!", quiz: { question: "What is the capital of Australia?", options: ["Canberra", "Sydney", "Melbourne", "Brisbane"], correct: 0, explanation: "Canberra is Australia's capital." } } },
+    { pattern: /capital\s+of\s+china/, data: { id: "cap_cn", title: "World Capital: China", subject: "Geography", core: "The capital of China is **Beijing**.", formulas: [], steps: ["1. Seat of the national government, formerly romanized as Peking.", "2. Home to the Forbidden City and Tiananmen Square."], analogy: "Political center of East Asia for centuries.", pitfalls: "Shanghai is the largest economic hub, but Beijing is the political capital.", quiz: { question: "What is the capital of China?", options: ["Beijing", "Shanghai", "Guangzhou", "Shenzhen"], correct: 0, explanation: "Beijing is China's capital." } } },
+    { pattern: /capital\s+of\s+russia/, data: { id: "cap_ru", title: "World Capital: Russia", subject: "Geography", core: "The capital of Russia is **Moscow**.", formulas: [], steps: ["1. Europe's second-most populous city, along the Moskva River.", "2. Historic site of the Kremlin and Red Square."], analogy: "Heart of Russian politics and culture.", pitfalls: "Saint Petersburg was the Russian capital from 1712 to 1918.", quiz: { question: "What is the capital of Russia?", options: ["Moscow", "Saint Petersburg", "Kazan", "Novosibirsk"], correct: 0, explanation: "Moscow is Russia's capital." } } },
+    { pattern: /capital\s+of\s+brazil/, data: { id: "cap_br", title: "World Capital: Brazil", subject: "Geography", core: "The capital of Brazil is **Brasília**.", formulas: [], steps: ["1. Planned federal capital founded in 1960.", "2. Famous for Oscar Niemeyer's modernist architecture."], analogy: "Modernist planned administrative capital.", pitfalls: "Rio de Janeiro and São Paulo are NOT the capital of Brazil!", quiz: { question: "What is the capital of Brazil?", options: ["Brasília", "Rio de Janeiro", "São Paulo", "Salvador"], correct: 0, explanation: "Brasília is Brazil's capital." } } },
+    // HUMAN BIOLOGY
+    {
+      pattern: /(?:largest organ|biggest organ)\s+in\s+(?:the\s+)?human\s+body/,
+      data: {
+        id: "bio_skin",
+        title: "Human Anatomy: Largest Organ",
+        subject: "Biology",
+        core: "**The Skin** (integumentary system) is the largest organ of the human body.",
+        formulas: [],
+        steps: [
+          "1. **Surface Area & Weight**: Covers 1.5 to 2.0 m² and accounts for ~16% of total adult body weight.",
+          "2. **Three Layers**: Epidermis (outer barrier), Dermis (nerves, sweat glands), and Hypodermis (subcutaneous fat).",
+          "3. **Functions**: Thermoregulation, pathogen defense, and Vitamin D synthesis."
+        ],
+        analogy: "The skin is your body's waterproof, self-repairing protective suit.",
+        pitfalls: "The liver is the largest INTERNAL organ, but the skin is the largest organ overall!",
+        quiz: {
+          question: "What is the largest organ of the human body?",
+          options: ["Skin", "Liver", "Brain", "Lungs"],
+          correct: 0,
+          explanation: "Skin covers ~1.5-2 m² and is the body's largest organ."
+        }
+      }
+    },
+    {
+      pattern: /(?:how many bones|number of bones)\s+in\s+(?:the\s+)?(?:adult\s+)?human\s+body/,
+      data: {
+        id: "bio_bones",
+        title: "Human Anatomy: Skeletal System",
+        subject: "Biology",
+        core: "An adult human body has **206 bones**.",
+        formulas: [],
+        steps: [
+          "1. **Infants vs Adults**: Babies are born with ~270 bones; many fuse together during growth.",
+          "2. **Divisions**: Axial skeleton (80 bones: skull, spine, ribs) and Appendicular skeleton (126 bones: limbs).",
+          "3. **Extremes**: Stapes in middle ear is smallest (~3 mm); femur is longest and strongest."
+        ],
+        analogy: "The skeleton is the structural steel framework of the human architecture.",
+        pitfalls: "Infants have ~270 bones; 206 is strictly the adult count after fusion.",
+        quiz: {
+          question: "How many bones are in an adult human skeleton?",
+          options: ["206", "270", "300", "150"],
+          correct: 0,
+          explanation: "Adults have 206 fused bones."
+        }
+      }
+    },
+    {
+      pattern: /(?:how many chromosomes|number of chromosomes)\s+in\s+(?:the\s+)?human/,
+      data: {
+        id: "bio_chromosomes",
+        title: "Human Genetics: Chromosome Count",
+        subject: "Biology",
+        core: "Humans possess **46 chromosomes** organized into **23 pairs** in each somatic cell.",
+        formulas: ["2n = 46 \\quad \\text{(Diploid Somatic)}, \\quad n = 23 \\quad \\text{(Haploid Gamete)}"],
+        steps: [
+          "1. **Autosomes**: 22 pairs (44 chromosomes) governing somatic traits.",
+          "2. **Sex Chromosomes**: 1 pair (XX for biological females, XY for biological males).",
+          "3. **Gametes**: Sperm and egg cells contain 23 chromosomes each."
+        ],
+        analogy: "Chromosomes are like 23 volumes of an instruction encyclopedia, with two copies per volume.",
+        pitfalls: "Gametes (sperm/egg) have 23 chromosomes; somatic body cells have 46.",
+        quiz: {
+          question: "How many chromosomes do human somatic cells contain?",
+          options: ["46 (23 pairs)", "23", "48", "92"],
+          correct: 0,
+          explanation: "Human diploid somatic cells have 46 chromosomes."
+        }
+      }
+    },
+    // CHEMISTRY & ATMOSPHERE
+    {
+      pattern: /ph\s+of\s+(?:pure\s+)?water/,
+      data: {
+        id: "chem_ph_water",
+        title: "Chemistry: pH of Pure Water",
+        subject: "Chemistry",
+        core: "Pure water at 25°C has a neutral pH of exactly **7.0**.",
+        formulas: ["\\text{pH} = -\\log_{10}[\\text{H}^+] = 7.0", "K_w = [\\text{H}^+][\\text{OH}^-] = 1.0 \\times 10^{-14}"],
+        steps: [
+          "1. **Auto-Ionization**: Water naturally dissociates into H⁺ and OH⁻ ions in equal concentrations: 10⁻⁷ M each.",
+          "2. **Neutrality**: Because [H⁺] = [OH⁻], pure water is perfectly neutral."
+        ],
+        analogy: "7.0 is the exact equilibrium midpoint between acidic (<7) and basic (>7).",
+        pitfalls: "pH of water drops slightly with increased temperature, but remains neutral because [H⁺] still equals [OH⁻]!",
+        quiz: {
+          question: "What is the pH of pure water at 25°C?",
+          options: ["7.0", "0.0", "14.0", "1.0"],
+          correct: 0,
+          explanation: "At 25°C, [H⁺] = 10⁻⁷ M, yielding a pH of 7.0."
+        }
+      }
+    },
+    {
+      pattern: /boiling\s+point\s+of\s+water/,
+      data: {
+        id: "chem_boil_water",
+        title: "Chemistry: Boiling Point of Water",
+        subject: "Chemistry",
+        core: "At standard atmospheric pressure (1 atm / 101.3 kPa), pure water boils at **100°C** (212°F / 373.15 K).",
+        formulas: ["T_{\\text{boil}} = 100^\\circ\\text{C} = 212^\\circ\\text{F} = 373.15 \\, \\text{K}"],
+        steps: [
+          "1. **Phase Change**: Liquid vaporizes when its vapor pressure equals ambient atmospheric pressure.",
+          "2. **Altitude Effect**: Water boils at lower temperatures at high altitudes (e.g. ~93°C in Denver)."
+        ],
+        analogy: "Boiling occurs when escaping vapor pressure pushes back ambient air pressure.",
+        pitfalls: "100°C is strictly at sea-level 1 atm pressure. In a pressure cooker, water boils above 120°C.",
+        quiz: {
+          question: "At standard 1 atm pressure, at what temperature does pure water boil?",
+          options: ["100°C (212°F)", "0°C (32°F)", "37°C (98.6°F)", "200°C (392°F)"],
+          correct: 0,
+          explanation: "Standard sea-level boiling point is 100°C."
+        }
+      }
+    },
+    {
+      pattern: /most\s+abundant\s+gas\s+in\s+earth(?:'s)?\s+atmosphere/,
+      data: {
+        id: "chem_air_nitrogen",
+        title: "Atmospheric Science: Air Composition",
+        subject: "Chemistry",
+        core: "**Nitrogen (N₂)** is the most abundant gas in Earth's atmosphere, constituting **78.08%** of dry air by volume.",
+        formulas: [],
+        steps: [
+          "1. **Nitrogen (N₂)**: 78.08% (Triple-bonded, relatively inert diatomic gas).",
+          "2. **Oxygen (O₂)**: 20.95% (Essential for aerobic respiration).",
+          "3. **Argon (Ar)**: 0.93% (Inert noble gas).",
+          "4. **Carbon Dioxide (CO₂)**: ~0.04% (~420 ppm)."
+        ],
+        analogy: "Air is roughly 4 parts nitrogen and 1 part oxygen.",
+        pitfalls: "Many people guess Oxygen, but Nitrogen makes up nearly 4/5ths of the atmosphere!",
+        quiz: {
+          question: "Which gas makes up approximately 78% of Earth's atmosphere?",
+          options: ["Nitrogen (N₂)", "Oxygen (O₂)", "Carbon Dioxide (CO₂)", "Hydrogen (H₂)"],
+          correct: 0,
+          explanation: "Nitrogen gas makes up ~78.08% of dry air."
+        }
+      }
+    },
+    // COMPUTER SCIENCE
+    {
+      pattern: /(?:difference between tcp and udp|tcp vs udp)/,
+      data: {
+        id: "cs_tcp_udp",
+        title: "Computer Networks: TCP vs UDP",
+        subject: "Computer Science",
+        core: "**TCP** is connection-oriented, reliable, and guarantees ordered delivery, whereas **UDP** is connectionless, lightweight, and focuses on maximum speed.",
+        formulas: ["\\text{TCP Overhead: } \\ge 20 \\text{ bytes}, \\quad \\text{UDP Overhead: } 8 \\text{ bytes}"],
+        steps: [
+          "1. **TCP (Transmission Control Protocol)**: Uses a 3-way handshake (SYN ⟶ SYN-ACK ⟶ ACK), sequence numbers, and retransmission of lost packets. Used for HTTP/HTTPS, SSH, and file downloads.",
+          "2. **UDP (User Datagram Protocol)**: Sends datagrams without handshakes or retransmission. Used for live video streaming, voice calls (VoIP), and multiplayer games."
+        ],
+        analogy: "TCP is certified registered mail with signature verification; UDP is sending quick postcards without tracking.",
+        pitfalls: "UDP is NOT defective; it is deliberately chosen when low latency is far more important than recovering occasional lost packets.",
+        quiz: {
+          question: "Which transport protocol guarantees ordered, reliable packet delivery via handshakes?",
+          options: ["TCP", "UDP", "IP", "DNS"],
+          correct: 0,
+          explanation: "TCP uses acknowledgments and retransmissions to guarantee delivery."
+        }
+      }
+    },
+    {
+      pattern: /binary\s+search/,
+      data: {
+        id: "cs_binary_search_complexity",
+        title: "Algorithms: Binary Search Time Complexity",
+        subject: "Computer Science",
+        core: "Binary search has a worst-case and average time complexity of **O(log n)**, with **O(1)** auxiliary space.",
+        formulas: ["T(n) = T(n/2) + O(1) \\implies O(\\log_2 n)"],
+        steps: [
+          "1. **Divide and Conquer**: Compares search target against the middle element of a sorted array.",
+          "2. **Halving**: Discards half of the remaining array on every comparison step.",
+          "3. **Logarithmic Scale**: Searching 1,000,000 items takes at most ~20 comparisons."
+        ],
+        analogy: "Looking up a word in a printed dictionary by opening to the middle, then opening to the middle of the remaining half.",
+        pitfalls: "Binary search STRICTLY requires the array to be pre-sorted!",
+        quiz: {
+          question: "What is the worst-case time complexity of binary search on a sorted array of n items?",
+          options: ["O(log n)", "O(n)", "O(n log n)", "O(1)"],
+          correct: 0,
+          explanation: "The search space halves on every comparison: O(log n)."
+        }
+      }
+    },
+    // HISTORY OF MEDICINE
+    {
+      pattern: /who\s+discovered\s+penicillin/,
+      data: {
+        id: "hist_penicillin",
+        title: "History of Medicine: Discovery of Penicillin",
+        subject: "History of Science",
+        core: "Scottish bacteriologist **Sir Alexander Fleming** discovered penicillin in **1928** at St. Mary's Hospital in London.",
+        formulas: [],
+        steps: [
+          "1. **Accidental Discovery**: Fleming noticed a contaminated culture plate of *Staphylococcus* where bacteria near *Penicillium* mold had dissolved.",
+          "2. **Purification**: Later isolated and mass-produced for clinical wartime treatment by Howard Florey and Ernst Chain at Oxford University."
+        ],
+        analogy: "A natural fungal antibiotic weapon repurposed to save tens of millions of human lives.",
+        pitfalls: "Fleming discovered penicillin, but Florey and Chain purified it for clinical use (sharing the 1945 Nobel Prize).",
+        quiz: {
+          question: "Who discovered penicillin in 1928?",
+          options: ["Alexander Fleming", "Louis Pasteur", "Edward Jenner", "Robert Koch"],
+          correct: 0,
+          explanation: "Alexander Fleming discovered penicillin in 1928."
+        }
+      }
+    },
+    // TALLEST MOUNTAIN, LONGEST RIVER, LARGEST OCEAN, CONTINENTS
+    {
+      pattern: /(?:tallest|highest)\s+mountain\s+in\s+(?:the\s+)?world/,
+      data: {
+        id: "geo_everest",
+        title: "Physical Geography: Tallest Mountain",
+        subject: "Geography",
+        core: "**Mount Everest** (Sagarmatha / Chomolungma) is the highest mountain above sea level at **8,848.86 meters (29,031.7 feet)**.",
+        formulas: [],
+        steps: [
+          "1. **Location**: Located in the Mahalangur Himal sub-range on the border of Nepal and China (Tibet).",
+          "2. **Tectonic Origin**: Formed by the collision between the Indian and Eurasian tectonic plates."
+        ],
+        analogy: "The crowning rooftop of planet Earth.",
+        pitfalls: "Mauna Kea is taller measured base-to-peak (~10,210 m), but Everest is highest above sea level.",
+        quiz: {
+          question: "What is the highest mountain in the world above sea level?",
+          options: ["Mount Everest", "K2", "Kangchenjunga", "Mont Blanc"],
+          correct: 0,
+          explanation: "Mount Everest rises 8,848.86 meters above sea level."
+        }
+      }
+    },
+    {
+      pattern: /longest\s+river\s+in\s+(?:the\s+)?world/,
+      data: {
+        id: "geo_nile",
+        title: "Physical Geography: Longest River",
+        subject: "Geography",
+        core: "**The Nile River** in northeastern Africa is recognized as the longest river in the world, stretching approximately **6,650 km (4,132 miles)**.",
+        formulas: [],
+        steps: [
+          "1. **Basin**: Flows through 11 African nations into the Mediterranean Sea.",
+          "2. **Two Main Tributaries**: The White Nile (equatorial Africa) and the Blue Nile (Ethiopia)."
+        ],
+        analogy: "The perennial ribbon of water that birthed ancient Egyptian civilization.",
+        pitfalls: "The Amazon River has far greater water discharge volume, but the Nile is traditionally the longest.",
+        quiz: {
+          question: "What is traditionally recognized as the longest river in the world?",
+          options: ["Nile River", "Amazon River", "Yangtze River", "Mississippi River"],
+          correct: 0,
+          explanation: "The Nile River stretches approximately 6,650 km."
+        }
+      }
+    },
+    {
+      pattern: /largest\s+ocean\s+in\s+(?:the\s+)?world/,
+      data: {
+        id: "geo_pacific",
+        title: "Physical Geography: Largest Ocean",
+        subject: "Geography",
+        core: "**The Pacific Ocean** is the largest and deepest ocean on Earth, covering approximately **165.25 million square kilometers (63.8 million sq mi)**.",
+        formulas: [],
+        steps: [
+          "1. **Area**: Covers over 30% of Earth's surface area—larger than all combined landmasses.",
+          "2. **Deepest Trench**: Contains the Mariana Trench, descending to ~10,994 meters at Challenger Deep."
+        ],
+        analogy: "An ocean so colossal that the opposite hemisphere is still ocean.",
+        pitfalls: "Contains the Pacific Ring of Fire where roughly 75% of the planet's volcanoes reside.",
+        quiz: {
+          question: "Which is the largest and deepest ocean on Earth?",
+          options: ["Pacific Ocean", "Atlantic Ocean", "Indian Ocean", "Arctic Ocean"],
+          correct: 0,
+          explanation: "The Pacific Ocean covers over 30% of the planet's surface."
+        }
+      }
+    },
+    {
+      pattern: /how\s+many\s+continents\s+(?:are\s+there|exist)/,
+      data: {
+        id: "geo_continents",
+        title: "Global Geography: The Continents",
+        subject: "Geography",
+        core: "Under the standard English geographic model, there are **7 continents**: **Asia, Africa, North America, South America, Antarctica, Europe, and Australia**.",
+        formulas: [],
+        steps: [
+          "1. **Largest**: Asia (~44.6 million km², ~4.7 billion people).",
+          "2. **Smallest**: Australia (~8.6 million km²).",
+          "3. **Coldest**: Antarctica (covered by ice sheets up to 4 km thick)."
+        ],
+        analogy: "The seven grand puzzle pieces of continental crust resting on the mantle.",
+        pitfalls: "Some countries use a 6-continent model combining Europe and Asia into Eurasia.",
+        quiz: {
+          question: "How many continents are recognized in the standard 7-continent model?",
+          options: ["7", "5", "6", "8"],
+          correct: 0,
+          explanation: "The 7 continents are Asia, Africa, North America, South America, Antarctica, Europe, Australia."
+        }
+      }
+    }
+  ];
+
+  for (const item of FACTS) {
+    if (item.pattern.test(q)) {
+      return item.data;
     }
   }
 
-  // 1. Direct ID or title match
+  return null;
+}
+
+/**
+ * High-speed topic finder (< 2ms lookup) with Deterministic Math & Factual Intelligence
+ */
+function findAcademicTopic(query) {
+  if (!query || typeof query !== "string") return null;
+  const q = query.toLowerCase().trim();
+
+  // 1. Math, Physics & Word Problem Analytical Solver (Deterministic 100%)
+  const mathSolution = solveAnalyticalProblem(query);
+  if (mathSolution) return mathSolution;
+
+  // 2. Direct Factual Intelligence & Q&A
+  const factSolution = lookupFactualKnowledge(query);
+  if (factSolution) return factSolution;
+
+  // 3. Direct ID or exact title match in ACADEMIC_TOPICS
   for (const topic of ACADEMIC_TOPICS) {
     if (q === topic.id || q === topic.title.toLowerCase()) return topic;
   }
 
-  // 2. Keyword exact match
-  for (const topic of ACADEMIC_TOPICS) {
-    for (const kw of topic.keywords) {
-      if (q.includes(kw)) {
-        return topic;
-      }
-    }
-  }
+  // 4. Intent-based Conceptual Curriculum Match
+  // Exclude queries that are specific equations or calculation problems to prevent false positives
+  const isEquationOrProblem = /[=0-9]/.test(q) && (/[+\-*/^]/.test(q) || /\b(solve|calculate|evaluate|derivative|integral|area|hypotenuse|speed|force|work|voltage|current)\b/i.test(q));
+  
+  if (!isEquationOrProblem) {
+    const STOPWORDS = new Set(["what", "is", "the", "how", "why", "does", "can", "you", "tell", "about", "who", "was", "are", "and", "for", "with", "from", "that", "this", "system", "explain", "give", "me", "a", "an", "of", "in"]);
+    let bestMatch = null;
+    let highestScore = 0;
+    const words = q.split(/\s+/).filter(w => w.length >= 3 && !STOPWORDS.has(w));
 
-  // 3. Substring scoring match with stopword filtering
-  const STOPWORDS = new Set(["what", "is", "the", "how", "why", "does", "can", "you", "tell", "about", "who", "was", "are", "and", "for", "with", "from", "that", "this", "system", "explain", "give"]);
-  let bestMatch = null;
-  let highestScore = 0;
-
-  const words = q.split(/\s+/).filter(w => w.length >= 3 && !STOPWORDS.has(w));
-
-  for (const topic of ACADEMIC_TOPICS) {
-    let score = 0;
-    for (const word of words) {
-      if (topic.title.toLowerCase().includes(word)) score += 4;
+    for (const topic of ACADEMIC_TOPICS) {
+      let score = 0;
+      const titleLower = topic.title.toLowerCase();
+      if (titleLower.includes(q)) score += 10;
       for (const kw of topic.keywords) {
-        if (kw === word) score += 5;
-        else if (kw.includes(word)) score += 3;
+        if (kw === q) score += 10;
+        else if (q.includes(kw) || kw.includes(q)) score += 6;
+      }
+      for (const word of words) {
+        if (titleLower.includes(word)) score += 4;
+        for (const kw of topic.keywords) {
+          if (kw === word) score += 4;
+          else if (kw.includes(word)) score += 2;
+        }
+      }
+      if (score > highestScore) {
+        highestScore = score;
+        bestMatch = topic;
       }
     }
-    if (score > highestScore) {
-      highestScore = score;
-      bestMatch = topic;
-    }
+
+    if (highestScore >= 6) return bestMatch;
   }
 
-  if (highestScore >= 4) return bestMatch;
   return null;
 }
 
 // Export to window
 window.ACADEMIC_TOPICS = ACADEMIC_TOPICS;
 window.findAcademicTopic = findAcademicTopic;
+window.solveAnalyticalProblem = solveAnalyticalProblem;
+window.lookupFactualKnowledge = lookupFactualKnowledge;
+window.differentiatePolynomial = differentiatePolynomial;
+window.integratePolynomial = integratePolynomial;

@@ -1,12 +1,27 @@
 /**
- * Chatbot Abhi - High-Precision 3D Robot System
+ * Chatbot Abhi - Complete Humanoid 3D Robot System
  * Features:
- * - Real 3D Articulated Humanoid Robot Chassis
- * - Clear 3D Glowing Expressive Eyes (Ocular Sockets, Illuminated Aperture Rings, Clear Lenses, Pupils with Point Lights, Emotive Brow Plates, Smooth Blinking)
- * - Clear 5-Digit Articulated Mechanical Hands prominently positioned in front of chest (Palm Chassis, Glowing Palm Repulsor Core, 5 Chrome Knuckles in Anatomical Arch, 3-Segment Phalanges, Opposable Thumb, Glowing Cyber Fingertips)
- * - Humanoid Conversational Gestures (Idle finger curl, speaking articulation, thinking posture, wave greeting)
- * - Multi-theme Material Engine (Cyber Cyan, Amber Hazard, Quantum Violet, Cleanroom White)
- * - Interactive Camera Presets: Full Chassis, Detailed Eyes, 5-Digit Hands
+ * - Full Humanoid Anatomy:
+ *   - Humanoid Head with Sculpted 3D Nose, Expressive Clear Glowing Eyes, Lips/Mouth, Eyebrows & Ears
+ *   - Humanoid Torso with Quantum Core Arc Reactor & Abdominal Ribbing
+ *   - Two Articulated Arms with Clear 5-Digit Hands (Palm, Knuckles, 3-Segment Phalanges, Opposable Thumb, Glowing Tips)
+ *   - Real Humanoid Legs (Pelvis, Thighs, Knee Caps, Calves/Shins, Ankles, Feet/Boots planted on ground)
+ *   - Holographic Ground Platform with Grid Projections
+ * - Wardrobe & Outfits Engine:
+ *   - "cyber": High-Tech Titanium Mecha Armor
+ *   - "student": School Uniform Blazer, Shirt Collar, Red Necktie & Trousers
+ *   - "scientist": White Research Lab Coat, Stethoscope, Smart Glasses & ID Badge
+ *   - "hoodie": Urban Streetwear Hoodie, Kangaroo Pocket, Tech Denim & Sneakers
+ *   - "astronaut": Pressurized Cosmic EVA Space Suit with Gold Insignia & Thrusters
+ * - Interactive Gestures & Actions:
+ *   - "hello": Cheerful hand wave greeting
+ *   - "bye": Gentle farewell wave
+ *   - "hifi": High-Five interactive stance & clap
+ *   - "kiss": Blows a sweet flying kiss with floating glowing 3D heart particles!
+ *   - "salute": Crisp military/mecha salute standing at attention
+ * - Cursor Zoom & 360-Degree Orbit Controls:
+ *   - Mouse Wheel: Smooth cursor-centered zoom in / out
+ *   - Mouse Drag: 360-degree rotation & orbit around the humanoid model
  */
 
 class Robot3D {
@@ -24,23 +39,50 @@ class Robot3D {
     // Component Groups & Nodes
     this.robotGroup = null;
     this.headGroup = null;
+    this.torsoGroup = null;
+    this.legsGroup = null;
+    this.faceNose = null;
+    this.faceLips = null;
+    this.speechLED = null;
     this.leftEye = null;
     this.rightEye = null;
     this.leftBrow = null;
     this.rightBrow = null;
     this.leftArm = null;
     this.rightArm = null;
-    this.leftHand = null;
-    this.rightHand = null;
     this.leftFingers = [];
     this.rightFingers = [];
+    this.leftLeg = null;
+    this.rightLeg = null;
     this.coreMesh = null;
     this.coreLight = null;
-    this.thrusterParticles = null;
+    this.holoStage = null;
 
-    // Camera animation targets
-    this.cameraTargetPos = new THREE.Vector3(0, 0.25, 4.2);
+    // Wardrobe Outfits Container & Active Outfit
+    this.wardrobeGroup = null;
+    this.currentOutfit = "cyber"; // 'cyber', 'student', 'scientist', 'hoodie', 'astronaut'
+    this.outfitMeshes = {};
+
+    // Camera Orbit & Cursor Zoom Parameters
+    this.cameraDistance = 4.2;
+    this.targetCameraDistance = 4.2;
+    this.cameraRotationX = 0.05;
+    this.cameraRotationY = 0;
+    this.targetRotationX = 0.05;
+    this.targetRotationY = 0;
     this.cameraLookTarget = new THREE.Vector3(0, 0.1, 0);
+
+    // Mouse Drag State
+    this.isDragging = false;
+    this.previousMousePosition = { x: 0, y: 0 };
+
+    // Floating 3D Hearts for Kiss Action
+    this.heartParticles = [];
+
+    // Current Action & Animation Timers
+    this.currentAction = null;
+    this.actionTimer = 0;
+    this.isHifiReady = false;
 
     // Color Palettes
     this.currentTheme = "cyber_cyan";
@@ -54,7 +96,8 @@ class Robot3D {
         eyeColor: 0x38bdf8,
         pupilColor: 0xffffff,
         light: 0x38bdf8,
-        joint: 0x334155
+        joint: 0x334155,
+        skin: 0xf1f5f9
       },
       amber_hazard: {
         armor: 0x1e293b,
@@ -65,7 +108,8 @@ class Robot3D {
         eyeColor: 0xf59e0b,
         pupilColor: 0xffedd5,
         light: 0xf59e0b,
-        joint: 0x451a03
+        joint: 0x451a03,
+        skin: 0x334155
       },
       quantum_violet: {
         armor: 0x18181b,
@@ -76,7 +120,8 @@ class Robot3D {
         eyeColor: 0xa855f7,
         pupilColor: 0xf3e8ff,
         light: 0xc084fc,
-        joint: 0x3b0764
+        joint: 0x3b0764,
+        skin: 0x27272a
       },
       cleanroom_white: {
         armor: 0xffffff,
@@ -87,41 +132,18 @@ class Robot3D {
         eyeColor: 0x3b82f6,
         pupilColor: 0xdbeafe,
         light: 0x60a5fa,
-        joint: 0x475569
-      },
-      matrix_emerald: {
-        armor: 0x052e16,
-        chassis: 0x021609,
-        visor: 0x011206,
-        accent: 0x22c55e,
-        glow: 0x4ade80,
-        eyeColor: 0x22c55e,
-        pupilColor: 0xdcfce7,
-        light: 0x22c55e,
-        joint: 0x14532d
+        joint: 0x475569,
+        skin: 0xffffff
       }
     };
 
     // State & Tracking
     this.clock = new THREE.Clock();
     this.mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    this.expression = "idle"; // 'idle', 'happy', 'thinking', 'speaking', 'surprised'
+    this.expression = "idle";
     this.isBlinking = false;
-    this.blinkTimer = 0;
-    this.isWaving = false;
-    this.waveTimer = 0;
     this.isPoked = false;
     this.isOverdrive = false;
-
-    // 3D Animation Frame & Holographic Stage
-    this.isOrbiting = false;
-    this.orbitAngle = 0;
-    this.holoStageVisible = true;
-    this.holoStageGroup = null;
-    this.holoGyroRing = null;
-    this.holoParticles = null;
-    this.holoStageMat = null;
-    this.holoParticlesMat = null;
 
     this.init();
   }
@@ -133,10 +155,9 @@ class Robot3D {
     // 1. Scene
     this.scene = new THREE.Scene();
 
-    // 2. Camera: Positioned to capture head, glowing eyes, torso, and elevated 5-digit hands
+    // 2. Camera
     this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
-    this.camera.position.copy(this.cameraTargetPos);
-    this.camera.lookAt(this.cameraLookTarget);
+    this.updateCameraPosition();
 
     // 3. WebGL Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
@@ -153,24 +174,22 @@ class Robot3D {
     // 5. Materials
     this.initMaterials();
 
-    // 6. Build the Accurate Robot Model with Clear Eyes and Clear Hands
-    this.buildRobot();
+    // 6. Build the Complete Humanoid Robot System
+    this.buildHumanoidRobot();
 
-    // 7. Event Listeners
-    window.addEventListener("resize", () => this.onResize());
-    window.addEventListener("mousemove", (e) => this.onMouseMove(e));
-    this.renderer.domElement.addEventListener("click", () => this.pokeRobot());
+    // 7. Setup Cursor Orbit & Zoom Event Listeners
+    this.setupInteractions();
 
     // 8. Start Animation Loop
     this.animate();
   }
 
   setupLights() {
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     this.scene.add(this.ambientLight);
 
-    this.keyLight = new THREE.DirectionalLight(0xffffff, 1.3);
-    this.keyLight.position.set(4, 5, 5);
+    this.keyLight = new THREE.DirectionalLight(0xffffff, 1.35);
+    this.keyLight.position.set(4, 6, 5);
     this.scene.add(this.keyLight);
 
     this.rimLight = new THREE.DirectionalLight(0x38bdf8, 1.8);
@@ -231,9 +250,19 @@ class Robot3D {
 
     this.matChrome = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0.1,
+      roughness: 0.08,
       metalness: 0.98
     });
+
+    // Wardrobe Specific Materials
+    this.matSuitNavy = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.65 });
+    this.matShirtWhite = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.4 });
+    this.matTieRed = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.3, emissive: 0x991b1b, emissiveIntensity: 0.2 });
+    this.matLabCoat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 });
+    this.matHoodie = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.75 });
+    this.matJeans = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.7 });
+    this.matSpaceGold = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.85, roughness: 0.2 });
+    this.matHeart = new THREE.MeshStandardMaterial({ color: 0xf43f5e, emissive: 0xf43f5e, emissiveIntensity: 0.8 });
   }
 
   setTheme(themeKey) {
@@ -251,501 +280,857 @@ class Robot3D {
 
     if (this.coreLight) this.coreLight.color.setHex(p.light);
     if (this.rimLight) this.rimLight.color.setHex(p.light);
-    if (this.keyLight) this.keyLight.color.setHex(p.light);
     if (this.leftEyeLight) this.leftEyeLight.color.setHex(p.light);
     if (this.rightEyeLight) this.rightEyeLight.color.setHex(p.light);
-
-    if (this.holoStageMat) {
-      this.holoStageMat.color.setHex(p.accent);
-      this.holoStageMat.emissive.setHex(p.glow);
-    }
-    if (this.holoParticlesMat) {
-      this.holoParticlesMat.color.setHex(p.glow);
-    }
-    if (this.thrusterParticles && this.thrusterParticles.material) {
-      this.thrusterParticles.material.color.setHex(p.glow);
-    }
   }
 
-  buildRobot() {
+  buildHumanoidRobot() {
     this.robotGroup = new THREE.Group();
     this.scene.add(this.robotGroup);
 
-    // 1. HEAD UNIT WITH CLEAR 3D EXPRESSIVE EYES
-    this.buildHead();
+    // 1. Humanoid Head with Clear 3D Nose, Eyes, Mouth & Brows
+    this.buildHumanoidHead();
 
-    // 2. TORSO & QUANTUM CORE ARC REACTOR
-    this.buildTorso();
+    // 2. Humanoid Torso & Quantum Core Arc Reactor
+    this.buildHumanoidTorso();
 
-    // 3. ARTICULATED ARMS AND CLEAR 5-DIGIT MECHANICAL HANDS
-    this.buildArmsAndHands();
+    // 3. Two Articulated Arms with 5-Digit Hands
+    this.buildHumanoidArmsAndHands();
 
-    // 4. FLOATING THRUSTER & ION PARTICLES
-    this.buildThruster();
+    // 4. Humanoid Legs (Thighs, Knees, Calves, Ankles, Shoes/Boots)
+    this.buildHumanoidLegs();
 
-    // 5. 3D HOLOGRAPHIC ANIMATION FRAME STAGE & GYRO PLATFORM
-    this.buildHoloStageFrame();
+    // 5. Modular Wardrobe Outfits (Student, Scientist, Hoodie, Astronaut, Cyber)
+    this.buildWardrobeOutfits();
+
+    // 6. Holographic Ground Platform
+    this.buildHoloPlatform();
   }
 
-  buildHead() {
+  buildHumanoidHead() {
     this.headGroup = new THREE.Group();
     this.headGroup.position.set(0, 0.78, 0);
 
-    // Main Helmet (Sculpted, aerodynamic pearlescent chassis)
-    const helmetGeo = new THREE.SphereGeometry(0.62, 36, 36);
-    helmetGeo.scale(1, 0.96, 0.92);
-    const helmet = new THREE.Mesh(helmetGeo, this.matArmor);
-    this.headGroup.add(helmet);
+    // Humanoid Head Sculpt (Cranium with jaw, chin, cheeks)
+    const craniumGeo = new THREE.SphereGeometry(0.58, 32, 32);
+    craniumGeo.scale(0.92, 1.05, 0.95);
+    const cranium = new THREE.Mesh(craniumGeo, this.matArmor);
+    this.headGroup.add(cranium);
 
-    // Dark Visor Faceplate: Provides sleek high-contrast backdrop so the glowing eyes stand out with absolute clarity
-    const visorGeo = new THREE.CylinderGeometry(0.50, 0.50, 0.36, 32, 1, false, -Math.PI / 2.3, (Math.PI * 2) / 2.3);
-    const visorBezel = new THREE.Mesh(visorGeo, this.matVisor);
-    visorBezel.rotation.y = Math.PI / 2;
-    visorBezel.position.set(0, 0.03, 0.23);
-    this.headGroup.add(visorBezel);
+    // Sculpted Humanoid Jaw & Chin
+    const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.22, 0.32), this.matArmor);
+    jaw.position.set(0, -0.26, 0.12);
+    this.headGroup.add(jaw);
 
-    // 3D CLEAR EYES (Left & Right)
-    this.leftEye = this.createEye(-0.21);
-    this.rightEye = this.createEye(0.21);
+    const chin = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.12, 0.14, 16), this.matChassis);
+    chin.position.set(0, -0.35, 0.24);
+    chin.rotation.x = 0.3;
+    this.headGroup.add(chin);
+
+    // Recessed High-Contrast Visor Faceplate
+    const visorGeo = new THREE.CylinderGeometry(0.46, 0.46, 0.38, 32, 1, false, -Math.PI / 2.3, (Math.PI * 2) / 2.3);
+    const visor = new THREE.Mesh(visorGeo, this.matVisor);
+    visor.rotation.y = Math.PI / 2;
+    visor.position.set(0, 0.02, 0.22);
+    this.headGroup.add(visor);
+
+    // --- CLEAR 3D HUMAN-LIKE NOSE ---
+    const noseGroup = new THREE.Group();
+    noseGroup.position.set(0, -0.04, 0.44);
+
+    // Nose Bridge (Dorsal ridge extending down from between the eyes)
+    const noseBridge = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.042, 0.14, 8), this.matArmor);
+    noseBridge.rotation.x = 0.35;
+    noseBridge.position.set(0, 0.04, 0.02);
+    noseGroup.add(noseBridge);
+
+    // Defined Humanoid Nose Tip & Nostrils
+    const noseTip = new THREE.Mesh(new THREE.SphereGeometry(0.038, 12, 12), this.matChrome);
+    noseTip.scale.set(1.1, 0.8, 1.2);
+    noseTip.position.set(0, -0.03, 0.06);
+    noseGroup.add(noseTip);
+
+    // Left and Right Nostril Flares
+    [-0.035, 0.035].forEach((nx) => {
+      const nostril = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), this.matChassis);
+      nostril.position.set(nx, -0.045, 0.04);
+      noseGroup.add(nostril);
+    });
+
+    this.faceNose = noseGroup;
+    this.headGroup.add(noseGroup);
+
+    // --- CLEAR 3D GLOWING EYES ---
+    this.leftEye = this.createHumanoidEye(-0.20);
+    this.rightEye = this.createHumanoidEye(0.20);
     this.headGroup.add(this.leftEye);
     this.headGroup.add(this.rightEye);
 
-    // Expressive Eyebrow Brow Plates (Tilt during thinking, surprise, or happy states)
-    this.leftBrow = this.createBrow(-0.21, true);
-    this.rightBrow = this.createBrow(0.21, false);
+    // Humanoid Eyebrow Plates (Emote dynamically)
+    this.leftBrow = this.createEyebrow(-0.20, true);
+    this.rightBrow = this.createEyebrow(0.20, false);
     this.headGroup.add(this.leftBrow);
     this.headGroup.add(this.rightBrow);
 
-    // Head Audio Scanner Antennas on sides
-    [-0.62, 0.62].forEach((x) => {
-      const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.1, 24), this.matChassis);
-      ear.rotation.z = Math.PI / 2;
-      ear.position.set(x, 0.04, 0);
-      this.headGroup.add(ear);
+    // --- HUMANOID LIPS & SPEECH BAR ---
+    const lipsGroup = new THREE.Group();
+    lipsGroup.position.set(0, -0.22, 0.42);
 
-      const earRing = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.02, 16, 24), this.matAccent);
-      earRing.rotation.y = Math.PI / 2;
-      earRing.position.set(x, 0.04, 0);
-      this.headGroup.add(earRing);
+    // Upper Lip Contour
+    const upperLip = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.024, 0.04), this.matArmor);
+    upperLip.position.set(0, 0.015, 0);
+    lipsGroup.add(upperLip);
 
-      const antennaFin = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.22, 12), this.matAccent);
-      antennaFin.position.set(x, 0.16, 0);
-      antennaFin.rotation.z = x < 0 ? 0.3 : -0.3;
-      this.headGroup.add(antennaFin);
+    // Lower Lip
+    const lowerLip = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.024, 0.04), this.matArmor);
+    lowerLip.position.set(0, -0.015, 0);
+    lipsGroup.add(lowerLip);
+
+    // Acoustic Speech Light Bar (Glows and pulses when speaking)
+    this.speechLED = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.012, 0.02), this.matAccent);
+    this.speechLED.position.set(0, 0, 0.018);
+    lipsGroup.add(this.speechLED);
+
+    this.faceLips = lipsGroup;
+    this.headGroup.add(lipsGroup);
+
+    // Lateral Audio Sensors / Human-like Ears
+    [-0.56, 0.56].forEach((ex) => {
+      const earBase = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.08, 16), this.matChassis);
+      earBase.rotation.z = Math.PI / 2;
+      earBase.position.set(ex, 0.02, 0);
+      this.headGroup.add(earBase);
+
+      const earTorus = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.018, 12, 24), this.matAccent);
+      earTorus.rotation.y = Math.PI / 2;
+      earTorus.position.set(ex, 0.02, 0);
+      this.headGroup.add(earTorus);
     });
 
-    // Neck Ball Joint
-    const neck = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), this.matJoint);
-    neck.position.set(0, -0.60, 0);
+    // Neck Column
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.16, 0.18, 20), this.matJoint);
+    neck.position.set(0, -0.56, 0);
     this.headGroup.add(neck);
 
     this.robotGroup.add(this.headGroup);
   }
 
-  createBrow(xPos, isLeft) {
-    const browGroup = new THREE.Group();
-    browGroup.position.set(xPos, 0.21, 0.52);
-
-    const browPlate = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.035, 0.05), this.matArmor);
-    browPlate.rotation.z = isLeft ? -0.08 : 0.08;
-    browGroup.add(browPlate);
-
-    return browGroup;
-  }
-
-  createEye(xPos) {
+  createHumanoidEye(xPos) {
     const eyeGroup = new THREE.Group();
-    eyeGroup.position.set(xPos, 0.05, 0.54);
+    eyeGroup.position.set(xPos, 0.06, 0.44);
 
-    // 1. Recessed Cylindrical Ocular Socket
-    const socketBase = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.04, 32), this.matChassis);
-    socketBase.rotation.x = Math.PI / 2;
-    socketBase.position.set(0, 0, -0.02);
-    eyeGroup.add(socketBase);
-
-    // 2. Beveled Socket Outer Bezel Ring (Chrome finish)
-    const socketRing = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.02, 16, 32), this.matChrome);
+    // Recessed Chrome Orbital Socket
+    const socketRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.018, 16, 32), this.matChrome);
     eyeGroup.add(socketRing);
 
-    // 3. Glowing Aperture Iris Ring (Neon cyber accent)
-    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.098, 0.018, 16, 32), this.matAccent);
-    irisRing.position.set(0, 0, 0.005);
+    // Glowing Neon Aperture Iris
+    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.016, 16, 32), this.matAccent);
+    irisRing.position.set(0, 0, 0.01);
     eyeGroup.add(irisRing);
 
-    // 4. Clear Transparent Convex Eye Lens
-    const lensGeo = new THREE.SphereGeometry(0.10, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.5);
+    // Clear Convex Glass Lens
+    const lensGeo = new THREE.SphereGeometry(0.095, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.5);
     const lens = new THREE.Mesh(lensGeo, this.matEyeLens);
-    lens.position.set(0, 0, 0.015);
+    lens.position.set(0, 0, 0.018);
     eyeGroup.add(lens);
 
-    // 5. Bright Luminous Digital Pupil (Tracks Cursor)
-    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.068, 24, 24), this.matPupil);
+    // Bright Expressive Pupil (Gaze tracks cursor)
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.062, 20, 20), this.matPupil);
     pupil.position.set(0, 0, 0.025);
     eyeGroup.add(pupil);
 
-    // Dedicated Point Light for Vivid Eye Glow
-    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 0.8, 1.2);
-    eyeLight.position.set(0, 0, 0.08);
+    // Dedicated Point Light for dynamic facial glow
+    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 0.9, 1.3);
+    eyeLight.position.set(0, 0, 0.09);
     eyeGroup.add(eyeLight);
 
     if (xPos < 0) this.leftEyeLight = eyeLight;
     else this.rightEyeLight = eyeLight;
 
-    // 6. Specular Catchlight Gleam (Creates alive, intelligent sparkle)
-    const catchlight = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    catchlight.position.set(0.03, 0.03, 0.085);
+    // Specular Catchlight
+    const catchlight = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    catchlight.position.set(0.028, 0.028, 0.082);
     eyeGroup.add(catchlight);
 
-    // 7. Articulated Visor Eyelid for Smooth Blinking
-    const lidGeo = new THREE.SphereGeometry(0.135, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.5);
+    // Smooth Articulated Eyelids
+    const lidGeo = new THREE.SphereGeometry(0.125, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.5);
     const eyelid = new THREE.Mesh(lidGeo, this.matChassis);
     eyelid.position.set(0, 0, 0.03);
-    eyelid.rotation.x = -Math.PI / 2; // Default open state
+    eyelid.rotation.x = -Math.PI / 2; // Default open
     eyeGroup.add(eyelid);
 
-    eyeGroup.userData = { eyelid: eyelid, pupil: pupil, catchlight: catchlight, baseZ: 0.54 };
+    eyeGroup.userData = { eyelid: eyelid, pupil: pupil, catchlight: catchlight };
     return eyeGroup;
   }
 
-  buildTorso() {
-    const torsoGroup = new THREE.Group();
-    torsoGroup.position.set(0, 0, 0);
+  createEyebrow(xPos, isLeft) {
+    const brow = new THREE.Group();
+    brow.position.set(xPos, 0.20, 0.44);
 
-    // Inner mechanical spine
-    const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.26, 0.82, 24), this.matChassis);
-    torsoGroup.add(spine);
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.03, 0.05), this.matArmor);
+    plate.rotation.z = isLeft ? -0.1 : 0.1;
+    brow.add(plate);
 
-    // Sculpted Chest Armor Plate
-    const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.44, 0.22), this.matArmor);
-    chestPlate.position.set(0, 0.16, 0.24);
-    torsoGroup.add(chestPlate);
-
-    // Quantum Core Arc Reactor (Center glowing heart)
-    const coreRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.028, 16, 32), this.matChrome);
-    coreRim.position.set(0, 0.15, 0.36);
-    torsoGroup.add(coreRim);
-
-    this.coreMesh = new THREE.Mesh(new THREE.CircleGeometry(0.115, 32), this.matAccent);
-    this.coreMesh.position.set(0, 0.15, 0.37);
-    torsoGroup.add(this.coreMesh);
-
-    // Abdominal Mechanical Ribbing
-    [-0.10, -0.22].forEach((y) => {
-      const rib = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.06, 0.18), this.matChassis);
-      rib.position.set(0, y, 0.2);
-      torsoGroup.add(rib);
-    });
-
-    this.robotGroup.add(torsoGroup);
+    return brow;
   }
 
-  buildArmsAndHands() {
-    // Both arms are held in an attentive humanoid posture:
-    // Upper arms angle forward, elbows bend ~70 degrees, forearms extend forward/inward,
-    // bringing the hands to mid-chest height where they are prominently displayed!
-    this.leftArm = this.createArm(-0.56, "left");
-    this.rightArm = this.createArm(0.56, "right");
+  buildHumanoidTorso() {
+    this.torsoGroup = new THREE.Group();
+    this.torsoGroup.position.set(0, 0.15, 0);
+
+    // Chest & Pectoral Armor
+    const chest = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.42, 0.24), this.matArmor);
+    chest.position.set(0, 0.08, 0.12);
+    this.torsoGroup.add(chest);
+
+    // Central Arc Reactor Core
+    const coreRim = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.025, 16, 32), this.matChrome);
+    coreRim.position.set(0, 0.08, 0.25);
+    this.torsoGroup.add(coreRim);
+
+    this.coreMesh = new THREE.Mesh(new THREE.CircleGeometry(0.105, 32), this.matAccent);
+    this.coreMesh.position.set(0, 0.08, 0.26);
+    this.torsoGroup.add(this.coreMesh);
+
+    // Spine Column & Back Plating
+    const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.16, 0.65, 16), this.matJoint);
+    spine.position.set(0, -0.05, -0.05);
+    this.torsoGroup.add(spine);
+
+    // Humanoid Waist & Abdominal Actuators
+    [-0.14, -0.24].forEach((y) => {
+      const rib = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.065, 0.20), this.matChassis);
+      rib.position.set(0, y, 0.1);
+      this.torsoGroup.add(rib);
+    });
+
+    // Pelvis / Hip Chassis
+    const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.18, 0.24), this.matArmor);
+    pelvis.position.set(0, -0.38, 0.06);
+    this.torsoGroup.add(pelvis);
+
+    this.robotGroup.add(this.torsoGroup);
+  }
+
+  buildHumanoidArmsAndHands() {
+    this.leftArm = this.createHumanoidArm(-0.52, "left");
+    this.rightArm = this.createHumanoidArm(0.52, "right");
     this.robotGroup.add(this.leftArm.group);
     this.robotGroup.add(this.rightArm.group);
   }
 
-  createArm(shoulderX, side) {
+  createHumanoidArm(shoulderX, side) {
     const isLeft = side === "left";
     const armGroup = new THREE.Group();
-    armGroup.position.set(shoulderX, 0.30, 0);
+    armGroup.position.set(shoulderX, 0.32, 0);
 
-    // 1. Shoulder Ball Joint & Armor Cap
-    const shoulderBall = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), this.matJoint);
+    // Shoulder Ball Joint & Armored Epaulet
+    const shoulderBall = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16), this.matJoint);
     armGroup.add(shoulderBall);
 
-    const shoulderCap = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), this.matArmor);
+    const shoulderCap = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 16), this.matArmor);
     shoulderCap.scale.set(1.1, 0.85, 1);
-    shoulderCap.position.set(isLeft ? -0.06 : 0.06, 0.04, 0);
+    shoulderCap.position.set(isLeft ? -0.05 : 0.05, 0.04, 0);
     armGroup.add(shoulderCap);
 
-    // 2. Upper Arm (Bicep chassis) angled forward and downward
-    const upperArmGroup = new THREE.Group();
-    upperArmGroup.position.set(isLeft ? -0.06 : 0.06, -0.04, 0);
-    upperArmGroup.rotation.x = 0.25; // angled forward
-    upperArmGroup.rotation.z = isLeft ? 0.15 : -0.15; // angled slightly outward
-    armGroup.add(upperArmGroup);
+    // Upper Arm (Bicep/Tricep)
+    const upperArm = new THREE.Group();
+    upperArm.position.set(isLeft ? -0.04 : 0.04, -0.04, 0);
+    upperArm.rotation.x = 0.25;
+    upperArm.rotation.z = isLeft ? 0.12 : -0.12;
+    armGroup.add(upperArm);
 
-    const bicep = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.065, 0.34, 16), this.matChassis);
-    bicep.position.set(0, -0.17, 0);
-    upperArmGroup.add(bicep);
+    const bicep = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.32, 16), this.matChassis);
+    bicep.position.set(0, -0.16, 0);
+    upperArm.add(bicep);
 
-    // 3. Elbow Joint (Chrome hinge)
-    const elbowGroup = new THREE.Group();
-    elbowGroup.position.set(0, -0.34, 0);
-    upperArmGroup.add(elbowGroup);
+    // Elbow Hinge Joint
+    const elbow = new THREE.Group();
+    elbow.position.set(0, -0.32, 0);
+    upperArm.add(elbow);
 
-    const elbowMesh = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), this.matChrome);
-    elbowGroup.add(elbowMesh);
+    const elbowMesh = new THREE.Mesh(new THREE.SphereGeometry(0.075, 16, 16), this.matChrome);
+    elbow.add(elbowMesh);
 
-    // 4. Forearm bent forward ~75 degrees to bring hands into clear, prominent view
-    const forearmGroup = new THREE.Group();
-    forearmGroup.rotation.x = -1.15; // bent forward towards camera
-    forearmGroup.rotation.y = isLeft ? 0.35 : -0.35; // angled inward towards chest center
-    elbowGroup.add(forearmGroup);
+    // Forearm angled forward
+    const forearm = new THREE.Group();
+    forearm.rotation.x = -1.1; // bent forward in active conversational pose
+    forearm.rotation.y = isLeft ? 0.35 : -0.35;
+    elbow.add(forearm);
 
-    const forearmMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.32, 16), this.matArmor);
-    forearmMesh.position.set(0, -0.16, 0);
-    forearmGroup.add(forearmMesh);
+    const forearmMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.30, 16), this.matArmor);
+    forearmMesh.position.set(0, -0.15, 0);
+    forearm.add(forearmMesh);
 
-    // 5. Wrist Joint
-    const wristGroup = new THREE.Group();
-    wristGroup.position.set(0, -0.32, 0);
-    forearmGroup.add(wristGroup);
+    // Wrist Joint
+    const wrist = new THREE.Group();
+    wrist.position.set(0, -0.30, 0);
+    forearm.add(wrist);
 
-    const wristMesh = new THREE.Mesh(new THREE.SphereGeometry(0.055, 14, 14), this.matJoint);
-    wristGroup.add(wristMesh);
+    const wristMesh = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 14), this.matJoint);
+    wrist.add(wristMesh);
 
-    // 6. CLEAR 5-DIGIT ARTICULATED ROBOT HAND
-    const hand = this.createRobotHand(side);
+    // CLEAR 5-DIGIT ARTICULATED ROBOT HAND
+    const hand = this.createHumanoidHand(side);
     hand.position.set(0, -0.08, 0);
-    // Face palms slightly toward each other and forward toward user
-    hand.rotation.x = -0.3;
+    hand.rotation.x = -0.25;
     hand.rotation.y = isLeft ? 0.4 : -0.4;
-    wristGroup.add(hand);
+    wrist.add(hand);
 
     return {
       group: armGroup,
-      upperArm: upperArmGroup,
-      elbow: elbowGroup,
-      forearm: forearmGroup,
-      wrist: wristGroup,
+      upperArm: upperArm,
+      elbow: elbow,
+      forearm: forearm,
+      wrist: wrist,
       hand: hand,
       side: side
     };
   }
 
-  createRobotHand(side) {
+  createHumanoidHand(side) {
     const isLeft = side === "left";
     const handGroup = new THREE.Group();
 
-    // 1. Palm Chassis Base (Sculpted metallic hand base)
-    const palmGeo = new THREE.BoxGeometry(0.18, 0.16, 0.055);
-    const palm = new THREE.Mesh(palmGeo, this.matArmor);
+    // Palm Chassis Base
+    const palm = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.16, 0.055), this.matArmor);
     handGroup.add(palm);
 
-    // Dorsal Armor Shell
-    const dorsalPlate = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.13, 0.02), this.matChassis);
-    dorsalPlate.position.set(0, 0, -0.03);
-    handGroup.add(dorsalPlate);
-
-    // Central Palm Repulsor / Bio-Sensor Glow Node
-    const palmRim = new THREE.Mesh(new THREE.TorusGeometry(0.04, 0.01, 16, 24), this.matChrome);
+    // Glowing Central Palm Repulsor Core
+    const palmRim = new THREE.Mesh(new THREE.TorusGeometry(0.038, 0.01, 16, 24), this.matChrome);
     palmRim.position.set(0, 0, 0.03);
     handGroup.add(palmRim);
 
-    const palmCore = new THREE.Mesh(new THREE.CircleGeometry(0.035, 16), this.matAccent);
+    const palmCore = new THREE.Mesh(new THREE.CircleGeometry(0.033, 16), this.matAccent);
     palmCore.position.set(0, 0, 0.031);
     handGroup.add(palmCore);
 
-    const fingerNodes = [];
+    const fingers = [];
 
-    // 2. Four Articulated Fingers (Index, Middle, Ring, Pinky) arranged along natural curved knuckle arch
-    const fingerSpecs = [
-      { name: "index",  xOffset: isLeft ? 0.052 : -0.052, len: 0.13, yArch: 0.005 },
-      { name: "middle", xOffset: isLeft ? 0.018 : -0.018, len: 0.145, yArch: 0.012 }, // longest
-      { name: "ring",   xOffset: isLeft ? -0.018 : 0.018, len: 0.135, yArch: 0.006 },
-      { name: "pinky",  xOffset: isLeft ? -0.052 : 0.052, len: 0.11,  yArch: -0.006 } // shortest
+    // 4 Articulated Fingers along natural curved knuckle arch
+    const specs = [
+      { name: "index",  x: isLeft ? 0.052 : -0.052, len: 0.13,  yArch: 0.005 },
+      { name: "middle", x: isLeft ? 0.018 : -0.018, len: 0.145, yArch: 0.012 }, // longest
+      { name: "ring",   x: isLeft ? -0.018 : 0.018, len: 0.135, yArch: 0.006 },
+      { name: "pinky",  x: isLeft ? -0.052 : 0.052, len: 0.11,  yArch: -0.006 } // shortest
     ];
 
-    fingerSpecs.forEach((spec, idx) => {
-      const fingerGroup = new THREE.Group();
-      fingerGroup.position.set(spec.xOffset, -0.08 + spec.yArch, 0);
+    specs.forEach((s) => {
+      const fGroup = new THREE.Group();
+      fGroup.position.set(s.x, -0.08 + s.yArch, 0);
 
-      // Spherical Chrome Knuckle Joint
-      const knuckle = new THREE.Mesh(new THREE.SphereGeometry(0.018, 12, 12), this.matChrome);
-      fingerGroup.add(knuckle);
+      // Knuckle Joint
+      const knuckle = new THREE.Mesh(new THREE.SphereGeometry(0.017, 10, 10), this.matChrome);
+      fGroup.add(knuckle);
 
       // Proximal Phalanx
-      const p1Len = spec.len * 0.44;
-      const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.011, p1Len, 10), this.matArmor);
+      const p1Len = s.len * 0.44;
+      const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.011, p1Len, 8), this.matArmor);
       p1.position.set(0, -p1Len / 2, 0.005);
-      fingerGroup.add(p1);
+      fGroup.add(p1);
 
-      // Intermediate Joint (PIP)
-      const pip = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 10), this.matJoint);
+      // Interphalangeal Joint
+      const pip = new THREE.Mesh(new THREE.SphereGeometry(0.012, 8, 8), this.matJoint);
       pip.position.set(0, -p1Len, 0.008);
-      fingerGroup.add(pip);
+      fGroup.add(pip);
 
-      // Intermediate & Distal Phalanx (curls slightly)
-      const p2Len = spec.len * 0.40;
-      const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.009, p2Len, 10), this.matChassis);
+      // Intermediate & Distal Phalanx
+      const p2Len = s.len * 0.40;
+      const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.009, p2Len, 8), this.matChassis);
       p2.position.set(0, -p1Len - p2Len / 2, 0.016);
       p2.rotation.x = 0.15;
-      fingerGroup.add(p2);
+      fGroup.add(p2);
 
-      // Glowing Cyber Fingertip Sensor Cap
-      const tipSensor = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 10), this.matAccent);
-      tipSensor.position.set(0, -p1Len - p2Len - 0.005, 0.024);
-      fingerGroup.add(tipSensor);
+      // Glowing Cyber Fingertip
+      const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 8), this.matAccent);
+      tip.position.set(0, -p1Len - p2Len - 0.005, 0.024);
+      fGroup.add(tip);
 
-      handGroup.add(fingerGroup);
-      fingerNodes.push(fingerGroup);
+      handGroup.add(fGroup);
+      fingers.push(fGroup);
     });
 
-    // 3. Opposable Articulated Thumb
+    // Opposable Articulated Thumb
     const thumbGroup = new THREE.Group();
-    const thumbX = isLeft ? 0.095 : -0.095;
-    thumbGroup.position.set(thumbX, -0.01, 0.02);
+    const tx = isLeft ? 0.095 : -0.095;
+    thumbGroup.position.set(tx, -0.01, 0.02);
     thumbGroup.rotation.z = isLeft ? -0.55 : 0.55;
     thumbGroup.rotation.y = isLeft ? -0.45 : 0.45;
     thumbGroup.rotation.x = 0.2;
 
-    // Thumb Basal Knuckle
-    const tKnuckle = new THREE.Mesh(new THREE.SphereGeometry(0.019, 12, 12), this.matChrome);
+    const tKnuckle = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 10), this.matChrome);
     thumbGroup.add(tKnuckle);
 
-    // Thumb Proximal Phalanx
-    const tp1 = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.012, 0.055, 10), this.matArmor);
+    const tp1 = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.012, 0.055, 8), this.matArmor);
     tp1.position.set(0, -0.028, 0);
     thumbGroup.add(tp1);
 
-    // Thumb IP Joint
-    const tipHinge = new THREE.Mesh(new THREE.SphereGeometry(0.013, 10, 10), this.matJoint);
-    tipHinge.position.set(0, -0.056, 0.005);
-    thumbGroup.add(tipHinge);
-
-    // Thumb Distal Phalanx
-    const tp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.009, 0.045, 10), this.matChassis);
-    tp2.position.set(0, -0.078, 0.012);
+    const tp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.009, 0.045, 8), this.matChassis);
+    tp2.position.set(0, -0.076, 0.012);
     thumbGroup.add(tp2);
 
-    // Thumb Glowing Sensor Tip
-    const thumbTip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 10), this.matAccent);
-    thumbTip.position.set(0, -0.103, 0.018);
+    const thumbTip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 8), this.matAccent);
+    thumbTip.position.set(0, -0.10, 0.018);
     thumbGroup.add(thumbTip);
 
     handGroup.add(thumbGroup);
-    fingerNodes.push(thumbGroup);
+    fingers.push(thumbGroup);
 
-    if (isLeft) this.leftFingers = fingerNodes;
-    else this.rightFingers = fingerNodes;
+    if (isLeft) this.leftFingers = fingers;
+    else this.rightFingers = fingers;
 
     return handGroup;
   }
 
-  buildThruster() {
-    const thrusterGroup = new THREE.Group();
-    thrusterGroup.position.set(0, -0.52, 0);
-
-    // Glowing Anti-Gravity Ring
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.045, 16, 32), this.matAccent);
-    ring.rotation.x = Math.PI / 2;
-    thrusterGroup.add(ring);
-
-    // Thruster Particle Exhaust
-    const count = 35;
-    const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3 + 0] = (Math.random() - 0.5) * 0.35;
-      pos[i * 3 + 1] = -0.1 - Math.random() * 0.5;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 0.35;
-    }
-    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    this.thrusterParticles = new THREE.Points(
-      geo,
-      new THREE.PointsMaterial({ color: 0x38bdf8, size: 0.075, transparent: true, opacity: 0.85 })
-    );
-    thrusterGroup.add(this.thrusterParticles);
-
-    this.robotGroup.add(thrusterGroup);
+  buildHumanoidLegs() {
+    this.legsGroup = new THREE.Group();
+    this.leftLeg = this.createHumanoidLeg(-0.20, "left");
+    this.rightLeg = this.createHumanoidLeg(0.20, "right");
+    this.legsGroup.add(this.leftLeg.group);
+    this.legsGroup.add(this.rightLeg.group);
+    this.robotGroup.add(this.legsGroup);
   }
 
-  buildHoloStageFrame() {
-    this.holoStageGroup = new THREE.Group();
-    this.scene.add(this.holoStageGroup);
+  createHumanoidLeg(hipX, side) {
+    const isLeft = side === "left";
+    const legGroup = new THREE.Group();
+    legGroup.position.set(hipX, -0.22, 0);
 
-    const p = this.themes[this.currentTheme];
+    // 1. Hip Joint
+    const hip = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), this.matJoint);
+    legGroup.add(hip);
 
-    this.holoStageMat = new THREE.MeshStandardMaterial({
-      color: p.accent,
-      emissive: p.glow,
-      emissiveIntensity: 0.9,
-      roughness: 0.2,
-      metalness: 0.8,
-      transparent: true,
-      opacity: 0.75
-    });
+    // 2. Thigh (Femur with Quadricep Armor)
+    const thighGroup = new THREE.Group();
+    legGroup.add(thighGroup);
 
-    // 1. Concentric Floor Rings (Elevated Hologram Stage Platform)
-    const floorOuterRing = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.022, 16, 64), this.holoStageMat);
-    floorOuterRing.rotation.x = Math.PI / 2;
-    floorOuterRing.position.y = -1.25;
-    this.holoStageGroup.add(floorOuterRing);
+    const femur = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.075, 0.44, 16), this.matArmor);
+    femur.position.set(0, -0.24, 0);
+    thighGroup.add(femur);
 
-    const floorInnerRing = new THREE.Mesh(new THREE.TorusGeometry(0.85, 0.016, 16, 48), this.holoStageMat);
-    floorInnerRing.rotation.x = Math.PI / 2;
-    floorInnerRing.position.y = -1.25;
-    this.holoStageGroup.add(floorInnerRing);
+    // 3. Knee Joint (Patellar Chrome Cap)
+    const kneeGroup = new THREE.Group();
+    kneeGroup.position.set(0, -0.48, 0);
+    thighGroup.add(kneeGroup);
 
-    // 2. Holographic Radial Crosshairs on Floor
-    for (let i = 0; i < 4; i++) {
-      const spokeGeo = new THREE.BoxGeometry(0.018, 0.01, 0.55);
-      const spoke = new THREE.Mesh(spokeGeo, this.holoStageMat);
-      spoke.position.y = -1.25;
-      spoke.rotation.y = (i * Math.PI) / 2;
-      spoke.translateZ(1.1);
-      this.holoStageGroup.add(spoke);
-    }
+    const kneeCap = new THREE.Mesh(new THREE.SphereGeometry(0.085, 16, 16), this.matChrome);
+    kneeCap.scale.set(1, 1.1, 1.2);
+    kneeGroup.add(kneeCap);
 
-    // 3. 3D Floating Gyro Ring behind the robot
-    this.holoGyroRing = new THREE.Mesh(new THREE.TorusGeometry(1.65, 0.018, 16, 64), this.holoStageMat);
-    this.holoGyroRing.position.set(0, 0.35, -0.6);
-    this.holoGyroRing.rotation.x = 0.35;
-    this.scene.add(this.holoGyroRing);
+    // 4. Shin / Calf (Tibia with Sleek Calf Muscle Contour)
+    const calfGroup = new THREE.Group();
+    kneeGroup.add(calfGroup);
 
-    // 4. 3D Holographic Ambient Particle Field
-    const particleCount = 120;
-    const particleGeo = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 4.2;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 3.8 + 0.2;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 3.5;
-    }
-    particleGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.06, 0.46, 16), this.matChassis);
+    shin.position.set(0, -0.25, 0);
+    calfGroup.add(shin);
 
-    this.holoParticlesMat = new THREE.PointsMaterial({
-      color: p.glow,
-      size: 0.045,
-      transparent: true,
-      opacity: 0.75,
-      blending: THREE.AdditiveBlending
-    });
+    // Front Shin Guard Plate
+    const shinGuard = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 0.06), this.matArmor);
+    shinGuard.position.set(0, -0.25, 0.06);
+    calfGroup.add(shinGuard);
 
-    this.holoParticles = new THREE.Points(particleGeo, this.holoParticlesMat);
-    this.scene.add(this.holoParticles);
+    // 5. Ankle Joint
+    const ankleGroup = new THREE.Group();
+    ankleGroup.position.set(0, -0.50, 0);
+    calfGroup.add(ankleGroup);
+
+    const ankleMesh = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), this.matJoint);
+    ankleGroup.add(ankleMesh);
+
+    // 6. Humanoid Foot / Cyber Boot planted on ground
+    const footGroup = new THREE.Group();
+    footGroup.position.set(0, -0.06, 0.04);
+    ankleGroup.add(footGroup);
+
+    // Boot Sole & Upper
+    const bootUpper = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.26), this.matArmor);
+    bootUpper.position.set(0, 0, 0.03);
+    footGroup.add(bootUpper);
+
+    // Toe Cap
+    const toeCap = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.068, 0.14, 16), this.matChrome);
+    toeCap.rotation.z = Math.PI / 2;
+    toeCap.position.set(0, -0.01, 0.14);
+    footGroup.add(toeCap);
+
+    // Glowing Cyber Tread on Sole
+    const sole = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.025, 0.28), this.matAccent);
+    sole.position.set(0, -0.045, 0.03);
+    footGroup.add(sole);
+
+    return {
+      group: legGroup,
+      thigh: thighGroup,
+      knee: kneeGroup,
+      calf: calfGroup,
+      ankle: ankleGroup,
+      foot: footGroup,
+      side: side
+    };
   }
 
-  toggleOrbit() {
-    this.isOrbiting = !this.isOrbiting;
-    if (!this.isOrbiting) {
-      this.cameraTargetPos.set(0, 0.25, 4.2);
+  buildWardrobeOutfits() {
+    this.wardrobeGroup = new THREE.Group();
+    this.robotGroup.add(this.wardrobeGroup);
+
+    // --- 1. STUDENT SCHOOL UNIFORM ---
+    const studentGroup = new THREE.Group();
+
+    // Dark Navy School Blazer Jacket
+    const blazer = new THREE.Mesh(new THREE.BoxGeometry(0.70, 0.46, 0.30), this.matSuitNavy);
+    blazer.position.set(0, 0.24, 0.12);
+    studentGroup.add(blazer);
+
+    // White Shirt Inner V
+    const shirt = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.34, 0.31), this.matShirtWhite);
+    shirt.position.set(0, 0.27, 0.12);
+    studentGroup.add(shirt);
+
+    // Red Student Necktie
+    const tie = new THREE.Mesh(new THREE.ConeGeometry(0.048, 0.28, 4), this.matTieRed);
+    tie.position.set(0, 0.22, 0.30);
+    tie.rotation.x = Math.PI;
+    studentGroup.add(tie);
+
+    // Golden Student Crest on Left Pocket
+    const crest = new THREE.Mesh(new THREE.CircleGeometry(0.038, 16), this.matSpaceGold);
+    crest.position.set(-0.20, 0.28, 0.28);
+    studentGroup.add(crest);
+
+    // Dark Uniform Pants Overlays
+    [-0.20, 0.20].forEach((px) => {
+      const pantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.48, 16), this.matSuitNavy);
+      pantsThigh.position.set(px, -0.46, 0);
+      studentGroup.add(pantsThigh);
+
+      const pantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.075, 0.48, 16), this.matSuitNavy);
+      pantsCalf.position.set(px, -0.95, 0);
+      studentGroup.add(pantsCalf);
+    });
+
+    studentGroup.visible = false;
+    this.wardrobeGroup.add(studentGroup);
+    this.outfitMeshes["student"] = studentGroup;
+
+    // --- 2. SCIENTIST LAB COAT ---
+    const scientistGroup = new THREE.Group();
+
+    // Long White Open Lab Coat (extending down past hips)
+    const labCoat = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.70, 0.30), this.matLabCoat);
+    labCoat.position.set(0, 0.10, 0.12);
+    scientistGroup.add(labCoat);
+
+    // ID Badge Pinned to Chest
+    const badge = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.13, 0.02), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
+    badge.position.set(0.18, 0.28, 0.28);
+    scientistGroup.add(badge);
+
+    // Smart Research Spectacles / Glasses on Face (attached to headGroup so they turn with gaze)
+    const glassesGroup = new THREE.Group();
+    glassesGroup.position.set(0, 0.06, 0.50);
+    [-0.18, 0.18].forEach((gx) => {
+      const frame = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.012, 12, 24), this.matSpaceGold);
+      frame.position.set(gx, 0, 0);
+      glassesGroup.add(frame);
+    });
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.014, 0.02), this.matSpaceGold);
+    bridge.position.set(0, 0, 0);
+    glassesGroup.add(bridge);
+
+    glassesGroup.visible = false;
+    if (this.headGroup) this.headGroup.add(glassesGroup);
+    this.scientistGlasses = glassesGroup;
+
+    scientistGroup.visible = false;
+    this.wardrobeGroup.add(scientistGroup);
+    this.outfitMeshes["scientist"] = scientistGroup;
+
+    // --- 3. STREETWEAR HOODIE ---
+    const hoodieGroup = new THREE.Group();
+
+    // Oversized Casual Streetwear Hoodie
+    const hoodieBody = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.50, 0.34), this.matHoodie);
+    hoodieBody.position.set(0, 0.22, 0.12);
+    hoodieGroup.add(hoodieBody);
+
+    // Kangaroo Front Pocket
+    const pocket = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.18, 0.06), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+    pocket.position.set(0, 0.10, 0.30);
+    hoodieGroup.add(pocket);
+
+    // Puffed Hood Collar draped behind neck
+    const hoodCollar = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.09, 12, 24), this.matHoodie);
+    hoodCollar.position.set(0, 0.50, -0.04);
+    hoodCollar.rotation.x = Math.PI / 2.6;
+    hoodieGroup.add(hoodCollar);
+
+    // Denim Tech Jeans Overlays
+    [-0.20, 0.20].forEach((jx) => {
+      const denim = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.095, 0.48, 16), this.matJeans);
+      denim.position.set(jx, -0.46, 0);
+      hoodieGroup.add(denim);
+
+      const denimCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.08, 0.48, 16), this.matJeans);
+      denimCalf.position.set(jx, -0.95, 0);
+      hoodieGroup.add(denimCalf);
+    });
+
+    hoodieGroup.visible = false;
+    this.wardrobeGroup.add(hoodieGroup);
+    this.outfitMeshes["hoodie"] = hoodieGroup;
+
+    // --- 4. ASTRONAUT SPACE SUIT ---
+    const astroGroup = new THREE.Group();
+
+    // Heavy Pressurized EVA Torso Harness
+    const astroHarness = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.48, 0.36), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25 }));
+    astroHarness.position.set(0, 0.22, 0.12);
+    astroGroup.add(astroHarness);
+
+    // Dual Gold Life Support Oxygen Valves
+    [-0.16, 0.16].forEach((vx) => {
+      const valve = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.048, 0.05, 16), this.matSpaceGold);
+      valve.rotation.x = Math.PI / 2;
+      valve.position.set(vx, 0.28, 0.31);
+      astroGroup.add(valve);
+    });
+
+    // Space Insignia on Sternum
+    const insignia = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.07, 0.02), this.matTieRed);
+    insignia.position.set(0, 0.14, 0.31);
+    astroGroup.add(insignia);
+
+    // Heavy Life Support Backpack behind shoulders
+    const backpack = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.50, 0.24), this.matChassis);
+    backpack.position.set(0, 0.22, -0.23);
+    astroGroup.add(backpack);
+
+    astroGroup.visible = false;
+    this.wardrobeGroup.add(astroGroup);
+    this.outfitMeshes["astronaut"] = astroGroup;
+
+    // --- 5. CYBER MECHA (Default, built-in) ---
+    this.outfitMeshes["cyber"] = null;
+  }
+
+  setOutfit(outfitKey) {
+    if (!["cyber", "student", "scientist", "hoodie", "astronaut"].includes(outfitKey)) return;
+    this.currentOutfit = outfitKey;
+
+    // Hide all outfit meshes
+    Object.keys(this.outfitMeshes).forEach((key) => {
+      if (this.outfitMeshes[key]) {
+        this.outfitMeshes[key].visible = false;
+      }
+    });
+
+    // Show chosen outfit
+    if (this.outfitMeshes[outfitKey]) {
+      this.outfitMeshes[outfitKey].visible = true;
+    }
+
+    if (this.scientistGlasses) {
+      this.scientistGlasses.visible = (outfitKey === "scientist");
+    }
+
+    // Play transformation SFX
+    if (window.AudioEngine) {
+      if (window.AudioEngine.playChime) window.AudioEngine.playChime();
+      else if (window.AudioEngine.playRobotChirp) window.AudioEngine.playRobotChirp();
+    }
+  }
+
+  buildHoloPlatform() {
+    this.holoStage = new THREE.Group();
+    this.holoStage.position.set(0, -1.24, 0);
+
+    // Main Hologram Projector Ring
+    const baseDisk = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.05, 0.06, 36), this.matChassis);
+    this.holoStage.add(baseDisk);
+
+    const outerRing = new THREE.Mesh(new THREE.TorusGeometry(0.92, 0.025, 16, 40), this.matChrome);
+    outerRing.rotation.x = Math.PI / 2;
+    outerRing.position.set(0, 0.035, 0);
+    this.holoStage.add(outerRing);
+
+    const innerGlowRing = new THREE.Mesh(new THREE.TorusGeometry(0.68, 0.02, 16, 40), this.matAccent);
+    innerGlowRing.rotation.x = Math.PI / 2;
+    innerGlowRing.position.set(0, 0.036, 0);
+    this.holoStage.add(innerGlowRing);
+
+    this.scene.add(this.holoStage);
+  }
+
+  // --- INTERACTIVE ACTIONS & GESTURES ---
+
+  doAction(actionName) {
+    this.currentAction = actionName;
+    this.actionTimer = 0;
+
+    if (actionName === "hello") {
+      this.setExpression("happy");
+      if (window.AudioEngine) {
+        window.AudioEngine.playRobotChirp();
+        window.AudioEngine.speak("Hello there! Wonderful to meet you!");
+      }
+    } else if (actionName === "bye") {
+      this.setExpression("happy");
+      if (window.AudioEngine) {
+        window.AudioEngine.playRobotChirp();
+        window.AudioEngine.speak("Goodbye! Have an extraordinary study session!");
+      }
+    } else if (actionName === "hifi") {
+      this.setExpression("happy");
+      this.isHifiReady = true;
+      if (window.AudioEngine) {
+        window.AudioEngine.playRobotChirp();
+        window.AudioEngine.speak("Give me a high-five! Tap my hand or screen!");
+      }
+    } else if (actionName === "kiss") {
+      this.setExpression("happy");
+      this.spawnHeartParticles();
+      if (window.AudioEngine) {
+        window.AudioEngine.playRobotChirp();
+        window.AudioEngine.speak("Sending you lots of love and good energy!");
+      }
+    } else if (actionName === "salute") {
+      this.setExpression("idle");
+      if (window.AudioEngine) {
+        window.AudioEngine.playHydraulicClick();
+        window.AudioEngine.speak("Reporting for duty! System operational and ready!");
+      }
+    }
+  }
+
+  spawnHeartParticles() {
+    // Generate floating 3D hearts that float outward toward camera
+    for (let i = 0; i < 6; i++) {
+      const heartShape = new THREE.Shape();
+      const x = 0, y = 0;
+      heartShape.moveTo(x + 0.05, y + 0.05);
+      heartShape.bezierCurveTo(x + 0.05, y + 0.05, x + 0.04, y, x, y);
+      heartShape.bezierCurveTo(x - 0.06, y, x - 0.06, y + 0.07, x - 0.06, y + 0.07);
+      heartShape.bezierCurveTo(x - 0.06, y + 0.11, x - 0.03, y + 0.154, x + 0.05, y + 0.19);
+      heartShape.bezierCurveTo(x + 0.12, y + 0.154, x + 0.16, y + 0.11, x + 0.16, y + 0.07);
+      heartShape.bezierCurveTo(x + 0.16, y + 0.07, x + 0.16, y, x + 0.10, y);
+      heartShape.bezierCurveTo(x + 0.07, y, x + 0.05, y + 0.05, x + 0.05, y + 0.05);
+
+      const geom = new THREE.ShapeGeometry(heartShape);
+      const heart = new THREE.Mesh(geom, this.matHeart);
+      heart.rotation.z = Math.PI;
+      heart.scale.set(0.6, 0.6, 0.6);
+      heart.position.set(
+        (Math.random() - 0.5) * 0.25,
+        0.58 + (Math.random() - 0.5) * 0.2,
+        0.5 + Math.random() * 0.2
+      );
+      heart.userData = {
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: 0.3 + Math.random() * 0.3,
+        vz: 0.6 + Math.random() * 0.6,
+        life: 1.0
+      };
+
+      this.scene.add(heart);
+      this.heartParticles.push(heart);
+    }
+  }
+
+  // --- CURSOR ZOOM & 360-DEGREE DRAG ORBIT ---
+
+  setupInteractions() {
+    // 1. Mouse Drag to Orbit (360 Degrees)
+    this.container.addEventListener("mousedown", (e) => {
+      this.isDragging = true;
+      this.previousMousePosition = { x: e.clientX, y: e.clientY };
+
+      // Check if user clicked during high-five
+      if (this.isHifiReady) {
+        this.triggerHighFiveClap();
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      this.isDragging = false;
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      const rect = this.container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      this.mouse.targetX = (x / rect.width) * 2 - 1;
+      this.mouse.targetY = -(y / rect.height) * 2 + 1;
+
+      if (this.isDragging) {
+        const deltaX = e.clientX - this.previousMousePosition.x;
+        const deltaY = e.clientY - this.previousMousePosition.y;
+
+        this.targetRotationY += deltaX * 0.008;
+        this.targetRotationX += deltaY * 0.008;
+
+        // Clamp vertical pitch to prevent flipping
+        this.targetRotationX = Math.max(-0.6, Math.min(0.6, this.targetRotationX));
+
+        this.previousMousePosition = { x: e.clientX, y: e.clientY };
+      }
+    });
+
+    // 2. Cursor Scroll Wheel Zoom (Smoothly Zoom In / Out)
+    this.container.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const zoomDelta = e.deltaY * 0.0025;
+      this.targetCameraDistance += zoomDelta;
+      // Clamp zoom limits: close macro inspection (1.6) to wide full view (6.2)
+      this.targetCameraDistance = Math.max(1.6, Math.min(6.2, this.targetCameraDistance));
+    }, { passive: false });
+
+    // Double-click to reset view
+    this.container.addEventListener("dblclick", () => {
+      this.resetCameraView();
+    });
+
+    window.addEventListener("resize", () => this.onResize());
+  }
+
+  triggerHighFiveClap() {
+    this.isHifiReady = false;
+    if (window.AudioEngine) {
+      if (window.AudioEngine.playClap) window.AudioEngine.playClap();
+      else if (window.AudioEngine.playHydraulicClick) window.AudioEngine.playHydraulicClick();
+    }
+    this.rightArm.hand.rotation.x = 0.8;
+    setTimeout(() => {
+      this.rightArm.hand.rotation.x = -0.25;
+      this.currentAction = null;
+    }, 600);
+  }
+
+  resetCameraView() {
+    this.targetCameraDistance = 4.2;
+    this.targetRotationX = 0.05;
+    this.targetRotationY = 0;
+    this.cameraLookTarget.set(0, 0.1, 0);
+  }
+
+  setCameraView(mode) {
+    if (mode === "command" || mode === "full") {
+      this.targetCameraDistance = 4.2;
+      this.targetRotationX = 0.05;
+      this.targetRotationY = 0;
       this.cameraLookTarget.set(0, 0.1, 0);
+    } else if (mode === "eyes") {
+      this.targetCameraDistance = 1.9;
+      this.targetRotationX = 0.0;
+      this.targetRotationY = 0;
+      this.cameraLookTarget.set(0, 0.78, 0);
+    } else if (mode === "hands") {
+      this.targetCameraDistance = 2.1;
+      this.targetRotationX = 0.15;
+      this.targetRotationY = 0;
+      this.cameraLookTarget.set(0, 0.05, 0);
     }
-    return this.isOrbiting;
-  }
-
-  toggleHoloStage() {
-    this.holoStageVisible = !this.holoStageVisible;
-    if (this.holoStageGroup) this.holoStageGroup.visible = this.holoStageVisible;
-    if (this.holoGyroRing) this.holoGyroRing.visible = this.holoStageVisible;
-    if (this.holoParticles) this.holoParticles.visible = this.holoStageVisible;
-    return this.holoStageVisible;
-  }
-
-  onMouseMove(e) {
-    const rect = this.container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    this.mouse.targetX = (x / rect.width) * 2 - 1;
-    this.mouse.targetY = -(y / rect.height) * 2 + 1;
   }
 
   pokeRobot() {
@@ -759,33 +1144,26 @@ class Robot3D {
     }, 1200);
   }
 
-  triggerWave() {
-    this.isWaving = true;
-    this.waveTimer = 0;
-    this.setExpression("happy");
-    if (window.AudioEngine) window.AudioEngine.playRobotChirp();
-  }
-
   setExpression(expr) {
     this.expression = expr;
     const p = this.themes[this.currentTheme];
 
     if (expr === "happy") {
-      this.matPupil.color.setHex(0x22c55e); // Bright emerald happy eyes
+      this.matPupil.color.setHex(0x22c55e); // Bright emerald
       if (this.leftBrow) this.leftBrow.rotation.z = -0.25;
       if (this.rightBrow) this.rightBrow.rotation.z = 0.25;
     } else if (expr === "thinking") {
-      this.matPupil.color.setHex(0xf59e0b); // Amber thinking eyes
-      if (this.leftBrow) this.leftBrow.rotation.z = 0.2;
-      if (this.rightBrow) this.rightBrow.rotation.z = -0.2;
-    } else if (expr === "surprised") {
-      this.matPupil.color.setHex(0xec4899); // Neon pink surprise
-      if (this.leftBrow) this.leftBrow.position.y = 0.24;
-      if (this.rightBrow) this.rightBrow.position.y = 0.24;
+      this.matPupil.color.setHex(0xf59e0b); // Amber
+      if (this.leftBrow) this.leftBrow.rotation.z = 0.20;
+      if (this.rightBrow) this.rightBrow.rotation.z = -0.20;
+    } else if (expr === "speaking") {
+      this.matPupil.color.setHex(p.pupilColor);
+      if (this.speechLED) this.speechLED.material.emissiveIntensity = 1.8;
     } else {
       this.matPupil.color.setHex(p.pupilColor);
-      if (this.leftBrow) { this.leftBrow.rotation.z = -0.08; this.leftBrow.position.y = 0.21; }
-      if (this.rightBrow) { this.rightBrow.rotation.z = 0.08; this.rightBrow.position.y = 0.21; }
+      if (this.leftBrow) { this.leftBrow.rotation.z = -0.10; }
+      if (this.rightBrow) { this.rightBrow.rotation.z = 0.10; }
+      if (this.speechLED) this.speechLED.material.emissiveIntensity = 0.9;
     }
   }
 
@@ -798,22 +1176,6 @@ class Robot3D {
     }, duration);
   }
 
-  setCameraView(mode) {
-    if (mode === "command" || mode === "full") {
-      // Cinematic Full View: Showcases head, glowing eyes, chest reactor, and both 5-digit hands
-      this.cameraTargetPos.set(0, 0.25, 4.2);
-      this.cameraLookTarget.set(0, 0.1, 0);
-    } else if (mode === "eyes" || mode === "core") {
-      // Detailed Close-up on the Head & Glowing Eyes
-      this.cameraTargetPos.set(0, 0.78, 2.1);
-      this.cameraLookTarget.set(0, 0.78, 0);
-    } else if (mode === "hands") {
-      // Detailed Close-up on the 5-Digit Articulated Hands
-      this.cameraTargetPos.set(0, 0.05, 2.2);
-      this.cameraLookTarget.set(0, 0.0, 0);
-    }
-  }
-
   onResize() {
     if (!this.container || !this.renderer || !this.camera) return;
     const w = this.container.clientWidth;
@@ -823,159 +1185,203 @@ class Robot3D {
     this.renderer.setSize(w, h);
   }
 
+  updateCameraPosition() {
+    // Spherical orbit calculation based on user drag & zoom
+    this.cameraDistance += (this.targetCameraDistance - this.cameraDistance) * 0.08;
+    this.cameraRotationX += (this.targetRotationX - this.cameraRotationX) * 0.08;
+    this.cameraRotationY += (this.targetRotationY - this.cameraRotationY) * 0.08;
+
+    const cx = this.cameraDistance * Math.sin(this.cameraRotationY) * Math.cos(this.cameraRotationX);
+    const cy = this.cameraDistance * Math.sin(this.cameraRotationX) + this.cameraLookTarget.y;
+    const cz = this.cameraDistance * Math.cos(this.cameraRotationY) * Math.cos(this.cameraRotationX);
+
+    this.camera.position.set(cx, cy, cz);
+    this.camera.lookAt(this.cameraLookTarget);
+  }
+
   animate() {
     requestAnimationFrame(() => this.animate());
 
     const delta = this.clock.getDelta();
     const time = this.clock.getElapsedTime();
 
-    // 1. Camera Handling (Cinematic Auto-Orbit vs Smooth Lerp Focus)
-    if (this.isOrbiting) {
-      this.orbitAngle += delta * 0.72;
-      const radius = 4.2;
-      this.camera.position.x = Math.sin(this.orbitAngle) * radius;
-      this.camera.position.z = Math.cos(this.orbitAngle) * radius;
-      this.camera.position.y = 0.25 + Math.sin(this.orbitAngle * 1.6) * 0.18;
-      this.camera.lookAt(this.cameraLookTarget);
-    } else {
-      this.camera.position.lerp(this.cameraTargetPos, 0.06);
-      this.camera.lookAt(this.cameraLookTarget);
-    }
+    // 1. Camera Orbit & Zoom Update
+    this.updateCameraPosition();
 
-    // 2. Mouse Cursor Damping
+    // 2. Mouse Damping for head IK
     this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.08;
     this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.08;
 
-    // 3. Head Inverse Kinematics Gaze Tracking
-    if (this.headGroup) {
-      this.headGroup.rotation.y = this.mouse.x * 0.55;
-      this.headGroup.rotation.x = -this.mouse.y * 0.35;
+    // 3. Head & Eyes Cursor Tracking
+    if (this.headGroup && !this.isDragging) {
+      this.headGroup.rotation.y = this.mouse.x * 0.45;
+      this.headGroup.rotation.x = -this.mouse.y * 0.30;
     }
 
-    // 4. Clear 3D Eyes Physical Gaze & Pupil Tracking
     if (this.leftEye && this.rightEye) {
-      const gazeX = this.mouse.x * 0.035;
-      const gazeY = this.mouse.y * 0.025;
+      const gx = this.mouse.x * 0.035;
+      const gy = this.mouse.y * 0.025;
 
       if (this.leftEye.userData.pupil) {
-        this.leftEye.userData.pupil.position.x = gazeX;
-        this.leftEye.userData.pupil.position.y = gazeY;
+        this.leftEye.userData.pupil.position.x = gx;
+        this.leftEye.userData.pupil.position.y = gy;
       }
       if (this.rightEye.userData.pupil) {
-        this.rightEye.userData.pupil.position.x = gazeX;
-        this.rightEye.userData.pupil.position.y = gazeY;
+        this.rightEye.userData.pupil.position.x = gx;
+        this.rightEye.userData.pupil.position.y = gy;
       }
 
-      // Smooth Natural Blinking Animation
-      const blinkCycle = Math.sin(time * 1.6);
-      if (blinkCycle > 0.96) {
-        // Smooth lid closure
+      // Natural Eye Blinking
+      const blink = Math.sin(time * 1.6);
+      if (blink > 0.96) {
         this.leftEye.userData.eyelid.rotation.x = 0;
         this.rightEye.userData.eyelid.rotation.x = 0;
       } else {
-        this.leftEye.userData.eyelid.rotation.x = -Math.PI / 2; // open
+        this.leftEye.userData.eyelid.rotation.x = -Math.PI / 2;
         this.rightEye.userData.eyelid.rotation.x = -Math.PI / 2;
       }
     }
 
-    // 5. Floating Hover Motion
+    // 4. Subtle Humanoid Breathing & Idle Weight Shifting
     if (this.robotGroup) {
-      const hoverSpeed = this.isOverdrive ? 4.0 : 1.8;
-      const hoverY = Math.sin(time * hoverSpeed) * (this.isOverdrive ? 0.09 : 0.045);
-      this.robotGroup.position.y = hoverY;
+      const breath = Math.sin(time * 2.0) * 0.015;
+      if (this.torsoGroup) this.torsoGroup.position.y = 0.15 + breath;
+      if (this.headGroup) this.headGroup.position.y = 0.78 + breath;
 
-      if (this.isPoked) {
-        this.robotGroup.rotation.y += delta * 8;
-      } else {
-        this.robotGroup.rotation.y += (this.mouse.x * 0.18 - this.robotGroup.rotation.y) * 0.05;
+      // Subtle weight shift between left and right foot
+      if (this.leftLeg && this.rightLeg) {
+        this.leftLeg.thigh.rotation.z = Math.sin(time * 1.2) * 0.02;
+        this.rightLeg.thigh.rotation.z = -Math.sin(time * 1.2) * 0.02;
       }
     }
 
-    // 6. Natural Articulated Arms & Hand Postures
-    if (this.leftArm && this.rightArm) {
-      if (this.isWaving) {
-        // Active Right Hand Wave Greeting Animation
-        this.waveTimer += delta;
-        this.rightArm.upperArm.rotation.z = -1.1; // raise arm up
-        this.rightArm.upperArm.rotation.x = 0.3;
-        this.rightArm.forearm.rotation.x = -1.8; // raise forearm up near head
-        this.rightArm.hand.rotation.x = 0.5;
-        this.rightArm.hand.rotation.y = Math.sin(this.waveTimer * 10) * 0.45; // wave side to side
+    // 5. Speech Bar Pulsing
+    if (this.speechLED && this.expression === "speaking") {
+      const pulse = Math.abs(Math.sin(time * 14)) * 0.15 + 0.1;
+      this.speechLED.scale.set(1 + pulse, 1 + pulse, 1);
+    }
 
-        if (this.waveTimer > 2.0) {
-          this.isWaving = false;
+    // 6. Action Gestures State Machine
+    if (this.leftArm && this.rightArm) {
+      if (this.currentAction === "hello") {
+        this.actionTimer += delta;
+        // Right hand waves high
+        this.rightArm.upperArm.rotation.z = -1.15;
+        this.rightArm.upperArm.rotation.x = 0.35;
+        this.rightArm.forearm.rotation.x = -1.8;
+        this.rightArm.hand.rotation.x = 0.5;
+        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 10) * 0.45;
+
+        if (this.actionTimer > 3.0) {
+          this.currentAction = null;
+          this.setExpression("idle");
+        }
+      } else if (this.currentAction === "bye") {
+        this.actionTimer += delta;
+        // Gentle farewell sway
+        this.rightArm.upperArm.rotation.z = -1.0;
+        this.rightArm.forearm.rotation.x = -1.5;
+        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 4) * 0.3;
+
+        if (this.actionTimer > 3.0) {
+          this.currentAction = null;
+          this.setExpression("idle");
+        }
+      } else if (this.currentAction === "hifi") {
+        // High-five ready stance: palm facing straight toward viewer at eye height
+        this.rightArm.upperArm.rotation.z = -0.5;
+        this.rightArm.upperArm.rotation.x = 0.7;
+        this.rightArm.forearm.rotation.x = -0.6;
+        this.rightArm.hand.rotation.x = 0.9;
+        this.rightArm.hand.rotation.y = 0.0;
+      } else if (this.currentAction === "kiss") {
+        this.actionTimer += delta;
+        if (this.actionTimer < 1.0) {
+          // Bring hand to mouth
+          this.rightArm.upperArm.rotation.z = -0.4;
+          this.rightArm.upperArm.rotation.x = 0.8;
+          this.rightArm.forearm.rotation.x = -2.1;
+          this.rightArm.hand.rotation.x = 0.6;
+        } else if (this.actionTimer < 3.2) {
+          // Open hand outward blowing kiss toward user
+          this.rightArm.forearm.rotation.x = -0.8;
+          this.rightArm.hand.rotation.x = 0.4;
+          this.rightArm.hand.rotation.y = Math.sin(time * 3) * 0.15;
+        } else {
+          this.currentAction = null;
+          this.setExpression("idle");
+        }
+      } else if (this.currentAction === "salute") {
+        this.actionTimer += delta;
+        // Sharp military salute: fingertips touch right temple/brow
+        this.rightArm.upperArm.rotation.z = -1.2;
+        this.rightArm.upperArm.rotation.x = 0.4;
+        this.rightArm.forearm.rotation.x = -2.35;
+        this.rightArm.hand.rotation.x = 0.2;
+        this.rightArm.hand.rotation.z = 0.3;
+
+        if (this.actionTimer > 2.5) {
+          this.currentAction = null;
           this.setExpression("idle");
         }
       } else if (this.expression === "speaking") {
         // Conversational Gesturing: Both hands articulate in rhythm
-        const speakWave = Math.sin(time * 5) * 0.12;
-        this.leftArm.forearm.rotation.x = -1.15 + speakWave;
-        this.rightArm.forearm.rotation.x = -1.15 - speakWave;
+        const wave = Math.sin(time * 5) * 0.12;
+        this.leftArm.forearm.rotation.x = -1.1 + wave;
+        this.rightArm.forearm.rotation.x = -1.1 - wave;
         this.leftArm.hand.rotation.y = 0.4 + Math.sin(time * 4) * 0.15;
         this.rightArm.hand.rotation.y = -0.4 - Math.sin(time * 4) * 0.15;
-      } else if (this.expression === "thinking") {
-        // Thinking posture: Right hand taps chin/chest thoughtfully
-        this.rightArm.forearm.rotation.x = -1.5;
-        this.rightArm.forearm.rotation.y = -0.6;
-        this.leftArm.forearm.rotation.x = -1.1;
       } else {
-        // Relaxed Idle Breathing: Gentle arm sway
-        const breathe = Math.sin(time * 1.8) * 0.04;
+        // Default Stance: Both hands elevated at chest level
+        const breathe = Math.sin(time * 1.8) * 0.03;
         this.leftArm.upperArm.rotation.x = 0.25 + breathe;
         this.rightArm.upperArm.rotation.x = 0.25 + breathe;
         this.leftArm.forearm.rotation.x = -1.15 + breathe;
         this.rightArm.forearm.rotation.x = -1.15 + breathe;
+        this.rightArm.upperArm.rotation.z = -0.12;
+        this.rightArm.hand.rotation.x = -0.25;
         this.rightArm.hand.rotation.y = -0.4;
       }
     }
 
-    // 7. Clear 5-Digit Finger Articulations
-    const fingerBaseCurl = Math.sin(time * 2.2) * 0.12 + 0.18;
+    // 7. Clear 5-Digit Finger Articulation
+    const fingerCurl = Math.sin(time * 2.2) * 0.12 + 0.18;
     this.leftFingers.forEach((f, i) => {
-      f.rotation.x = fingerBaseCurl + i * 0.03;
+      f.rotation.x = fingerCurl + i * 0.03;
     });
     this.rightFingers.forEach((f, i) => {
-      if (this.isWaving) {
-        // Dynamic finger flexing during wave
-        f.rotation.x = Math.sin(time * 8 + i) * 0.2 + 0.1;
+      if (this.currentAction === "hifi" || this.currentAction === "salute") {
+        f.rotation.x = 0.02; // Flat straight fingers for high-five or salute
       } else {
-        f.rotation.x = fingerBaseCurl + i * 0.03;
+        f.rotation.x = fingerCurl + i * 0.03;
       }
     });
 
-    // 8. Core Pulse & Thruster Particles
+    // 8. Animate Floating 3D Hearts (Flying Kiss Action)
+    for (let i = this.heartParticles.length - 1; i >= 0; i--) {
+      const h = this.heartParticles[i];
+      h.position.x += h.userData.vx * delta;
+      h.position.y += h.userData.vy * delta;
+      h.position.z += h.userData.vz * delta;
+      h.userData.life -= delta * 0.45;
+      h.scale.multiplyScalar(0.99);
+
+      if (h.userData.life <= 0) {
+        this.scene.remove(h);
+        this.heartParticles.splice(i, 1);
+      }
+    }
+
+    // 9. Quantum Core Pulse
     if (this.coreMesh) {
       const pulseRate = this.isOverdrive ? 8.0 : 3.5;
-      const scale = 1.0 + Math.sin(time * pulseRate) * 0.12;
-      this.coreMesh.scale.set(scale, scale, 1);
+      const s = 1.0 + Math.sin(time * pulseRate) * 0.12;
+      this.coreMesh.scale.set(s, s, 1);
     }
 
-    if (this.thrusterParticles) {
-      const pos = this.thrusterParticles.geometry.attributes.position;
-      for (let i = 0; i < pos.count; i++) {
-        let py = pos.getY(i) - delta * 1.4;
-        if (py < -0.55) py = -0.08;
-        pos.setY(i, py);
-      }
-      this.thrusterParticles.geometry.attributes.position.needsUpdate = true;
-    }
-
-    // 9. 3D Holographic Stage Frame & Gyroscope Animation
-    if (this.holoStageGroup) {
-      this.holoStageGroup.rotation.y += delta * 0.45;
-    }
-    if (this.holoGyroRing) {
-      this.holoGyroRing.rotation.z += delta * 0.28;
-      this.holoGyroRing.rotation.x = 0.35 + Math.sin(time * 0.9) * 0.12;
-    }
-    if (this.holoParticles) {
-      const pos = this.holoParticles.geometry.attributes.position;
-      for (let i = 0; i < pos.count; i++) {
-        let py = pos.getY(i) + delta * 0.24;
-        if (py > 2.2) py = -1.5;
-        pos.setY(i, py);
-      }
-      this.holoParticles.geometry.attributes.position.needsUpdate = true;
+    // 10. Hologram Ring Spin
+    if (this.holoStage) {
+      this.holoStage.rotation.y += delta * 0.2;
     }
 
     this.renderer.render(this.scene, this.camera);
