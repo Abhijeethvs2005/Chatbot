@@ -5,13 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chatbot Abhi • 3D Robot System & Educational AI Companion</title>
   
-  <!-- KaTeX for Rigorous Mathematical Equations -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <!-- KaTeX for Rigorous Mathematical Equations (Local + CDN fallback) -->
+  <link rel="stylesheet" href="/static/vendor/katex.min.css">
+  <script src="/static/vendor/katex.min.js"></script>
+  <script src="/static/vendor/auto-render.min.js"></script>
 
-  <!-- Three.js 3D WebGL Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js 3D WebGL Library (Local + CDN Fallback) -->
+  <script src="/static/vendor/three.min.js"></script>
+  <script>
+    if (typeof THREE === 'undefined') {
+      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>');
+    }
+  </script>
 
   <!-- Robot System Stylesheet -->
   <link rel="stylesheet" href="/static/css/style.css">

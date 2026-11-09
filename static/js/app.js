@@ -5,9 +5,16 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. Initialize 3D Robot
-  const robot = new Robot3D("robot-viewport");
-  window.robotInstance = robot;
+  // 1. Initialize 3D Robot safely
+  let robot = null;
+  try {
+    if (typeof Robot3D !== "undefined") {
+      robot = new Robot3D("robot-viewport");
+      window.robotInstance = robot;
+    }
+  } catch (err) {
+    console.warn("3D Robot System loaded in fallback mode:", err);
+  }
 
   // 2. Application State
   const state = {
@@ -77,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
       else document.body.classList.add("theme-cyber");
 
       // Update 3D Robot Materials
-      robot.setTheme(themeKey);
+      if (robot) robot.setTheme(themeKey);
       window.AudioEngine.playHydraulicClick();
     });
   });
@@ -86,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const overdriveBtn = document.getElementById("overdrive-btn");
   if (overdriveBtn) {
     overdriveBtn.addEventListener("click", () => {
-      robot.triggerOverdrive(3500);
+      if (robot) robot.triggerOverdrive(3500);
       window.AudioEngine.playServoHum();
     });
   }
@@ -94,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const camCommandBtn = document.getElementById("cam-command-btn");
   if (camCommandBtn) {
     camCommandBtn.addEventListener("click", () => {
-      robot.setCameraView("command");
+      if (robot) robot.setCameraView("command");
       window.AudioEngine.playHydraulicClick();
     });
   }
@@ -102,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const camCoreBtn = document.getElementById("cam-core-btn");
   if (camCoreBtn) {
     camCoreBtn.addEventListener("click", () => {
-      robot.setCameraView("core");
+      if (robot) robot.setCameraView("core");
       window.AudioEngine.playHydraulicClick();
     });
   }
@@ -118,8 +125,8 @@ document.addEventListener("DOMContentLoaded", () => {
       pill.classList.add("active");
       state.subject = pill.dataset.subject || "General";
       window.AudioEngine.playClick();
-      robot.setExpression("happy");
-      setTimeout(() => robot.setExpression("idle"), 800);
+      if (robot) robot.setExpression("happy");
+      setTimeout(() => { if (robot) robot.setExpression("idle"); }, 800);
     });
   });
 
@@ -160,9 +167,9 @@ document.addEventListener("DOMContentLoaded", () => {
       window.AudioEngine.playClick();
       if (enabled) {
         window.AudioEngine.speak("Voice output enabled! Ask me anything.", () => {
-          robot.setExpression("speaking");
+          if (robot) robot.setExpression("speaking");
         }, () => {
-          robot.setExpression("idle");
+          if (robot) robot.setExpression("idle");
         });
       }
     });
@@ -176,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
         micBtn.classList.remove("listening");
       } else {
         micBtn.classList.add("listening");
-        robot.setExpression("surprised");
+        if (robot) robot.setExpression("surprised");
         window.AudioEngine.startListening(
           (transcript) => {
             chatInput.value = transcript;
@@ -185,11 +192,11 @@ document.addEventListener("DOMContentLoaded", () => {
           },
           () => {
             micBtn.classList.remove("listening");
-            robot.setExpression("idle");
+            if (robot) robot.setExpression("idle");
           },
           (err) => {
             micBtn.classList.remove("listening");
-            robot.setExpression("idle");
+            if (robot) robot.setExpression("idle");
             console.warn("Speech error:", err);
           }
         );
@@ -218,8 +225,10 @@ document.addEventListener("DOMContentLoaded", () => {
     appendMessage("user", text);
 
     // Robot Reacts: Thinking & Overdrive State
-    robot.setExpression("thinking");
-    robot.triggerOverdrive(2200);
+    if (robot) {
+      robot.setExpression("thinking");
+      robot.triggerOverdrive(2200);
+    }
     window.AudioEngine.playThinking();
 
     const startTime = performance.now();
@@ -229,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (localMatch) {
       const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
-      updateLatencyBadge(elapsed, "Nova Academic Engine (Sub-10ms Verified)");
+      updateLatencyBadge(elapsed, "Chatbot Abhi Academic Engine (Sub-10ms Verified)");
 
       // Format response based on mode
       const formattedHtml = formatAcademicTopic(localMatch, state.mode);
@@ -237,10 +246,19 @@ document.addEventListener("DOMContentLoaded", () => {
       // Simulate ultra-smooth typing effect (under 40ms total)
       const botMsgElement = appendMessage("bot", "", localMatch);
       streamTextToElement(botMsgElement, formattedHtml, () => {
-        robot.setExpression("speaking");
+        if (robot) robot.setExpression("speaking");
         window.AudioEngine.playClick();
         
         // Voice reading if enabled
+        if (window.AudioEngine.voiceEnabled) {
+          window.AudioEngine.speak(localMatch.core, () => {
+            if (robot) robot.setExpression("speaking");
+          }, () => {
+            if (robot) robot.setExpression("idle");
+          });
+        } else {
+          setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
+        }
         if (window.AudioEngine.voiceEnabled) {
           window.AudioEngine.speak(localMatch.core, () => {
             robot.setExpression("speaking");
@@ -319,7 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
 
               if (data.done) {
-                robot.setExpression("idle");
+                if (robot) robot.setExpression("idle");
               }
             } catch (err) {
               // ignore parse errors on partial chunks
@@ -357,7 +375,7 @@ Avoid skipping steps! Most lost marks occur during elementary algebraic manipula
 
       const botMsgElement = appendMessage("bot", "");
       streamTextToElement(botMsgElement, markedParse(fallbackMsg), () => {
-        robot.setExpression("idle");
+        if (robot) robot.setExpression("idle");
         MathGrapher.renderMath(botMsgElement);
       });
       addXP(10);
@@ -533,7 +551,7 @@ Avoid skipping steps! Most lost marks occur during elementary algebraic manipula
           feedbackDiv.innerHTML = `🎉 <strong>Spot on! (+25 XP)</strong><br>${topic.quiz.explanation}`;
           feedbackDiv.style.display = "block";
           window.AudioEngine.playQuizSuccess();
-          robot.setExpression("happy");
+          if (robot) robot.setExpression("happy");
           addXP(25);
         } else {
           btn.classList.add("incorrect");
@@ -542,7 +560,7 @@ Avoid skipping steps! Most lost marks occur during elementary algebraic manipula
           feedbackDiv.innerHTML = `❌ <strong>Not quite:</strong><br>${topic.quiz.explanation}`;
           feedbackDiv.style.display = "block";
           window.AudioEngine.playQuizError();
-          robot.setExpression("surprised");
+          if (robot) robot.setExpression("surprised");
         }
       });
     });
@@ -553,7 +571,7 @@ Avoid skipping steps! Most lost marks occur during elementary algebraic manipula
   if (closeQuizBtn) {
     closeQuizBtn.addEventListener("click", () => {
       quizModal.classList.remove("open");
-      robot.setExpression("idle");
+      if (robot) robot.setExpression("idle");
     });
   }
 

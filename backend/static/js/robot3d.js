@@ -549,7 +549,7 @@ class Robot3D {
 
     // Articulated fingers
     [-0.07, 0.07].forEach((fOffset) => {
-      const finger = new THREE.Mesh(new THREE.CapsuleGeometry(0.032, 0.09, 8, 8), this.armorMaterial);
+      const finger = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.09, 12), this.armorMaterial);
       finger.position.set(fOffset, -0.06, 0.18);
       finger.rotation.x = 0.45;
       handGroup.add(finger);
