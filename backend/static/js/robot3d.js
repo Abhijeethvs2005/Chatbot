@@ -1432,111 +1432,263 @@ class Robot3D {
     const isLeft = side === "left";
     const handGroup = new THREE.Group();
 
-    // 1. Natural Human Palm Base in matSkin
-    const palm = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.13, 0.042), this.matSkin);
-    palm.position.set(0, -0.06, 0);
+    // 1. Natural Sculpted Human Palm
+    // Trapezoidal palm base tapering gracefully from knuckles to wrist
+    const palmGeo = new THREE.BoxGeometry(0.132, 0.125, 0.038);
+    const palm = new THREE.Mesh(palmGeo, this.matSkin);
+    palm.position.set(0, -0.062, 0);
     handGroup.add(palm);
 
-    // Thenar Eminence (Thumb base muscle cushion)
-    const thenar = new THREE.Mesh(new THREE.SphereGeometry(0.038, 12, 12), this.matSkin);
-    thenar.scale.set(1.2, 1.4, 0.9);
-    thenar.position.set(isLeft ? 0.05 : -0.05, -0.045, 0.014);
+    // Thenar Eminence (fleshy teardrop cushion at the base of the thumb)
+    const thenarGeo = new THREE.SphereGeometry(0.036, 14, 14);
+    thenarGeo.scale(1.18, 1.48, 0.92);
+    const thenar = new THREE.Mesh(thenarGeo, this.matSkin);
+    thenar.position.set(isLeft ? 0.046 : -0.046, -0.048, 0.012);
     handGroup.add(thenar);
 
-    // Hypothenar Eminence (Outer palm pad)
-    const hypothenar = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 12), this.matSkin);
-    hypothenar.scale.set(1.0, 1.5, 0.8);
-    hypothenar.position.set(isLeft ? -0.05 : 0.05, -0.055, 0.012);
+    // Hypothenar Eminence (elongated muscular mound on outer/ulnar edge of palm)
+    const hypothenarGeo = new THREE.SphereGeometry(0.030, 12, 12);
+    hypothenarGeo.scale(0.95, 1.55, 0.82);
+    const hypothenar = new THREE.Mesh(hypothenarGeo, this.matSkin);
+    hypothenar.position.set(isLeft ? -0.046 : 0.046, -0.058, 0.010);
     handGroup.add(hypothenar);
 
-    // Glowing Palm Repulsor Core nestled neatly in the center of the palm
-    const repulsorRim = new THREE.Mesh(new THREE.TorusGeometry(0.024, 0.005, 12, 24), this.matChrome);
-    repulsorRim.position.set(0, -0.06, 0.024);
-    handGroup.add(repulsorRim);
+    // Palmar Hollow & Life Line (Thenar Flexion Crease)
+    const creaseGeo = new THREE.TorusGeometry(0.042, 0.0022, 8, 16, Math.PI * 0.55);
+    const lifeLine = new THREE.Mesh(creaseGeo, this.matSkinShadow);
+    lifeLine.position.set(isLeft ? 0.018 : -0.018, -0.052, 0.019);
+    lifeLine.rotation.z = isLeft ? 0.45 : -0.45;
+    handGroup.add(lifeLine);
 
-    const repulsorCore = new THREE.Mesh(new THREE.CircleGeometry(0.021, 16), this.matAccent);
-    repulsorCore.position.set(0, -0.06, 0.026);
-    handGroup.add(repulsorCore);
+    // Palmar Head & Heart Creases (transverse flexure lines across mid palm)
+    const midCreaseGeo = new THREE.CylinderGeometry(0.0018, 0.0018, 0.075, 8);
+    const midCrease = new THREE.Mesh(midCreaseGeo, this.matSkinShadow);
+    midCrease.position.set(0, -0.078, 0.019);
+    midCrease.rotation.z = isLeft ? 0.18 : -0.18;
+    midCrease.rotation.x = Math.PI / 2;
+    handGroup.add(midCrease);
+
+    // Dorsal Extensor Tendons (4 subtle anatomical ridges on back of hand running to knuckles)
+    [-0.042, -0.014, 0.014, 0.042].forEach((tx) => {
+      const tendonGeo = new THREE.CylinderGeometry(0.0022, 0.0016, 0.105, 8);
+      const tendon = new THREE.Mesh(tendonGeo, this.matSkinShadow);
+      tendon.position.set(tx * 0.78, -0.058, -0.019);
+      tendon.rotation.z = (tx / 0.042) * (isLeft ? -0.06 : 0.06);
+      handGroup.add(tendon);
+    });
+
+    // 4 Articulated Human Fingers along natural curved knuckle arch
+    // Specs for 4 fingers: Index, Middle (longest), Ring, Pinky (shortest, lower set)
+    const specs = [
+      { name: "index",  x: isLeft ? 0.042 : -0.042, len: 0.126, yArch: 0.003, zArch: 0.001, spread: isLeft ? 0.07 : -0.07, r: 0.0120 },
+      { name: "middle", x: isLeft ? 0.014 : -0.014, len: 0.140, yArch: 0.008, zArch: 0.003, spread: 0.0,                  r: 0.0125 },
+      { name: "ring",   x: isLeft ? -0.014 : 0.014, len: 0.130, yArch: 0.004, zArch: 0.001, spread: isLeft ? -0.04 : 0.04,  r: 0.0118 },
+      { name: "pinky",  x: isLeft ? -0.042 : 0.042, len: 0.104, yArch: -0.006, zArch: -0.003, spread: isLeft ? -0.09 : 0.09, r: 0.0105 }
+    ];
 
     const fingers = [];
 
-    // 4 Articulated Human Fingers along natural curved knuckle arch
-    const specs = [
-      { name: "index",  x: isLeft ? 0.042 : -0.042, len: 0.125, yArch: 0.003 },
-      { name: "middle", x: isLeft ? 0.014 : -0.014, len: 0.138, yArch: 0.009 }, // Longest finger
-      { name: "ring",   x: isLeft ? -0.014 : 0.014, len: 0.128, yArch: 0.004 },
-      { name: "pinky",  x: isLeft ? -0.042 : 0.042, len: 0.104, yArch: -0.006 } // Shortest finger
-    ];
-
-    specs.forEach((s) => {
+    specs.forEach((s, idx) => {
+      // 1. Root Group at MCP Knuckle
       const fGroup = new THREE.Group();
-      fGroup.position.set(s.x, -0.12 + s.yArch, 0);
+      fGroup.position.set(s.x, -0.118 + s.yArch, s.zArch);
+      fGroup.rotation.z = s.spread; // Natural resting finger spread / splay
 
-      // Metacarpophalangeal (MCP) Knuckle in matSkin
-      const knuckle = new THREE.Mesh(new THREE.SphereGeometry(0.015, 12, 12), this.matSkin);
-      fGroup.add(knuckle);
+      // Metacarpophalangeal (MCP) Knuckle Prominence
+      const mcpKnuckle = new THREE.Mesh(new THREE.SphereGeometry(s.r * 1.15, 14, 14), this.matSkin);
+      fGroup.add(mcpKnuckle);
 
-      // Proximal Phalanx
+      // Proximal Phalanx (P1)
       const p1Len = s.len * 0.44;
-      const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.0125, 0.011, p1Len, 10), this.matSkin);
-      p1.position.set(0, -p1Len / 2, 0.003);
+      const p1Geo = new THREE.CylinderGeometry(s.r * 0.92, s.r * 0.84, p1Len, 12);
+      const p1 = new THREE.Mesh(p1Geo, this.matSkin);
+      p1.position.set(0, -p1Len / 2, 0);
       fGroup.add(p1);
 
-      // Interphalangeal Joint (PIP)
-      const pip = new THREE.Mesh(new THREE.SphereGeometry(0.0115, 10, 10), this.matSkin);
-      pip.position.set(0, -p1Len, 0.005);
-      fGroup.add(pip);
+      // Palmar Pad on P1 (volar side +Z)
+      const p1PadGeo = new THREE.SphereGeometry(s.r * 0.78, 10, 10);
+      p1PadGeo.scale(0.85, 1.8, 0.45);
+      const p1Pad = new THREE.Mesh(p1PadGeo, this.matSkin);
+      p1Pad.position.set(0, -p1Len / 2, s.r * 0.42);
+      fGroup.add(p1Pad);
 
-      // Intermediate & Distal Phalanx with realistic pad
-      const p2Len = s.len * 0.40;
-      const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.0095, p2Len, 10), this.matSkin);
-      p2.position.set(0, -p1Len - p2Len / 2, 0.010);
-      p2.rotation.x = 0.12;
-      fGroup.add(p2);
+      // 2. Proximal Interphalangeal (PIP) Joint Group
+      const pipGroup = new THREE.Group();
+      pipGroup.position.set(0, -p1Len, 0);
 
-      // Natural Human Fingertip Pad
-      const tipPad = new THREE.Mesh(new THREE.SphereGeometry(0.0095, 10, 10), this.matSkin);
-      tipPad.position.set(0, -p1Len - p2Len - 0.004, 0.016);
-      fGroup.add(tipPad);
+      // PIP Knuckle Joint Node
+      const pipKnuckle = new THREE.Mesh(new THREE.SphereGeometry(s.r * 0.95, 12, 12), this.matSkin);
+      pipGroup.add(pipKnuckle);
 
-      // Natural Groomed Fingernail (Dorsal side of fingertip)
-      const nail = new THREE.Mesh(new THREE.BoxGeometry(0.011, 0.014, 0.004), this.matNails);
-      nail.position.set(0, -p1Len - p2Len - 0.002, 0.024);
-      nail.rotation.x = 0.12;
-      fGroup.add(nail);
+      // Volar Flexion Crease at PIP (palmar side +Z)
+      const pipCrease = new THREE.Mesh(new THREE.CylinderGeometry(0.0014, 0.0014, s.r * 1.6, 8), this.matSkinShadow);
+      pipCrease.position.set(0, 0, s.r * 0.65);
+      pipCrease.rotation.z = Math.PI / 2;
+      pipGroup.add(pipCrease);
 
+      // Intermediate Phalanx (P2)
+      const p2Len = s.len * 0.31;
+      const p2Geo = new THREE.CylinderGeometry(s.r * 0.82, s.r * 0.74, p2Len, 12);
+      const p2 = new THREE.Mesh(p2Geo, this.matSkin);
+      p2.position.set(0, -p2Len / 2, 0);
+      pipGroup.add(p2);
+
+      // Palmar Pad on P2 (volar side +Z)
+      const p2PadGeo = new THREE.SphereGeometry(s.r * 0.70, 10, 10);
+      p2PadGeo.scale(0.82, 1.7, 0.42);
+      const p2Pad = new THREE.Mesh(p2PadGeo, this.matSkin);
+      p2Pad.position.set(0, -p2Len / 2, s.r * 0.38);
+      pipGroup.add(p2Pad);
+
+      // 3. Distal Interphalangeal (DIP) Joint Group
+      const dipGroup = new THREE.Group();
+      dipGroup.position.set(0, -p2Len, 0);
+
+      // DIP Knuckle Joint Node
+      const dipKnuckle = new THREE.Mesh(new THREE.SphereGeometry(s.r * 0.80, 12, 12), this.matSkin);
+      dipGroup.add(dipKnuckle);
+
+      // Volar Flexion Crease at DIP (palmar side +Z)
+      const dipCrease = new THREE.Mesh(new THREE.CylinderGeometry(0.0012, 0.0012, s.r * 1.4, 8), this.matSkinShadow);
+      dipCrease.position.set(0, 0, s.r * 0.55);
+      dipCrease.rotation.z = Math.PI / 2;
+      dipGroup.add(dipCrease);
+
+      // Distal Phalanx (P3)
+      const p3Len = s.len * 0.25;
+      const p3Geo = new THREE.CylinderGeometry(s.r * 0.72, s.r * 0.58, p3Len, 12);
+      const p3 = new THREE.Mesh(p3Geo, this.matSkin);
+      p3.position.set(0, -p3Len / 2, 0);
+      dipGroup.add(p3);
+
+      // Natural Human Fingertip Pulp Pad (fleshy tactile pad on palmar side +Z)
+      const pulpPadGeo = new THREE.SphereGeometry(s.r * 0.68, 12, 12);
+      pulpPadGeo.scale(0.95, 1.35, 0.65);
+      const pulpPad = new THREE.Mesh(pulpPadGeo, this.matSkin);
+      pulpPad.position.set(0, -p3Len * 0.55, s.r * 0.35);
+      dipGroup.add(pulpPad);
+
+      // Rounded Soft Fingertip
+      const tipGeo = new THREE.SphereGeometry(s.r * 0.60, 12, 12);
+      const tip = new THREE.Mesh(tipGeo, this.matSkin);
+      tip.position.set(0, -p3Len, 0);
+      dipGroup.add(tip);
+
+      // Natural Human Fingernail on Dorsal Face (-Z side)
+      const nailWidth = s.r * 1.25;
+      const nailHeight = p3Len * 0.55;
+      const nailGeo = new THREE.BoxGeometry(nailWidth, nailHeight, s.r * 0.28);
+      const nail = new THREE.Mesh(nailGeo, this.matNails);
+      nail.position.set(0, -p3Len * 0.50, -s.r * 0.62);
+      nail.rotation.x = -0.06;
+      dipGroup.add(nail);
+
+      // Cuticle Line at base of nail
+      const cuticle = new THREE.Mesh(new THREE.CylinderGeometry(0.0010, 0.0010, nailWidth * 0.9, 8), this.matSkinShadow);
+      cuticle.position.set(0, -p3Len * 0.22, -s.r * 0.65);
+      cuticle.rotation.z = Math.PI / 2;
+      dipGroup.add(cuticle);
+
+      // Assemble hierarchy: DIP -> PIP -> MCP (fGroup) -> handGroup
+      pipGroup.add(dipGroup);
+      fGroup.add(pipGroup);
       handGroup.add(fGroup);
+
+      // Store references for hierarchical 3-joint synergy animation
+      fGroup.userData = {
+        isThumb: false,
+        side: side,
+        index: idx,
+        baseSpread: s.spread,
+        pip: pipGroup,
+        dip: dipGroup
+      };
+
       fingers.push(fGroup);
     });
 
-    // Naturally Opposable Articulated Male Thumb
+    // 5. Naturally Opposable Articulated Human Thumb
     const thumbGroup = new THREE.Group();
-    const tx = isLeft ? 0.076 : -0.076;
-    thumbGroup.position.set(tx, -0.045, 0.016);
+    const tx = isLeft ? 0.065 : -0.065;
+    thumbGroup.position.set(tx, -0.048, 0.016);
+    // Opposed inward toward fingers and tilted forward
     thumbGroup.rotation.z = isLeft ? -0.52 : 0.52;
-    thumbGroup.rotation.y = isLeft ? -0.42 : 0.42;
+    thumbGroup.rotation.y = isLeft ? -0.44 : 0.44;
     thumbGroup.rotation.x = 0.22;
 
-    const tKnuckle = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), this.matSkin);
+    const tr = 0.0135; // Sturdier thumb radius
+
+    // 1st Metacarpophalangeal (MCP) Joint Node
+    const tKnuckle = new THREE.Mesh(new THREE.SphereGeometry(tr * 1.15, 14, 14), this.matSkin);
     thumbGroup.add(tKnuckle);
 
-    const tp1 = new THREE.Mesh(new THREE.CylinderGeometry(0.0135, 0.012, 0.052, 10), this.matSkin);
-    tp1.position.set(0, -0.026, 0);
+    // Thumb Proximal Phalanx
+    const tp1Len = 0.048;
+    const tp1Geo = new THREE.CylinderGeometry(tr * 0.95, tr * 0.85, tp1Len, 12);
+    const tp1 = new THREE.Mesh(tp1Geo, this.matSkin);
+    tp1.position.set(0, -tp1Len / 2, 0);
     thumbGroup.add(tp1);
 
-    const tp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.010, 0.042, 10), this.matSkin);
-    tp2.position.set(0, -0.068, 0.008);
-    thumbGroup.add(tp2);
+    // Thumb Interphalangeal (IP) Joint Group
+    const thumbIpGroup = new THREE.Group();
+    thumbIpGroup.position.set(0, -tp1Len, 0);
 
-    const thumbPad = new THREE.Mesh(new THREE.SphereGeometry(0.010, 10, 10), this.matSkin);
-    thumbPad.position.set(0, -0.092, 0.014);
-    thumbGroup.add(thumbPad);
+    const tipKnuckle = new THREE.Mesh(new THREE.SphereGeometry(tr * 0.90, 12, 12), this.matSkin);
+    thumbIpGroup.add(tipKnuckle);
 
-    const thumbNail = new THREE.Mesh(new THREE.BoxGeometry(0.013, 0.015, 0.004), this.matNails);
-    thumbNail.position.set(0, -0.090, 0.022);
-    thumbGroup.add(thumbNail);
+    // Thumb Volar Crease at IP Joint
+    const tipCrease = new THREE.Mesh(new THREE.CylinderGeometry(0.0014, 0.0014, tr * 1.6, 8), this.matSkinShadow);
+    tipCrease.position.set(0, 0, tr * 0.62);
+    tipCrease.rotation.z = Math.PI / 2;
+    thumbIpGroup.add(tipCrease);
 
+    // Thumb Distal Phalanx
+    const tp2Len = 0.040;
+    const tp2Geo = new THREE.CylinderGeometry(tr * 0.82, tr * 0.68, tp2Len, 12);
+    const tp2 = new THREE.Mesh(tp2Geo, this.matSkin);
+    tp2.position.set(0, -tp2Len / 2, 0);
+    thumbIpGroup.add(tp2);
+
+    // Broad Fleshy Palmar Thumb Pulp Pad (volar side +Z)
+    const tPadGeo = new THREE.SphereGeometry(tr * 0.78, 12, 12);
+    tPadGeo.scale(1.10, 1.45, 0.70);
+    const tPad = new THREE.Mesh(tPadGeo, this.matSkin);
+    tPad.position.set(0, -tp2Len * 0.55, tr * 0.40);
+    thumbIpGroup.add(tPad);
+
+    // Soft Rounded Thumb Tip
+    const tTipGeo = new THREE.SphereGeometry(tr * 0.68, 12, 12);
+    const tTip = new THREE.Mesh(tTipGeo, this.matSkin);
+    tTip.position.set(0, -tp2Len, 0);
+    thumbIpGroup.add(tTip);
+
+    // Wide Convex Groomed Thumbnail on Dorsal Face (-Z)
+    const tNailWidth = tr * 1.45;
+    const tNailHeight = tp2Len * 0.58;
+    const tNailGeo = new THREE.BoxGeometry(tNailWidth, tNailHeight, tr * 0.30);
+    const tNail = new THREE.Mesh(tNailGeo, this.matNails);
+    tNail.position.set(0, -tp2Len * 0.50, -tr * 0.65);
+    tNail.rotation.x = -0.06;
+    thumbIpGroup.add(tNail);
+
+    // Thumbnail Cuticle
+    const tCuticle = new THREE.Mesh(new THREE.CylinderGeometry(0.0012, 0.0012, tNailWidth * 0.9, 8), this.matSkinShadow);
+    tCuticle.position.set(0, -tp2Len * 0.20, -tr * 0.68);
+    tCuticle.rotation.z = Math.PI / 2;
+    thumbIpGroup.add(tCuticle);
+
+    thumbGroup.add(thumbIpGroup);
     handGroup.add(thumbGroup);
+
+    thumbGroup.userData = {
+      isThumb: true,
+      side: side,
+      ip: thumbIpGroup,
+      baseRotX: 0.22,
+      baseRotY: isLeft ? -0.44 : 0.44,
+      baseRotZ: isLeft ? -0.52 : 0.52
+    };
+
     fingers.push(thumbGroup);
 
     if (isLeft) this.leftFingers = fingers;
@@ -3375,15 +3527,76 @@ class Robot3D {
         this.headGroup.rotation.z += (targetHead.z - this.headGroup.rotation.z) * headAlpha;
       }
 
-      // 7. Clear 5-Digit Finger Articulation
-      this.leftFingers.forEach((f, i) => {
-        const targetCurl = leftFingersTarget + i * 0.03;
-        f.rotation.x += (targetCurl - f.rotation.x) * alpha;
-      });
-      this.rightFingers.forEach((f, i) => {
-        const targetCurl = rightFingersTarget + (rightFingersTarget > 0.05 ? i * 0.03 : 0);
-        f.rotation.x += (targetCurl - f.rotation.x) * alpha;
-      });
+      // 7. Realistic 3-Joint Human Finger Articulation (MCP, PIP, DIP Synergy + Splay)
+      const updateHumanFingers = (fingerList, baseTarget, isSalute, isHighFive) => {
+        fingerList.forEach((f) => {
+          const ud = f.userData;
+          if (!ud) return;
+
+          if (ud.isThumb) {
+            // Human Thumb Kinematics
+            if (isSalute) {
+              // Military salute: thumb aligned cleanly along index finger
+              const tRotZ = ud.side === "left" ? -0.22 : 0.22;
+              f.rotation.z += (tRotZ - f.rotation.z) * alpha;
+              f.rotation.x += (0.10 - f.rotation.x) * alpha;
+              if (ud.ip) ud.ip.rotation.x += (0.05 - ud.ip.rotation.x) * alpha;
+            } else if (isHighFive) {
+              // High-Five: thumb abducted wide away from fingers
+              const tRotZ = ud.side === "left" ? 0.18 : -0.18;
+              f.rotation.z += (tRotZ - f.rotation.z) * alpha;
+              f.rotation.x += (0.16 - f.rotation.x) * alpha;
+              if (ud.ip) ud.ip.rotation.x += (0.0 - ud.ip.rotation.x) * alpha;
+            } else {
+              // Natural thumb curl toward palm center
+              const tRotZ = ud.baseRotZ + (baseTarget > 0.15 ? (ud.side === "left" ? -0.12 : 0.12) * baseTarget : 0);
+              f.rotation.z += (tRotZ - f.rotation.z) * alpha;
+              const tRotX = ud.baseRotX - baseTarget * 0.45;
+              f.rotation.x += (tRotX - f.rotation.x) * alpha;
+              if (ud.ip) {
+                const ipTarget = -Math.max(0, baseTarget * 0.75);
+                ud.ip.rotation.x += (ipTarget - ud.ip.rotation.x) * alpha;
+              }
+            }
+          } else {
+            // 4 Articulated Human Fingers (Index, Middle, Ring, Pinky)
+            // Natural resting cascade: pinky curls slightly more than index
+            const restCascade = baseTarget > 0.05 ? ud.index * 0.035 : 0;
+            const curl = baseTarget + restCascade;
+
+            // Rotation around X: negative curls forward into palm (+Z)
+            const mcpRotX = -curl;
+            const pipRotX = -curl * 1.20;
+            const dipRotX = -curl * 0.78;
+
+            f.rotation.x += (mcpRotX - f.rotation.x) * alpha;
+
+            // Abduction / Adduction (finger splay)
+            let splay = ud.baseSpread;
+            if (isSalute) {
+              splay = 0; // Pinned straight and tight together
+            } else if (isHighFive) {
+              splay = ud.baseSpread * 1.45; // Gracefully fanned open for high five
+            } else if (baseTarget > 0.35) {
+              splay = ud.baseSpread * 0.25; // Fingers converge when closing into a fist
+            }
+            f.rotation.z += (splay - f.rotation.z) * alpha;
+
+            // Hierarchical PIP and DIP joint flexion
+            if (ud.pip) {
+              ud.pip.rotation.x += (pipRotX - ud.pip.rotation.x) * alpha;
+            }
+            if (ud.dip) {
+              ud.dip.rotation.x += (dipRotX - ud.dip.rotation.x) * alpha;
+            }
+          }
+        });
+      };
+
+      const isRightSalute = this.currentAction === "salute";
+      const isRightHighFive = this.currentAction === "hifi";
+      updateHumanFingers(this.leftFingers, leftFingersTarget, false, false);
+      updateHumanFingers(this.rightFingers, rightFingersTarget, isRightSalute, isRightHighFive);
     }
 
     // 8. Animate Floating 3D Hearts (Flying Kiss Action)

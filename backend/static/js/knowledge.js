@@ -333,6 +333,418 @@ const ACADEMIC_TOPICS = [
       correct: 0,
       explanation: "The Action component is the heart of the STAR method; interviewers want to assess your personal execution, problem-solving, and technical contribution."
     }
+  },
+  {
+    id: "math_bayes",
+    title: "Bayes' Theorem & Conditional Probability",
+    subject: "Mathematics",
+    keywords: ["bayes", "bayes theorem", "conditional probability", "prior probability", "posterior", "likelihood", "bayes rule"],
+    core: "Bayes' Theorem calculates the conditional probability of an event based on prior knowledge of conditions related to the event, providing the mathematical foundation for updating beliefs as new evidence arrives.",
+    formulas: [
+      "P(A|B) = \\frac{P(B|A) \\cdot P(A)}{P(B)} \\quad \\text{(Bayes' Rule)}",
+      "P(B) = P(B|A)P(A) + P(B|\\neg A)P(\\neg A) \\quad \\text{(Law of Total Probability)}",
+      "\\text{Posterior} = \\frac{\\text{Likelihood} \\times \\text{Prior}}{\\text{Marginal Evidence}}"
+    ],
+    steps: [
+      "1. **Establish Prior P(A)**: The initial baseline probability before observing new evidence (e.g. disease prevalence in a population).",
+      "2. **Determine Likelihood P(B|A)**: The probability that the evidence occurs given that the hypothesis is true (e.g. sensitivity / true positive rate).",
+      "3. **Compute Marginal Evidence P(B)**: The total probability of observing the evidence across all scenarios using the Law of Total Probability.",
+      "4. **Calculate Posterior P(A|B)**: The updated, revised confidence in the hypothesis after incorporating evidence."
+    ],
+    analogy: "A weather forecast: you start with a 20% prior chance of rain, but after spotting dark gathering storm clouds, Bayes' Theorem calculates your updated 85% posterior confidence.",
+    pitfalls: "The Base Rate Fallacy: In a 99% accurate test for a rare 1-in-1,000 disease, a positive test still yields only ~9% actual disease probability because the vast majority are healthy false positives!",
+    quiz: {
+      question: "If a disease has 1% prevalence and a test has 90% sensitivity and 90% specificity, why is the posterior probability of having the disease given a positive test only ~8.3%?",
+      options: ["Because false positives from the large healthy population outnumber true positives", "Because the test has a broken likelihood ratio", "Because Bayes theorem only applies to coin flips", "Because 90% + 90% is less than 200%"],
+      correct: 0,
+      explanation: "The massive healthy majority (99%) produces 10% false positives (~9.9 people per 100), dwarfing the 0.9 true positives, so ~0.9 / (0.9 + 9.9) ≈ 8.3%."
+    }
+  },
+  {
+    id: "math_clt",
+    title: "Central Limit Theorem & Normal Distribution",
+    subject: "Mathematics",
+    keywords: ["central limit theorem", "clt", "normal distribution", "bell curve", "standard error", "gaussian distribution", "sampling distribution"],
+    core: "The Central Limit Theorem (CLT) proves that the distribution of sample means approaches a normal (Gaussian) distribution as the sample size increases (n >= 30), regardless of the shape of the underlying population distribution.",
+    formulas: [
+      "\\bar{X}_n \\xrightarrow{d} \\mathcal{N}\\left(\\mu, \\frac{\\sigma^2}{n}\\right) \\quad \\text{as } n \\to \\infty",
+      "Z = \\frac{\\bar{X} - \\mu}{\\sigma / \\sqrt{n}} \\quad \\text{(Standard Normal Z-Score)}",
+      "\\text{Standard Error (SE)} = \\frac{\\sigma}{\\sqrt{n}}"
+    ],
+    steps: [
+      "1. **Universal Independence**: Applies to any independent, identically distributed (i.i.d.) random variables with finite mean and variance.",
+      "2. **Rule of Sample Size (n >= 30)**: Even if the population is heavily skewed, sample sizes of n >= 30 yield a symmetrical bell-shaped sampling distribution.",
+      "3. **Standard Error Shrinkage**: The standard error decreases by sqrt(n), concentrating sample means tightly around the true population mean.",
+      "4. **Inferential Statistics Foundation**: Powers p-values, hypothesis tests, confidence intervals, and polling margins of error."
+    ],
+    analogy: "Roll a single 6-sided die: every number 1 to 6 has equal flat probability. But roll 30 dice and average them: getting an average near 1 or 6 is nearly impossible, forming a sharp Gaussian peak right at 3.5!",
+    pitfalls: "The CLT applies to the distribution of SAMPLE MEANS, NOT the raw individual data points! The raw population data retains whatever shape it originally had.",
+    quiz: {
+      question: "If you quadruple the sample size from n = 25 to n = 100, what happens to the standard error of the mean?",
+      options: ["It is cut in half (divided by 2)", "It is divided by 4", "It quadruples", "It remains unchanged"],
+      correct: 0,
+      explanation: "Because SE = σ / √n, replacing n with 4n divides the denominator by √4 = 2, cutting standard error in half."
+    }
+  },
+  {
+    id: "math_fourier",
+    title: "Fourier Transform & Harmonic Signal Decomposition",
+    subject: "Mathematics",
+    keywords: ["fourier transform", "fourier analysis", "fft", "frequency domain", "spectrogram", "signal processing", "harmonics"],
+    core: "The Fourier Transform mathematically decomposes any continuous time-domain waveform into the sum of infinite constituent sine and cosine waves of varying frequencies, amplitudes, and phases.",
+    formulas: [
+      "\\hat{f}(\\xi) = \\int_{-\\infty}^{\\infty} f(t) e^{-2\\pi i \\xi t} \\, dt \\quad \\text{(Continuous Fourier Transform)}",
+      "f(t) = \\int_{-\\infty}^{\\infty} \\hat{f}(\\xi) e^{2\\pi i \\xi t} \\, d\\xi \\quad \\text{(Inverse Fourier Transform)}",
+      "e^{i\\theta} = \\cos\\theta + i\\sin\\theta \\quad \\text{(Euler's Integration Formula)}"
+    ],
+    steps: [
+      "1. **Time Domain to Frequency Domain**: Transforms functions of time f(t) into a spectrum of frequencies showing what musical notes or waves are present.",
+      "2. **Euler Rotor Multiplication**: Multiplies the signal by rotating complex exponential e^(-2pi i xi t) that winds the waveform around the origin in the complex plane.",
+      "3. **Center of Mass Integration**: When the winding frequency matches a natural frequency of the signal, the points align to create a distinct amplitude spike.",
+      "4. **Fast Fourier Transform (FFT)**: The Cooley-Tukey algorithm computes the Discrete Fourier Transform in O(N log N) time instead of O(N^2), enabling MP3, Wi-Fi, MRI, and 5G."
+    ],
+    analogy: "Pouring a blended fruit smoothie into a machine that instantaneously separates it back into individual piles of 3 strawberries, half a banana, and a cup of milk!",
+    pitfalls: "Confusing continuous Fourier transform with discrete Fourier series; the continuous transform works on non-periodic finite-energy signals across (-infinity, infinity).",
+    quiz: {
+      question: "What computational complexity breakthrough does the Fast Fourier Transform (FFT) achieve over naive matrix multiplication?",
+      options: ["Reduces complexity from O(N²) to O(N log N)", "Reduces complexity from O(N!) to O(N)", "Reduces complexity from O(2^N) to O(N³)", "Eliminates complex numbers entirely"],
+      correct: 0,
+      explanation: "The Cooley-Tukey FFT algorithm reduces operations from O(N²) to O(N log N) using divide-and-conquer symmetries."
+    }
+  },
+  {
+    id: "physics_relativity",
+    title: "Einstein's Special Relativity & Mass-Energy Equivalence",
+    subject: "Physics",
+    keywords: ["special relativity", "relativity", "einstein", "e=mc2", "time dilation", "lorentz factor", "length contraction", "speed of light"],
+    core: "Albert Einstein's 1905 Special Relativity demonstrates that the speed of light in a vacuum (c ~ 3 x 10^8 m/s) is invariant for all observers, requiring time to dilate, space to contract, and mass to be equivalent to energy (E = mc^2).",
+    formulas: [
+      "\\gamma = \\frac{1}{\\sqrt{1 - \\frac{v^2}{c^2}}} \\quad \\text{(Lorentz Factor)}",
+      "\\Delta t = \\gamma \\Delta t_0 = \\frac{\\Delta t_0}{\\sqrt{1 - \\frac{v^2}{c^2}}} \\quad \\text{(Time Dilation)}",
+      "L = \\frac{L_0}{\\gamma} = L_0 \\sqrt{1 - \\frac{v^2}{c^2}} \\quad \\text{(Length Contraction)}",
+      "E_0 = m c^2, \\quad E^2 = (pc)^2 + (m c^2)^2 \\quad \\text{(Relativistic Energy-Momentum)}"
+    ],
+    steps: [
+      "1. **The Two Postulates**: (a) The laws of physics are identical in all inertial reference frames. (b) The speed of light c is absolute and independent of the motion of source or observer.",
+      "2. **Time Dilation**: Moving clocks tick slower relative to a stationary observer. At 99% light speed (v = 0.99c), gamma ~ 7.09, so 1 year aboard the ship corresponds to 7.09 years on Earth.",
+      "3. **Length Contraction**: Objects moving near the speed of light physically contract along their direction of motion as observed by an external stationary observer.",
+      "4. **Mass-Energy Equivalence**: Mass is concentrated energy. In nuclear fission, converting mere grams of mass deficit Delta m releases Delta E = Delta m * c^2 Joules of kinetic energy."
+    ],
+    analogy: "Moving through spacetime is like driving a car at a fixed speed of 100 km/h: if you point purely north (stationary in space), all your speed goes into moving forward in time. If you steer hard east (traveling fast through space), you have less speed left over for traveling forward in time—so your personal clock ticks slower!",
+    pitfalls: "Thinking special relativity implies 'everything is relative'. The speed of light c and the spacetime interval s^2 = c^2 Delta t^2 - Delta x^2 are completely invariant and absolute!",
+    quiz: {
+      question: "If an astronaut travels at 0.8c relative to Earth (Lorentz factor γ = 1.667), how much time elapses on Earth while 3 years pass on the astronaut's ship?",
+      options: ["5.0 years", "3.0 years", "1.8 years", "8.0 years"],
+      correct: 0,
+      explanation: "Earth time Δt = γ · Δt₀ = 1.667 · 3 years ≈ 5.0 years."
+    }
+  },
+  {
+    id: "physics_thermo_laws",
+    title: "The Four Laws of Thermodynamics",
+    subject: "Physics",
+    keywords: ["thermodynamic laws", "laws of thermodynamics", "entropy", "first law of thermodynamics", "second law", "absolute zero", "heat engine"],
+    core: "The four fundamental laws of thermodynamics govern the behavior of energy, heat, temperature, and entropy across all physical and chemical systems in the universe.",
+    formulas: [
+      "A \\sim B \\land B \\sim C \\implies A \\sim C \\quad \\text{(Zeroth Law: Thermal Equilibrium)}",
+      "\\Delta U = Q - W \\quad \\text{(First Law: Energy Conservation)}",
+      "\\Delta S_{\\text{universe}} \\ge 0, \\quad dS = \\frac{\\delta Q_{\\text{rev}}}{T} \\quad \\text{(Second Law: Entropy Increase)}",
+      "\\lim_{T \\to 0\\text{ K}} S = 0 \\quad \\text{(Third Law: Absolute Zero Unattainability)}"
+    ],
+    steps: [
+      "1. **Zeroth Law (Temperature)**: Establishes thermal equilibrium and validates the concept of temperature and thermometers.",
+      "2. **First Law (Energy Conservation)**: Energy cannot be created or destroyed; total internal energy change Delta U equals heat added Q minus work done W.",
+      "3. **Second Law (Entropy & Time's Arrow)**: The total entropy of an isolated system always increases; heat flows spontaneously from hot to cold, never in reverse.",
+      "4. **Third Law (Absolute Zero)**: As a perfect crystal approaches absolute zero (0 K = -273.15 deg C), its entropy approaches a constant minimum, making 0 K unattainable in finite steps."
+    ],
+    analogy: "Physicist C.P. Snow's famous thermodynamic summary: Zeroth: 'You have to play the game'; 1st: 'You can't win (you can only break even)'; 2nd: 'You can only break even at absolute zero'; 3rd: 'You cannot reach absolute zero!'",
+    pitfalls: "Living organisms do NOT violate the Second Law! Living cells consume high-grade chemical energy and export higher-entropy heat and waste into the universe, ensuring net universal entropy increases.",
+    quiz: {
+      question: "Which law of thermodynamics establishes the thermodynamic 'Arrow of Time' showing that spontaneous processes are irreversible?",
+      options: ["Second Law (Entropy Increase)", "First Law (Energy Conservation)", "Zeroth Law (Thermal Equilibrium)", "Third Law (Absolute Zero)"],
+      correct: 0,
+      explanation: "The Second Law dictates that entropy always increases, giving time its forward directional arrow."
+    }
+  },
+  {
+    id: "cs_transformers",
+    title: "Transformer Architecture & Self-Attention in LLMs",
+    subject: "Computer Science",
+    keywords: ["transformer", "attention mechanism", "self attention", "llm", "large language model", "attention is all you need", "gpt", "bert", "deep learning"],
+    core: "The Transformer is the deep learning neural network architecture introduced in 2017 ('Attention Is All You Need') that powers modern LLMs, using Multi-Head Self-Attention to process all sequence tokens simultaneously in parallel.",
+    formulas: [
+      "\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{Q K^T}{\\sqrt{d_k}}\\right) V",
+      "\\text{MultiHead}(Q, K, V) = \\text{Concat}(\\text{head}_1, \\dots, \\text{head}_h) W^O",
+      "\\text{PE}_{(pos, 2i)} = \\sin\\left(\\frac{pos}{10000^{2i/d_{\\text{model}}}}\\right) \\quad \\text{(Positional Encoding)}"
+    ],
+    steps: [
+      "1. **Token & Positional Embedding**: Words are broken into tokens and combined with sinusoidal Positional Encodings to preserve sequence order without recurrence.",
+      "2. **Query, Key, Value Projections**: Every token embedding is multiplied by learned weight matrices to produce Query Q (search), Key K (label), and Value V (content).",
+      "3. **Scaled Dot-Product Attention**: Dot products Q*K^T compute semantic relevance between every word pair, scaled by 1/sqrt(d_k) to prevent vanishing gradients in softmax.",
+      "4. **Multi-Head Aggregation**: Multiple parallel attention heads simultaneously track grammar, coreference, themes, and factual associations.",
+      "5. **Parallel GPU Scaling**: Eliminates recurrent sequential bottlenecks, enabling training on hundreds of billions of parameters."
+    ],
+    analogy: "Imagine an executive in a boardroom (Query) sending a request to all 20 team members' job badges (Keys) simultaneously. Those whose badges closely match receive a high attention weight, and their detailed reports (Values) are combined into the final decision!",
+    pitfalls: "Self-attention has quadratic O(N^2) memory and compute complexity with respect to context window length N, motivating modern innovations like FlashAttention and sliding-window attention.",
+    quiz: {
+      question: "Why is the dot product Q·K^T divided by the scaling factor √d_k in Transformer attention?",
+      options: ["To prevent dot products from growing excessively large and pushing the softmax into vanishing gradient regions", "To convert vectors into complex numbers", "To enforce sequential word order", "To reduce the parameter count to zero"],
+      correct: 0,
+      explanation: "For large dimensions d_k, dot products grow large in magnitude, driving softmax into regions with extremely small gradients; dividing by √d_k stabilizes training."
+    }
+  },
+  {
+    id: "cs_dijkstra",
+    title: "Dijkstra's Algorithm & Shortest Path Graph Search",
+    subject: "Computer Science",
+    keywords: ["dijkstra", "shortest path", "graph algorithm", "dijkstra algorithm", "min heap", "priority queue", "a* search"],
+    core: "Dijkstra's Algorithm is a greedy graph traversal algorithm that finds the single-source shortest path to all vertices in a directed or undirected graph with non-negative edge weights.",
+    formulas: [
+      "\\text{Relaxation: } \\text{if } d[u] + w(u, v) < d[v] \\implies d[v] = d[u] + w(u, v)",
+      "T_{\\text{naive}} = O(V^2), \\quad T_{\\text{binary heap}} = O((V + E) \\log V), \\quad T_{\\text{Fibonacci heap}} = O(E + V \\log V)"
+    ],
+    steps: [
+      "1. **Initialization**: Set distance to start node d[s] = 0, and distance to all other vertices to infinity. Insert all nodes into a Min-Priority Queue.",
+      "2. **Extract Minimum**: Pop the unvisited node u with the smallest tentative distance from the priority queue.",
+      "3. **Edge Relaxation**: For each neighbor v of u, check if traveling through u yields a shorter path: if d[u] + w(u,v) < d[v], update d[v] and track predecessor.",
+      "4. **Optimal Path Reconstruction**: Repeat until the target is reached or queue is empty; backtrack through predecessors to generate the turn-by-turn route."
+    ],
+    analogy: "Pouring water at the start vertex of a 3D network of pipes: water naturally flows through the shortest pipe segments first, reaching each junction at the exact earliest physical arrival time.",
+    pitfalls: "Dijkstra's Algorithm fails completely on graphs with negative edge weights! Negative edges violate the greedy property; use the Bellman-Ford algorithm instead.",
+    quiz: {
+      question: "What fundamental assumption must hold true for Dijkstra's algorithm to guarantee the correct shortest path?",
+      options: ["All edge weights must be non-negative (w ≥ 0)", "The graph must be a tree", "The graph must be bipartite", "There must be no cycles in the graph"],
+      correct: 0,
+      explanation: "Dijkstra greedily marks nodes as permanently settled; negative edge weights can violate this guarantee."
+    }
+  },
+  {
+    id: "cs_big_o",
+    title: "Big-O Notation & Algorithmic Complexity",
+    subject: "Computer Science",
+    keywords: ["big o", "time complexity", "space complexity", "asymptotic notation", "algorithm complexity", "worst case", "big theta"],
+    core: "Big-O notation describes the upper bound of the asymptotic growth rate of an algorithm's runtime or memory consumption as input size n approaches infinity, independent of hardware specifics.",
+    formulas: [
+      "f(n) = O(g(n)) \\iff \\exists c > 0, n_0 > 0 \\text{ such that } 0 \\le f(n) \\le c \\cdot g(n) \\; \\forall n \\ge n_0",
+      "\\text{Hierarchy: } O(1) < O(\\log n) < O(n) < O(n \\log n) < O(n^2) < O(2^n) < O(n!)"
+    ],
+    steps: [
+      "1. **Drop Constant Factors**: O(2n) simplifies to O(n); Big-O measures growth curvature rather than constant multipliers.",
+      "2. **Keep Dominant Term**: In n^2 + 5n + 100, the n^2 term completely dominates as n -> infinity, so complexity is O(n^2).",
+      "3. **Logarithmic Scaling O(log n)**: Halving the search space each step (e.g. Binary Search) requires only ~30 operations for 1 billion items.",
+      "4. **Linearithmic Benchmark O(n log n)**: The theoretical mathematical lower bound for comparison-based sorting algorithms (MergeSort, QuickSort, HeapSort)."
+    ],
+    analogy: "Ordering books: searching for a book by flipping through every page is O(n). Finding a name in a phone book by opening to the middle repeatedly is O(log n). Checking every possible traveling route across 50 cities is O(n!)—taking longer than the age of the universe!",
+    pitfalls: "Confusing worst-case Big-O with average-case or best-case: QuickSort is average-case O(n log n), but worst-case O(n^2) when pivot selection is degenerate.",
+    quiz: {
+      question: "Which of the following computational time complexities grows the SLOWEST as input size n increases?",
+      options: ["O(log n)", "O(n)", "O(n log n)", "O(n²)"],
+      correct: 0,
+      explanation: "Logarithmic time O(log n) grows vastly slower than linear, linearithmic, or polynomial time."
+    }
+  },
+  {
+    id: "chem_equilibrium",
+    title: "Chemical Equilibrium & Le Chatelier's Principle",
+    subject: "Chemistry",
+    keywords: ["equilibrium", "le chatelier", "chemical equilibrium", "equilibrium constant", "reaction quotient", "haber process"],
+    core: "Dynamic chemical equilibrium occurs when the forward and reverse reaction rates are equal. Le Chatelier's Principle states that when a dynamic equilibrium is subjected to an external stress, the system shifts to counteract that stress.",
+    formulas: [
+      "aA + bB \\rightleftharpoons cC + dD \\implies K_c = \\frac{[C]^c [D]^d}{[A]^a [B]^b}",
+      "\\Delta G^\\circ = -RT \\ln K_{eq}",
+      "Q < K \\implies \\text{Shift Right (Products)}, \\quad Q > K \\implies \\text{Shift Left (Reactants)}"
+    ],
+    steps: [
+      "1. **Dynamic Balance**: Forward and reverse reactions never cease; macroscopic concentrations stay perfectly constant because rates are equal.",
+      "2. **Concentration Shifts**: Adding reactant shifts equilibrium toward products (right); removing product similarly pulls the reaction forward.",
+      "3. **Pressure & Volume Changes**: Increasing pressure shifts gaseous equilibria toward the side with fewer total moles of gas.",
+      "4. **Temperature Effect**: In exothermic reactions (Delta H < 0), heat acts like a product—increasing temperature shifts equilibrium left and lowers K."
+    ],
+    analogy: "A crowded subway car: if 10 new passengers force their way in through the front door (stress), passengers naturally shuffle toward the empty rear of the car to restore comfortable spatial balance.",
+    pitfalls: "Catalysts do NOT shift the equilibrium position or alter K! Catalysts only lower activation energy E_a, speeding up how rapidly equilibrium is achieved equally in both directions.",
+    quiz: {
+      question: "For the exothermic Haber process N₂(g) + 3H₂(g) ⇌ 2NH₃(g) (ΔH = -92 kJ/mol), which changes increase the equilibrium yield of ammonia?",
+      options: ["Increasing pressure and lowering temperature", "Decreasing pressure and increasing temperature", "Adding an inert gas at constant volume", "Adding a platinum catalyst"],
+      correct: 0,
+      explanation: "Higher pressure shifts toward fewer gas moles (4 moles → 2 moles), and lower temperature favors the exothermic forward direction."
+    }
+  },
+  {
+    id: "chem_acid_base",
+    title: "Acids, Bases & Buffer Systems",
+    subject: "Chemistry",
+    keywords: ["acid", "base", "ph", "pka", "buffer", "henderson hasselbalch", "titration", "bronsted lowry"],
+    core: "Acids donate protons (H+) and bases accept protons in Brønsted-Lowry chemistry. Buffer solutions resist changes in pH when small amounts of acid or base are added, modeled by the Henderson-Hasselbalch equation.",
+    formulas: [
+      "\\text{pH} = -\\log_{10}[H_3O^+], \\quad \\text{pOH} = -\\log_{10}[OH^-], \\quad \\text{pH} + \\text{pOH} = 14 \\quad (25^\\circ\\text{C})",
+      "\\text{pH} = \\text{p}K_a + \\log_{10}\\left(\\frac{[A^-]}{[HA]}\\right) \\quad \\text{(Henderson-Hasselbalch Equation)}",
+      "K_w = [H_3O^+][OH^-] = 1.0 \\times 10^{-14} \\quad (25^\\circ\\text{C})"
+    ],
+    steps: [
+      "1. **Proton Exchange**: Weak acid HA donates H+ to water, establishing equilibrium with its conjugate base A- and hydronium H3O+.",
+      "2. **Logarithmic pH Scale**: Each whole pH unit change represents a 10-fold change in hydronium ion concentration (pH 3 is 1,000x more acidic than pH 6).",
+      "3. **Buffer Neutralization**: Added strong acid is consumed by weak base A-, while added strong base is neutralized by weak acid HA.",
+      "4. **Human Blood Buffer**: Blood pH is strictly regulated between 7.35 and 7.45 by the carbonic acid-bicarbonate buffer system: CO2 + H2O <=> H2CO3 <=> H+ + HCO3-."
+    ],
+    analogy: "A buffer acts like a shock absorber on a mountain bike: when you hit sharp bumps (spikes in acid or alkali), the springs absorb the impact so the rider (delicate biological enzymes) experiences smooth, stable equilibrium.",
+    pitfalls: "Thinking a solution with pH = 0 has no acid! Concentrated strong acids (like 12 M HCl) have negative pH values (~ -1.08) because [H+] exceeds 1 M.",
+    quiz: {
+      question: "If the pH of a solution drops from 6 to 3, by what factor has the concentration of hydronium ions [H⁺] increased?",
+      options: ["1,000 times (10³)", "3 times", "30 times", "300 times"],
+      correct: 0,
+      explanation: "Because pH is a base-10 logarithmic scale: ΔpH = 3 corresponds to 10³ = 1,000 times higher [H⁺]."
+    }
+  },
+  {
+    id: "bio_crispr",
+    title: "CRISPR-Cas9 & Precision Genomic Engineering",
+    subject: "Biology",
+    keywords: ["crispr", "cas9", "gene editing", "crispr cas9", "dna editing", "genetic engineering", "grna", "biotechnology"],
+    core: "CRISPR-Cas9 is a targeted genome-editing biotechnology adapted from bacterial adaptive immune systems that allows scientists to precisely cut and modify DNA sequences inside living cells.",
+    formulas: [
+      "\\text{sgRNA (20-nt guide)} + \\text{Cas9 endonuclease} \\xrightarrow{\\text{PAM: 5'-NGG-3'}} \\text{Targeted Double-Strand Break (DSB)}",
+      "\\text{Cellular Repair: } \\text{NHEJ (Knockout via Indels)} \\quad \\text{vs} \\quad \\text{HDR (Precision Gene Knock-in / Replacement)}"
+    ],
+    steps: [
+      "1. **Bacterial Immune Memory**: Bacteria capture snippets of invading viral DNA between CRISPR repeats to recognize future attacks.",
+      "2. **Single Guide RNA (sgRNA)**: A synthetic 20-nucleotide guide RNA matches the exact complementary sequence in the target genome.",
+      "3. **PAM Recognition & Double-Strand Cleavage**: Cas9 locates the PAM motif (5'-NGG-3'), unwinds the DNA helix, and cleaves both strands.",
+      "4. **DNA Repair Pathways**: Error-prone non-homologous end joining (NHEJ) disables the gene, or homology-directed repair (HDR) inserts corrected sequences."
+    ],
+    analogy: "Like using the 'Find and Replace' command in a 3-billion-character Microsoft Word document: sgRNA highlights the exact typo, and Cas9 acts like molecular scissors to delete or replace the sentence with flawless accuracy.",
+    pitfalls: "Off-target cleavage: Cas9 can occasionally bind and cut genomic sites with 1-3 nucleotide mismatches to the guide RNA, which engineered high-fidelity Cas9 and Base Editors prevent.",
+    quiz: {
+      question: "What short DNA sequence motif must immediately follow the target DNA sequence for SpCas9 to bind and cleave the DNA?",
+      options: ["PAM sequence (5'-NGG-3')", "TATA box", "Poly-A tail", "Kozak sequence"],
+      correct: 0,
+      explanation: "The Protospacer Adjacent Motif (PAM), typically 5'-NGG-3' for SpCas9, is essential for Cas9 binding and cleavage."
+    }
+  },
+  {
+    id: "bio_cellular_respiration",
+    title: "Cellular Respiration & ATP Synthase Turbine",
+    subject: "Biology",
+    keywords: ["cellular respiration", "glycolysis", "krebs cycle", "citric acid cycle", "atp synthase", "electron transport chain", "mitochondria", "aerobic respiration"],
+    core: "Cellular respiration is the multi-stage biochemical process by which eukaryotic cells break down glucose in the presence of oxygen (O2) to synthesize 30-32 molecules of ATP energy.",
+    formulas: [
+      "C_6H_{12}O_6 + 6O_2 \\to 6CO_2 + 6H_2O + \\text{Energy (30-32 ATP + Heat)}",
+      "\\Delta G^\\circ = -2870\\text{ kJ/mol} \\quad \\text{(Highly Exergonic Combustion)}"
+    ],
+    steps: [
+      "1. **Glycolysis (Cytosol)**: 1 Glucose (6C) is split into 2 Pyruvate (3C), yielding a net of 2 ATP and 2 NADH without needing oxygen.",
+      "2. **Krebs Cycle (Mitochondrial Matrix)**: Pyruvate is oxidized to Acetyl-CoA, producing 6 NADH, 2 FADH2, 2 ATP, and releasing CO2.",
+      "3. **Electron Transport Chain (Inner Membrane)**: High-energy electrons from NADH/FADH2 power proton pumps (Complexes I-IV), creating an electrochemical proton gradient.",
+      "4. **Chemiosmosis via ATP Synthase**: Protons rush through the rotary motor of ATP Synthase, mechanically turning ADP + Pi into ~26-28 ATP, with O2 accepting final electrons to form water."
+    ],
+    analogy: "A hydroelectric dam: the electron transport chain pumps water up behind a high concrete dam (the proton gradient). When the water rushes down through turbines (ATP Synthase), it generates massive electrical power (ATP)!",
+    pitfalls: "Cyanide poisoning kills cells by irreversibly blocking Complex IV of the ETC, collapsing the proton gradient and halting ATP synthesis even when oxygen is abundant.",
+    quiz: {
+      question: "What is the terminal electron acceptor in the mitochondrial electron transport chain during aerobic respiration?",
+      options: ["Molecular Oxygen (O₂)", "NAD⁺", "Pyruvate", "Carbon Dioxide (CO₂)"],
+      correct: 0,
+      explanation: "Oxygen is the final electron acceptor; it accepts electrons and protons to form metabolic water (H₂O)."
+    }
+  },
+  {
+    id: "bio_central_dogma",
+    title: "Central Dogma of Molecular Biology: Transcription & Translation",
+    subject: "Biology",
+    keywords: ["central dogma", "transcription", "translation", "rna polymerase", "mrna", "ribosome", "trna", "protein synthesis"],
+    core: "The Central Dogma describes the directional flow of genetic information inside biological systems: genetic instructions stored in DNA are transcribed into messenger RNA (mRNA), which is then translated by ribosomes into functional proteins.",
+    formulas: [
+      "\\text{DNA} \\xrightarrow{\\text{Transcription (RNA Polymerase)}} \\text{mRNA} \\xrightarrow{\\text{Translation (Ribosome)}} \\text{Polypeptide Chain} \\to \\text{Functional Protein}",
+      "\\text{Triplet Codon: } 3 \\text{ Nucleotide Bases} \\implies 1 \\text{ Amino Acid} \\quad (4^3 = 64 \\text{ Codons for } 20 \\text{ Amino Acids})"
+    ],
+    steps: [
+      "1. **Transcription (Nucleus)**: RNA Polymerase reads the template DNA strand (3' to 5') and synthesizes complementary pre-mRNA (5' to 3'), replacing Thymine with Uracil.",
+      "2. **mRNA Processing (Eukaryotes)**: Introns are spliced out by spliceosomes, and a 5' methyl-G cap and 3' poly-A tail are added for nuclear export.",
+      "3. **Translation (Ribosome / Cytosol)**: The ribosome reads mRNA codons; transfer RNAs (tRNAs) carrying matching anticodons deliver specific amino acids.",
+      "4. **Polypeptide Folding**: The peptide chain folds into alpha-helices, beta-sheets, and tertiary 3D conformations stabilized by hydrogen and disulfide bonds."
+    ],
+    analogy: "The master architectural blueprint stays securely locked in the library archive (DNA in nucleus). A disposable photocopy is made (mRNA) and brought to the construction site, where bricklayers (ribosomes) assemble bricks (amino acids) into the skyscraper (protein).",
+    pitfalls: "The Genetic Code is degenerate (redundant) but NOT ambiguous: multiple codons can code for the same amino acid (e.g. 6 codons for Leucine), but each single codon specifies exactly one amino acid.",
+    quiz: {
+      question: "Which enzyme is primarily responsible for synthesizing pre-mRNA from a DNA template during transcription?",
+      options: ["RNA Polymerase II", "DNA Helicase", "DNA Ligase", "Reverse Transcriptase"],
+      correct: 0,
+      explanation: "RNA Polymerase II transcribes protein-coding genes into messenger RNA (mRNA) in eukaryotic cells."
+    }
+  },
+  {
+    id: "study_spaced_repetition",
+    title: "Spaced Repetition & The Ebbinghaus Forgetting Curve",
+    subject: "Study Strategy",
+    keywords: ["spaced repetition", "ebbinghaus", "forgetting curve", "anki", "memory retention", "study method", "active recall"],
+    core: "Spaced Repetition is a scientifically proven cognitive learning technique that schedules reviews at increasing intervals, exploiting the spacing effect to flatten Hermann Ebbinghaus's exponential forgetting curve.",
+    formulas: [
+      "R = e^{-\\frac{t}{S}} \\quad \\text{(Ebbinghaus Memory Retention Equation)}",
+      "\\text{Optimal Interval: } I_{n} = I_{n-1} \\times \\text{Ease Factor (typically 2.0 to 2.5)}"
+    ],
+    steps: [
+      "1. **The Forgetting Curve Problem**: Within 48 hours of initial exposure, the human brain naturally forgets ~70% of new information unless actively retrieved.",
+      "2. **The Spacing Effect**: Testing memory right as it begins to decay forces the brain to reconstruct neural pathways, dramatically increasing memory stability S.",
+      "3. **Exponential Interval Progression**: Review at Day 1 -> Day 3 -> Day 7 -> Day 16 -> Day 35 -> Day 90; each retrieval doubles the time until the next review is needed.",
+      "4. **Active Flashcard Integration**: Pairing software like Anki with active retrieval produces up to 400% higher long-term retention compared to passive rereading."
+    ],
+    analogy: "Laying coats of paint on a fence: if you paint 5 layers in a single afternoon (cramming), it peels off in a week. If you apply a coat, let it fully cure, apply a second coat, and let it cure, the bond becomes permanent for decades.",
+    pitfalls: "Cramming before an exam creates an illusion of competence: you can hold facts in short-term working memory for 12 hours, but retention collapses to zero 48 hours after the test.",
+    quiz: {
+      question: "According to Ebbinghaus's exponential forgetting curve formula R = e^(-t/S), what does each successive review do to the memory stability S?",
+      options: ["Increases stability S, making the decay curve progressively flatter", "Decreases S to zero", "Resets retention R to zero", "Eliminates the need for sleep"],
+      correct: 0,
+      explanation: "Each spaced review increases the stability S of the memory trace, requiring exponentially longer times before the next review is needed."
+    }
+  },
+  {
+    id: "study_pomodoro",
+    title: "The Pomodoro Technique & Deep Work Attention Mastery",
+    subject: "Study Strategy",
+    keywords: ["pomodoro", "pomodoro technique", "deep work", "time management", "productivity", "study focus", "flow state"],
+    core: "The Pomodoro Technique breaks complex study and engineering tasks into 25-minute sprints of hyper-focused effort separated by 5-minute cognitive resets, eliminating attention residue and sustaining peak cognitive stamina.",
+    formulas: [
+      "1 \\text{ Pomodoro Sprint} = 25\\text{ min Pure Deep Work} + 5\\text{ min Rest}",
+      "1 \\text{ Full Set} = 4 \\text{ Pomodoros (100 min)} + 20\\text{-}30\\text{ min Long Break}",
+      "\\text{Attention Residue: } \\Delta \\text{Cognitive Bandwidth Loss} \\propto \\text{Frequency of Task Switching}"
+    ],
+    steps: [
+      "1. **Single Tangible Objective**: Pick one unambiguous goal (e.g. 'Solve calculus problems 1 through 8', not 'study math').",
+      "2. **Zero-Distraction Sprint (25 min)**: Silence all phone notifications. If an unrelated thought arises, jot it on a scratchpad and immediately refocus.",
+      "3. **True Cognitive Reset (5 min)**: Step away from screens, stretch, drink water, or look out a window. Do NOT open social media, which creates attention residue.",
+      "4. **Consolidation Break (20-30 min)**: After 4 completed pomodoros, take an extended break to replenish dopamine and allow neural memory consolidation."
+    ],
+    analogy: "High-intensity interval training (HIIT) for your brain: sprinting at 100% capacity for short bursts with dedicated recovery prevents mental burnout and builds cognitive endurance far better than a slow 6-hour slog.",
+    pitfalls: "Checking social media during the 5-minute break! Quick scrolling triggers dopamine spikes and creates 'attention residue' in working memory, ruining your ability to re-enter deep focus in the next round.",
+    quiz: {
+      question: "Why is switching tasks during a study session proven to severely degrade learning performance?",
+      options: ["Because 'Attention Residue' from the interrupted task lingers in working memory", "Because neurons run out of oxygen in 5 minutes", "Because the brain cannot store more than 10 words", "Because monitors emit sleep rays"],
+      correct: 0,
+      explanation: "Attention residue (Dr. Sophie Leroy) proves that when you switch tasks, part of your cognitive bandwidth remains stuck on the prior task, degrading performance."
+    }
+  },
+  {
+    id: "study_cornell",
+    title: "The Cornell Note-Taking System & Synthesized Active Recall",
+    subject: "Study Strategy",
+    keywords: ["cornell notes", "note taking", "cornell method", "study notes", "lecture notes", "active recall notes"],
+    core: "The Cornell Note-Taking System, developed by Walter Pauk at Cornell University, formats notebook pages into three distinct functional zones (Notes, Cues, and Summary) to turn passive transcription into active learning.",
+    formulas: [
+      "\\text{Cornell Page: } \\text{Right Column (Notes 70\\%)} + \\text{Left Column (Cues 30\\%)} + \\text{Bottom Margin (Summary 20\\%)}",
+      "\\text{The 5 R's: } \\text{Record} \\to \\text{Reduce} \\to \\text{Recite} \\to \\text{Reflect} \\to \\text{Review}"
+    ],
+    steps: [
+      "1. **Record (Right Column, 6 inches)**: During the lecture, jot down core concepts, equations, and diagrams using telegraphic sentences and abbreviations.",
+      "2. **Reduce (Left Column, 2.5 inches)**: As soon as class ends, review your notes and write high-yield trigger questions, vocabulary terms, and main ideas in the cue margin.",
+      "3. **Recite (Self-Testing)**: Cover the right-hand notes column with a sheet of paper. Look only at the cue questions on the left and recite the answers out loud from memory.",
+      "4. **Summarize (Bottom Margin, 2 inches)**: Write a brief 2-4 sentence executive summary synthesizing the entire page in your own words."
+    ],
+    analogy: "Creating your own practice exam while listening to the lecture: the right side is the lecture, the left side is the exam question, and covering the right side gives you an instant practice test every evening!",
+    pitfalls: "Copying down everything the professor says word-for-word! Verbatim transcription is passive stenography that bypasses cognitive synthesis; always translate ideas into your own words.",
+    quiz: {
+      question: "In the Cornell Note-Taking System, what is the primary purpose of the left-hand 'Cue' column?",
+      options: ["To write self-testing trigger questions and main ideas for active recall", "To draw decorative doodles", "To write the date and professor's name", "To record audio transcripts"],
+      correct: 0,
+      explanation: "The Cue column contains trigger questions and key concepts that allow students to quiz themselves by covering the right-hand notes."
+    }
   }
 ];
 

@@ -152,12 +152,15 @@
             <button class="subject-pill" data-subject="Study Strategy">📝 STRATEGY</button>
           </div>
 
-          <div class="eli5-control" title="Explain Like I'm 5 (Intuitive Student Analogies)">
-            <span>ELI5</span>
-            <label class="switch">
-              <input type="checkbox" id="eli5-toggle">
-              <span class="slider"></span>
-            </label>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button id="edu-resources-btn" class="hud-btn" style="padding: 5px 12px; font-size: 11px; background: rgba(56, 189, 248, 0.15); border-color: var(--accent); color: var(--accent);" title="Open Curated Educational Resource Cheat Sheets & Study Roadmaps">📚 RESOURCES</button>
+            <div class="eli5-control" title="Explain Like I'm 5 (Intuitive Student Analogies)">
+              <span>ELI5</span>
+              <label class="switch">
+                <input type="checkbox" id="eli5-toggle">
+                <span class="slider"></span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -197,12 +200,16 @@
 
         <!-- Quick Prompts Bar -->
         <div class="quick-prompts-row">
+          <button class="quick-prompt" data-prompt="Explain Bayes' Theorem with formula and medical diagnosis example">📐 Bayes' Theorem</button>
+          <button class="quick-prompt" data-prompt="What is Einstein's Special Relativity and Time Dilation?">⚛️ Special Relativity</button>
+          <button class="quick-prompt" data-prompt="How do Transformers and Self-Attention work in LLMs?">💻 Transformers & AI</button>
+          <button class="quick-prompt" data-prompt="Explain CRISPR-Cas9 precision gene editing mechanism">🧬 CRISPR Gene Editing</button>
+          <button class="quick-prompt" data-prompt="What is Le Chatelier's Principle in Chemical Equilibrium?">🧪 Le Chatelier's Shift</button>
+          <button class="quick-prompt" data-prompt="How does Spaced Repetition conquer the Ebbinghaus Forgetting Curve?">🧠 Spaced Repetition</button>
           <button class="quick-prompt" data-prompt="Define serendipity with etymology and pronunciation">📖 Define Serendipity</button>
           <button class="quick-prompt" data-prompt="Give me the Word of the Day with full pronunciation, definitions, and word history">✨ Word of the Day</button>
-          <button class="quick-prompt" data-prompt="What is the difference between affect and effect with examples?">💡 Affect vs Effect</button>
           <button class="quick-prompt" data-prompt="Teach me the 7 C's of Effective Communication with examples">🗣️ 7 C's Communication</button>
           <button class="quick-prompt" data-prompt="How do I answer interview questions using the STAR Method?">💼 STAR Interview Method</button>
-          <button class="quick-prompt" data-prompt="What are the essential keys to Active Listening and Empathy?">👂 Active Listening</button>
           <button class="quick-prompt" data-prompt="Explain Derivatives and the Chain Rule in Calculus">📐 Chain Rule</button>
           <button class="quick-prompt" data-prompt="How does Newton's Third Law work? Give me an analogy">⚛️ Newton's 3rd Law</button>
           <button class="quick-prompt" data-prompt="Why is QuickSort average O(n log n) but worst-case O(n^2)?">💻 QuickSort Proof</button>
@@ -317,13 +324,106 @@
         </div>
       </div>
     </div>
+
+    <!-- Educational Resources & Study Roadmaps Modal -->
+    <div id="resources-modal" class="modal-backdrop">
+      <div class="modal-box" style="max-width: 680px; max-height: 85vh; display: flex; flex-direction: column;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+          <div>
+            <h3 style="font-family: var(--font-mono); color: var(--accent); margin: 0; font-size: 16px;">📚 EDUCATIONAL RESOURCES & FORMULA SHEETS</h3>
+            <p style="font-size: 11.5px; color: var(--text-dim); margin: 4px 0 0 0;">Curated high-yield academic cheat sheets & instant tutoring roadmaps</p>
+          </div>
+          <button id="close-resources-btn" class="close-btn">&times;</button>
+        </div>
+
+        <div style="overflow-y: auto; padding-right: 6px; display: flex; flex-direction: column; gap: 10px;">
+          <!-- Resource Card 1 -->
+          <div class="resource-card" data-prompt="Explain Bayes' Theorem with formula and medical diagnosis example" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">📐 Bayes' Theorem & Conditional Probability</span>
+              <span class="badge" style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8;">Mathematics</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Calculates updated posterior confidence as new evidence arrives. Solves diagnostic testing problems and avoids base rate fallacies.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #38bdf8;">
+              <code>P(A|B) = [P(B|A) · P(A)] / P(B)</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 2 -->
+          <div class="resource-card" data-prompt="What is Einstein's Special Relativity and Time Dilation?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">⚛️ Einstein's Special Relativity & Mass-Energy</span>
+              <span class="badge" style="font-size: 10px; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #c084fc;">Physics</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Invariant speed of light demands time dilation, length contraction, and mass-energy equivalence ($E = mc^2$).</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #c084fc;">
+              <code>E = mc² • Δt = γΔt₀</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 3 -->
+          <div class="resource-card" data-prompt="How do Transformers and Self-Attention work in LLMs?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">💻 Transformer Architecture & Self-Attention in LLMs</span>
+              <span class="badge" style="font-size: 10px; background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;">Comp Sci</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Parallel token processing with Query, Key, and Value dot-product attention powering modern GPT and BERT models.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #4ade80;">
+              <code>Attention(Q,K,V) = softmax(QKᵀ / √dₖ) V</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 4 -->
+          <div class="resource-card" data-prompt="Explain CRISPR-Cas9 precision gene editing mechanism" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🧬 CRISPR-Cas9 & Precision Genomic Engineering</span>
+              <span class="badge" style="font-size: 10px; background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid #f472b6;">Biology</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Molecular scissors guided by 20-nt sgRNA to create double-strand breaks for knockout or knock-in repair.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #f472b6;">
+              <code>sgRNA + Cas9 ➔ PAM (5'-NGG-3') ➔ DSB</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 5 -->
+          <div class="resource-card" data-prompt="What is Le Chatelier's Principle in Chemical Equilibrium?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🧪 Chemical Equilibrium & Le Chatelier's Principle</span>
+              <span class="badge" style="font-size: 10px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #fbbf24;">Chemistry</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Predicts how systems shift under pressure, temperature, and concentration stresses (e.g. Haber-Bosch ammonia synthesis).</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #fbbf24;">
+              <code>K_eq = [C]ᶜ[D]ᵈ / [A]ᵃ[B]ᵇ</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 6 -->
+          <div class="resource-card" data-prompt="How does Spaced Repetition conquer the Ebbinghaus Forgetting Curve?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🧠 Spaced Repetition & Cognitive Memory Retention</span>
+              <span class="badge" style="font-size: 10px; background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #38bdf8;">Study Strategy</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Schedules active recall at exponential intervals to flatten memory decay and achieve permanent retention.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #38bdf8;">
+              <code>R = e^(-t/S) • Active Recall SRS</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->
-  <script src="/static/js/knowledge.js?v=5.3.0"></script>
-  <script src="/static/js/audio.js?v=5.3.0"></script>
-  <script src="/static/js/mathgraph.js?v=5.3.0"></script>
-  <script src="/static/js/robot3d.js?v=5.3.0"></script>
-  <script src="/static/js/app.js?v=5.3.0"></script>
+  <script src="/static/js/knowledge.js?v=5.5.0"></script>
+  <script src="/static/js/audio.js?v=5.5.0"></script>
+  <script src="/static/js/mathgraph.js?v=5.5.0"></script>
+  <script src="/static/js/robot3d.js?v=5.5.0"></script>
+  <script src="/static/js/app.js?v=5.5.0"></script>
 </body>
 </html>

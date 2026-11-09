@@ -1184,6 +1184,39 @@ Always double check starting assumptions, sign conventions, and ensure units are
     });
   }
 
+  // 16B. Educational Resources Hub Modal
+  const resourcesModal = document.getElementById("resources-modal");
+  const eduResourcesBtn = document.getElementById("edu-resources-btn");
+  const closeResourcesBtn = document.getElementById("close-resources-btn");
+
+  if (eduResourcesBtn && resourcesModal) {
+    eduResourcesBtn.addEventListener("click", () => {
+      resourcesModal.classList.add("open");
+      window.AudioEngine.playClick();
+      if (window.AudioEngine && window.AudioEngine.voiceEnabled) {
+        window.AudioEngine.speak("Opening Educational Resources Library! Select any topic cheat sheet to study.");
+      }
+    });
+  }
+
+  if (closeResourcesBtn && resourcesModal) {
+    closeResourcesBtn.addEventListener("click", () => {
+      resourcesModal.classList.remove("open");
+    });
+  }
+
+  // Handle click on any .resource-card inside resourcesModal
+  document.querySelectorAll(".resource-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      const prompt = card.dataset.prompt;
+      if (prompt) {
+        if (resourcesModal) resourcesModal.classList.remove("open");
+        chatInput.value = prompt;
+        sendMessage();
+      }
+    });
+  });
+
   // 17. Pomodoro Timer
   if (pomoToggle) {
     pomoToggle.addEventListener("click", () => {
