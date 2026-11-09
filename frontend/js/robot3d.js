@@ -256,12 +256,46 @@ class Robot3D {
       metalness: 0.5
     });
 
+    // --- HIGH-CLARITY ULTRA-DEFINITION EYE MATERIALS ---
+    this.matEyeSocket = new THREE.MeshStandardMaterial({
+      color: 0x050811,
+      roughness: 0.85,
+      metalness: 0.5
+    });
+
+    this.matLimbalRing = new THREE.MeshStandardMaterial({
+      color: 0x0b1324,
+      roughness: 0.1,
+      metalness: 0.95
+    });
+
+    this.matIris = new THREE.MeshStandardMaterial({
+      color: p.eyeColor || p.accent,
+      emissive: p.glow,
+      emissiveIntensity: 1.6,
+      roughness: 0.12,
+      metalness: 0.6
+    });
+
+    this.matPupilObsidian = new THREE.MeshBasicMaterial({
+      color: 0x03050a
+    });
+
+    this.matPupilCore = new THREE.MeshBasicMaterial({
+      color: 0xffffff
+    });
+
+    this.matCatchlight = new THREE.MeshBasicMaterial({
+      color: 0xffffff
+    });
+
+    // Optical Cornea: Ultra-Clear Glass Dome (High clarity, zero milky fog)
     this.matEyeLens = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0.05,
-      metalness: 0.1,
+      roughness: 0.02,
+      metalness: 0.15,
       transparent: true,
-      opacity: 0.45
+      opacity: 0.14
     });
 
     this.matPupil = new THREE.MeshBasicMaterial({
@@ -303,6 +337,19 @@ class Robot3D {
     this.matAccent.emissive.setHex(p.glow);
     this.matPupil.color.setHex(p.pupilColor);
     this.matJoint.color.setHex(p.joint);
+
+    if (this.matIris) {
+      this.matIris.color.setHex(p.eyeColor || p.accent);
+      this.matIris.emissive.setHex(p.glow);
+    }
+    if (this.leftEye && this.leftEye.userData.aperture) {
+      this.leftEye.userData.aperture.material.color.setHex(p.accent);
+      this.leftEye.userData.aperture.material.emissive.setHex(p.glow);
+    }
+    if (this.rightEye && this.rightEye.userData.aperture) {
+      this.rightEye.userData.aperture.material.color.setHex(p.accent);
+      this.rightEye.userData.aperture.material.emissive.setHex(p.glow);
+    }
 
     if (this.coreLight) this.coreLight.color.setHex(p.light);
     if (this.rimLight) this.rimLight.color.setHex(p.light);
@@ -446,47 +493,105 @@ class Robot3D {
     const eyeGroup = new THREE.Group();
     eyeGroup.position.set(xPos, 0.06, 0.44);
 
-    // Recessed Chrome Orbital Socket
-    const socketRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.018, 16, 32), this.matChrome);
-    eyeGroup.add(socketRing);
+    // 1. Recessed Chrome Orbital Socket Bezel (Outer Frame)
+    const socketBezel = new THREE.Mesh(new THREE.TorusGeometry(0.125, 0.016, 24, 48), this.matChrome);
+    eyeGroup.add(socketBezel);
 
-    // Glowing Neon Aperture Iris
-    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.016, 16, 32), this.matAccent);
-    irisRing.position.set(0, 0, 0.01);
-    eyeGroup.add(irisRing);
+    // 2. High-Contrast Deep Optic Chamber / Eyeball Socket Cup
+    const chamberGeo = new THREE.CylinderGeometry(0.12, 0.11, 0.08, 32);
+    chamberGeo.rotateX(Math.PI / 2);
+    const chamber = new THREE.Mesh(chamberGeo, this.matEyeSocket);
+    chamber.position.set(0, 0, -0.02);
+    eyeGroup.add(chamber);
 
-    // Clear Convex Glass Lens
-    const lensGeo = new THREE.SphereGeometry(0.095, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.5);
+    // 3. Sclera Outer Reflective Bevel Ring
+    const scleraRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.088, 0.122, 36),
+      new THREE.MeshStandardMaterial({
+        color: 0x1e293b,
+        metalness: 0.85,
+        roughness: 0.15
+      })
+    );
+    scleraRing.position.set(0, 0, 0.005);
+    eyeGroup.add(scleraRing);
+
+    // 4. Moving Gaze Assembly (Tracks cursor smoothly inside socket with zero distortion)
+    const gazeGroup = new THREE.Group();
+    gazeGroup.position.set(0, 0, 0.012);
+    eyeGroup.add(gazeGroup);
+
+    // 4a. Outer Limbal Ring (Crisp dark border around the iris for photographic clarity)
+    const limbalRing = new THREE.Mesh(new THREE.TorusGeometry(0.086, 0.008, 16, 36), this.matLimbalRing);
+    gazeGroup.add(limbalRing);
+
+    // 4b. Radiant Glowing Cybernetic Iris
+    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.072, 0.014, 20, 36), this.matIris);
+    gazeGroup.add(irisRing);
+
+    // 4c. Geometric Micro-Aperture Ring (Detailed robotic iris texture)
+    const apertureMat = new THREE.MeshStandardMaterial({
+      color: this.themes[this.currentTheme].accent,
+      emissive: this.themes[this.currentTheme].glow,
+      emissiveIntensity: 0.9,
+      wireframe: true
+    });
+    const aperture = new THREE.Mesh(new THREE.RingGeometry(0.046, 0.076, 24), apertureMat);
+    aperture.position.set(0, 0, 0.004);
+    gazeGroup.add(aperture);
+
+    // 4d. Deep Obsidian Black Pupil Core (High-definition optical contrast)
+    const pupilBacking = new THREE.Mesh(new THREE.CircleGeometry(0.048, 32), this.matPupilObsidian);
+    pupilBacking.position.set(0, 0, 0.008);
+    gazeGroup.add(pupilBacking);
+
+    // 4e. Luminous Central Diode (High-clarity pupil laser/retina core)
+    const pupilCore = new THREE.Mesh(new THREE.SphereGeometry(0.024, 16, 16), this.matPupilCore);
+    pupilCore.position.set(0, 0, 0.018);
+    gazeGroup.add(pupilCore);
+
+    // 4f. Primary Crisp Specular Catchlight (Upper right glint)
+    const catchlight1 = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 10), this.matCatchlight);
+    catchlight1.position.set(0.024, 0.024, 0.028);
+    gazeGroup.add(catchlight1);
+
+    // 4g. Secondary Sub-Specular Catchlight (Lower left depth glint)
+    const catchlight2 = new THREE.Mesh(new THREE.SphereGeometry(0.006, 8, 8), this.matCatchlight);
+    catchlight2.position.set(-0.018, -0.018, 0.024);
+    gazeGroup.add(catchlight2);
+
+    // 5. Crystal-Clear Optical Cornea Lens Dome (Pure clarity, zero milky haze)
+    const lensGeo = new THREE.SphereGeometry(0.118, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.45);
     const lens = new THREE.Mesh(lensGeo, this.matEyeLens);
-    lens.position.set(0, 0, 0.018);
+    lens.position.set(0, 0, 0.012);
     eyeGroup.add(lens);
 
-    // Bright Expressive Pupil (Gaze tracks cursor)
-    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.062, 20, 20), this.matPupil);
-    pupil.position.set(0, 0, 0.025);
-    eyeGroup.add(pupil);
-
-    // Dedicated Point Light for dynamic facial glow
-    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 0.9, 1.3);
-    eyeLight.position.set(0, 0, 0.09);
+    // 6. Dedicated High-Definition Eye Spot/Point Light
+    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 1.2, 1.6);
+    eyeLight.position.set(0, 0, 0.12);
     eyeGroup.add(eyeLight);
 
     if (xPos < 0) this.leftEyeLight = eyeLight;
     else this.rightEyeLight = eyeLight;
 
-    // Specular Catchlight
-    const catchlight = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    catchlight.position.set(0.028, 0.028, 0.082);
-    eyeGroup.add(catchlight);
-
-    // Smooth Articulated Eyelids
-    const lidGeo = new THREE.SphereGeometry(0.125, 20, 20, 0, Math.PI * 2, 0, Math.PI * 0.5);
+    // 7. Smooth Articulated Eyelids
+    const lidGeo = new THREE.SphereGeometry(0.126, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
     const eyelid = new THREE.Mesh(lidGeo, this.matChassis);
-    eyelid.position.set(0, 0, 0.03);
+    eyelid.position.set(0, 0, 0.02);
     eyelid.rotation.x = -Math.PI / 2; // Default open
     eyeGroup.add(eyelid);
 
-    eyeGroup.userData = { eyelid: eyelid, pupil: pupil, catchlight: catchlight };
+    eyeGroup.userData = {
+      eyelid: eyelid,
+      gazeGroup: gazeGroup,
+      pupil: gazeGroup,
+      pupilCore: pupilCore,
+      irisRing: irisRing,
+      aperture: aperture,
+      catchlight1: catchlight1,
+      catchlight2: catchlight2
+    };
+
     return eyeGroup;
   }
 
@@ -1249,8 +1354,8 @@ class Robot3D {
       e.preventDefault();
       const zoomDelta = e.deltaY * 0.0025;
       this.targetCameraDistance += zoomDelta;
-      // Clamp zoom limits: close macro inspection (1.6) to wide full view (6.5)
-      this.targetCameraDistance = Math.max(1.6, Math.min(6.5, this.targetCameraDistance));
+      // Clamp zoom limits: close macro inspection (1.2) to wide full view (6.5)
+      this.targetCameraDistance = Math.max(1.2, Math.min(6.5, this.targetCameraDistance));
     }, { passive: false });
 
     // Double-click to reset view
@@ -1293,10 +1398,10 @@ class Robot3D {
       this.targetRotationY = 0;
       this.cameraLookTarget.set(0, -0.72, 0);
     } else if (mode === "eyes") {
-      this.targetCameraDistance = 1.9;
-      this.targetRotationX = 0.0;
+      this.targetCameraDistance = 1.45;
+      this.targetRotationX = 0.02;
       this.targetRotationY = 0;
-      this.cameraLookTarget.set(0, 0.78, 0);
+      this.cameraLookTarget.set(0, 0.82, 0.10);
     } else if (mode === "hands") {
       this.targetCameraDistance = 2.1;
       this.targetRotationX = 0.15;
@@ -1413,26 +1518,47 @@ class Robot3D {
     }
 
     if (this.leftEye && this.rightEye) {
-      const gx = this.mouse.x * 0.035;
-      const gy = this.mouse.y * 0.025;
+      const gx = this.mouse.x * 0.026;
+      const gy = this.mouse.y * 0.018;
 
-      if (this.leftEye.userData.pupil) {
-        this.leftEye.userData.pupil.position.x = gx;
-        this.leftEye.userData.pupil.position.y = gy;
+      if (this.leftEye.userData.gazeGroup) {
+        this.leftEye.userData.gazeGroup.position.x = gx;
+        this.leftEye.userData.gazeGroup.position.y = gy;
       }
-      if (this.rightEye.userData.pupil) {
-        this.rightEye.userData.pupil.position.x = gx;
-        this.rightEye.userData.pupil.position.y = gy;
+      if (this.rightEye.userData.gazeGroup) {
+        this.rightEye.userData.gazeGroup.position.x = gx;
+        this.rightEye.userData.gazeGroup.position.y = gy;
       }
 
-      // Natural Eye Blinking
-      const blink = Math.sin(time * 1.6);
-      if (blink > 0.96) {
-        this.leftEye.userData.eyelid.rotation.x = 0;
-        this.rightEye.userData.eyelid.rotation.x = 0;
+      // Smooth Natural Eyelid Blinking & Expressive Squinting
+      const blinkCycle = (time % 3.8);
+      let lidOpen = 1.0;
+      if (blinkCycle < 0.14) {
+        const t = blinkCycle / 0.14;
+        lidOpen = 1.0 - Math.sin(t * Math.PI);
+      }
+      if (this.expression === "happy") {
+        lidOpen *= 0.65; // Warm smiling squint
+      } else if (this.expression === "surprised") {
+        lidOpen = 1.15; // Wide focused gaze
+      }
+
+      const lidAngle = -Math.PI * 0.5 * Math.max(0, Math.min(1.2, lidOpen));
+      if (this.leftEye.userData.eyelid) this.leftEye.userData.eyelid.rotation.x = lidAngle;
+      if (this.rightEye.userData.eyelid) this.rightEye.userData.eyelid.rotation.x = lidAngle;
+
+      // Cybernetic Pupil Laser Diode Pulse
+      if (this.expression === "speaking" || this.isOverdrive) {
+        const pulse = 1.0 + Math.sin(time * 12) * 0.25;
+        if (this.leftEye.userData.pupilCore) this.leftEye.userData.pupilCore.scale.set(pulse, pulse, pulse);
+        if (this.rightEye.userData.pupilCore) this.rightEye.userData.pupilCore.scale.set(pulse, pulse, pulse);
+        if (this.leftEyeLight) this.leftEyeLight.intensity = 1.4 + Math.sin(time * 12) * 0.4;
+        if (this.rightEyeLight) this.rightEyeLight.intensity = 1.4 + Math.sin(time * 12) * 0.4;
       } else {
-        this.leftEye.userData.eyelid.rotation.x = -Math.PI / 2;
-        this.rightEye.userData.eyelid.rotation.x = -Math.PI / 2;
+        if (this.leftEye.userData.pupilCore) this.leftEye.userData.pupilCore.scale.set(1, 1, 1);
+        if (this.rightEye.userData.pupilCore) this.rightEye.userData.pupilCore.scale.set(1, 1, 1);
+        if (this.leftEyeLight) this.leftEyeLight.intensity = 1.2;
+        if (this.rightEyeLight) this.rightEyeLight.intensity = 1.2;
       }
     }
 
