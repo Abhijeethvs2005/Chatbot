@@ -555,6 +555,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (window.AudioEngine && window.AudioEngine.voiceEnabled) {
           window.AudioEngine.speak("Communication skills module engaged. Ready to master active listening, public speaking, and interviews!");
         }
+      } else if (state.subject === "Oxford Dictionary" && robot) {
+        robot.doAction("hello");
+        if (window.AudioEngine && window.AudioEngine.voiceEnabled) {
+          window.AudioEngine.speak("Welcome to the Oxford English Dictionary and Lexicon Explorer! What word would you like to define, explore, or trace the etymology of?");
+        }
       } else if (robot) {
         robot.setExpression("happy");
         setTimeout(() => { if (robot) robot.setExpression("idle"); }, 800);

@@ -20,6 +20,29 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+try:
+    from backend.oxford_engine import (
+        OXFORD_DICTIONARY_DB,
+        fetch_oxford_dictionary_entry,
+        extract_dictionary_word,
+        is_word_of_the_day_query,
+        is_oed_overview_query,
+        format_oxford_markdown,
+        get_word_of_the_day_markdown,
+        get_oed_overview_markdown
+    )
+except ImportError:
+    from oxford_engine import (
+        OXFORD_DICTIONARY_DB,
+        fetch_oxford_dictionary_entry,
+        extract_dictionary_word,
+        is_word_of_the_day_query,
+        is_oed_overview_query,
+        format_oxford_markdown,
+        get_word_of_the_day_markdown,
+        get_oed_overview_markdown
+    )
+
 APP_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = APP_DIR.parent
 STATIC_DIR = PROJECT_ROOT / "static"
@@ -2461,6 +2484,9 @@ async def chat_endpoint(payload: ChatRequest):
     if not user_msg:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
+    response_text = None
+    source = ""
+
     # 1. Math, Physics & Word Problem Analytical Solver (Deterministic 100% - Sub-millisecond)
     math_match = try_eval_math(user_msg)
     if math_match:
@@ -2528,15 +2554,32 @@ async def chat_endpoint(payload: ChatRequest):
                             if not is_custom:
                                 OPENAI_KEY_EXHAUSTED = True
 
+                # 4B. Oxford English Dictionary & Lexicon Engine (OED / OALD / Etymology)
+                if not response_text:
+                    if is_oed_overview_query(user_msg):
+                        response_text = get_oed_overview_markdown(mode)
+                        source = "Chatbot Abhi Oxford English Dictionary System"
+                    elif is_word_of_the_day_query(user_msg):
+                        response_text = get_word_of_the_day_markdown()
+                        source = "Chatbot Abhi Oxford Word of the Day Engine"
+                    else:
+                        dict_word = extract_dictionary_word(user_msg, subject)
+                        if dict_word:
+                            dict_entry = await fetch_oxford_dictionary_entry(dict_word)
+                            if dict_entry:
+                                response_text = format_oxford_markdown(dict_entry, user_msg, mode)
+                                source = "Chatbot Abhi Oxford English Lexicon Engine (OED & OALD Verified)"
+
                 # 5. Live Encyclopedic Factual Knowledge Retrieval via Wikipedia (Free, Fast, Factual)
-                wiki_data = await fetch_wikipedia_knowledge(user_msg)
-                if wiki_data:
-                    response_text = format_wiki_markdown(wiki_data, user_msg, mode)
-                    source = "Chatbot Abhi Encyclopedic Core (Wikipedia Academic Repository)"
-                else:
-                    # 6. High-Precision Domain Synthesis
-                    response_text = synthesize_rich_response(user_msg, subject, mode)
-                    source = "Chatbot Abhi Dynamic Reasoning Engine"
+                if not response_text:
+                    wiki_data = await fetch_wikipedia_knowledge(user_msg)
+                    if wiki_data:
+                        response_text = format_wiki_markdown(wiki_data, user_msg, mode)
+                        source = "Chatbot Abhi Encyclopedic Core (Wikipedia Academic Repository)"
+                    else:
+                        # 6. High-Precision Domain Synthesis
+                        response_text = synthesize_rich_response(user_msg, subject, mode)
+                        source = "Chatbot Abhi Dynamic Reasoning Engine"
 
     # Streaming Response generator for smooth, high-speed delivery
     async def fast_stream():
@@ -2630,6 +2673,36 @@ async def generate_quiz(req: QuizRequest):
 async def get_quiz(topic: str = "general"):
     return await generate_quiz(QuizRequest(topic=topic))
 
+# --- OXFORD ENGLISH DICTIONARY & LEXICON ENDPOINTS ---
+
+@app.get("/api/dictionary/{word}")
+@app.get("/api/oxford/lookup/{word}")
+async def lookup_dictionary_endpoint(word: str):
+    entry = await fetch_oxford_dictionary_entry(word)
+    if not entry:
+        raise HTTPException(status_code=404, detail=f"Word '{word}' not found in Oxford Lexicon.")
+    return entry
+
+@app.get("/api/oxford/word-of-the-day")
+async def word_of_the_day_endpoint():
+    return {"content": get_word_of_the_day_markdown()}
+
+@app.get("/api/oxford/overview")
+async def oed_overview_endpoint():
+    return {"content": get_oed_overview_markdown()}
+
+@app.get("/api/oxford/explore")
+async def oxford_explore_endpoint():
+    return {
+        "curated_words": list(OXFORD_DICTIONARY_DB.keys()),
+        "categories": [
+            {"name": "Literary & Emotional Gems", "words": ["serendipity", "sonder", "petrichor", "ephemeral"]},
+            {"name": "Historical & Rhetorical Oddities", "words": ["defenestration", "sesquipedalian", "schadenfreude"]},
+            {"name": "Academic & Scientific Mastery", "words": ["perspicacious", "quintessential", "ubiquitous"]},
+            {"name": "Publishing & Lexicographical Standards", "words": ["oxford comma", "oxford english dictionary"]}
+        ]
+    }
+
 @app.get("/health")
 @app.get("/api/health")
 async def health_check():
@@ -2643,6 +2716,7 @@ async def health_check():
         "openai_configured": has_key,
         "features": [
             "Real 3D Humanoid Robot Dressed in Tailored Modern Menswear with Expressive Eyes & 5-Digit Hands",
+            "Oxford English Dictionary & Historical Lexicon Engine (OED & OALD Standards)",
             "Deterministic Math & Quadratic Equation Solver",
             "Multi-Domain Academic Knowledge Base",
             "Live Free Wikipedia Encyclopedic Factual Engine",

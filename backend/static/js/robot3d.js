@@ -374,6 +374,17 @@ class Robot3D {
       metalness: 0.04
     });
 
+    this.matTeeth = new THREE.MeshStandardMaterial({
+      color: 0xf8fafc, // Pearlescent clean white enamel
+      roughness: 0.20,
+      metalness: 0.05
+    });
+
+    this.matEyelash = new THREE.MeshStandardMaterial({
+      color: 0x0f0e0d, // Ultra-fine dark lash margin
+      roughness: 0.85
+    });
+
     // --- REFINED HUMAN MENSWEAR CLOTHING MATERIALS ---
     this.matSuitNavy = new THREE.MeshStandardMaterial({
       color: 0x1e293b, // Tailored navy/slate fine wool blazer
@@ -541,111 +552,201 @@ class Robot3D {
     this.headGroup = new THREE.Group();
     this.headGroup.position.set(0, 0.78, 0);
 
-    // 1. Male Cranium Base (Proportional masculine head shape)
-    const craniumGeo = new THREE.SphereGeometry(0.50, 32, 32);
-    craniumGeo.scale(0.88, 1.05, 0.95);
+    // ==========================================
+    // 1. MASCULINE CRANIUM & FOREHEAD (FRONTAL BONE)
+    // ==========================================
+    // Proportional masculine cranium foundation
+    const craniumGeo = new THREE.SphereGeometry(0.50, 36, 36);
+    craniumGeo.scale(0.88, 1.05, 0.94);
     const cranium = new THREE.Mesh(craniumGeo, this.matSkin);
     cranium.position.set(0, 0.02, -0.02);
     this.headGroup.add(cranium);
 
-    // 2. Broad Masculine Forehead (Frontal bone with subtle slope)
-    const forehead = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.20, 0.16), this.matSkin);
-    forehead.position.set(0, 0.25, 0.30);
-    forehead.rotation.x = -0.12;
+    // Curved Frontal Bone (Smooth forehead curvature without box edges)
+    const foreheadGeo = new THREE.SphereGeometry(0.36, 24, 24);
+    foreheadGeo.scale(1.18, 0.74, 0.82);
+    const forehead = new THREE.Mesh(foreheadGeo, this.matSkin);
+    forehead.position.set(0, 0.22, 0.26);
+    forehead.rotation.x = -0.10;
     this.headGroup.add(forehead);
 
-    // 3. Strong Masculine Brow Ridge (Supraorbital ridge defining male eye sockets)
-    const browRidge = new THREE.Mesh(new THREE.BoxGeometry(0.50, 0.065, 0.14), this.matSkin);
-    browRidge.position.set(0, 0.155, 0.38);
-    this.headGroup.add(browRidge);
+    // Central Glabella (Depression between the brows above nasal root)
+    const glabella = new THREE.Mesh(new THREE.SphereGeometry(0.065, 14, 14), this.matSkin);
+    glabella.scale.set(1.2, 0.8, 0.6);
+    glabella.position.set(0, 0.145, 0.405);
+    this.headGroup.add(glabella);
 
-    // 4. Chiseled Zygomatic Cheekbones (Lateral cheek definition)
-    [-0.23, 0.23].forEach((cx) => {
-      const cheek = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.18, 0.16), this.matSkin);
-      cheek.position.set(cx, -0.05, 0.32);
-      cheek.rotation.y = cx < 0 ? 0.20 : -0.20;
-      cheek.rotation.z = cx < 0 ? -0.10 : 0.10;
+    // Supraorbital Brow Ridge (Left & Right sculpted masculine brow arches)
+    [-0.19, 0.19].forEach((bx) => {
+      const isLeft = bx < 0;
+      const browArchGeo = new THREE.SphereGeometry(0.14, 16, 16);
+      browArchGeo.scale(1.28, 0.42, 0.72);
+      const browArch = new THREE.Mesh(browArchGeo, this.matSkin);
+      browArch.position.set(bx, 0.155, 0.395);
+      browArch.rotation.z = isLeft ? -0.08 : 0.08;
+      browArch.rotation.y = isLeft ? 0.12 : -0.12;
+      this.headGroup.add(browArch);
+    });
+
+    // ==========================================
+    // 2. CHISELED ZYGOMATIC CHEEKBONES & MIDFACE
+    // ==========================================
+    [-0.21, 0.21].forEach((cx) => {
+      const isLeft = cx < 0;
+      // Zygomatic Cheekbone prominence
+      const cheekGeo = new THREE.SphereGeometry(0.155, 20, 20);
+      cheekGeo.scale(0.92, 1.15, 0.86);
+      const cheek = new THREE.Mesh(cheekGeo, this.matSkin);
+      cheek.position.set(cx, -0.035, 0.315);
+      cheek.rotation.y = isLeft ? 0.18 : -0.18;
+      cheek.rotation.z = isLeft ? -0.08 : 0.08;
       this.headGroup.add(cheek);
+
+      // Maxillary Midface Contour (curves toward nasolabial fold)
+      const maxilla = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 14), this.matSkin);
+      maxilla.scale.set(0.85, 1.25, 0.90);
+      maxilla.position.set(cx * 0.62, -0.115, 0.380);
+      maxilla.rotation.y = isLeft ? 0.22 : -0.22;
+      this.headGroup.add(maxilla);
+
+      // Submalar Hollow Shadow (Athletic chiseled cheek hollow)
+      const submalar = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.06), this.matSkinShadow);
+      submalar.position.set(cx * 1.12, -0.14, 0.26);
+      submalar.rotation.z = isLeft ? 0.24 : -0.24;
+      this.headGroup.add(submalar);
     });
 
-    // 5. Defined Masculine Jawline (Mandibular angles tapering to chin)
-    [-0.17, 0.17].forEach((jx) => {
-      const jawAngle = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.22, 0.24), this.matSkin);
-      jawAngle.position.set(jx, -0.24, 0.18);
-      jawAngle.rotation.y = jx < 0 ? 0.32 : -0.32;
-      jawAngle.rotation.z = jx < 0 ? -0.16 : 0.16;
+    // ==========================================
+    // 3. DEFINED MANDIBLE JAWLINE & SQUARE CHIN
+    // ==========================================
+    [-0.19, 0.19].forEach((jx) => {
+      const isLeft = jx < 0;
+      // Mandibular Angle (Gonion / jawline corner)
+      const jawAngleGeo = new THREE.SphereGeometry(0.125, 16, 16);
+      jawAngleGeo.scale(0.82, 1.35, 1.35);
+      const jawAngle = new THREE.Mesh(jawAngleGeo, this.matSkin);
+      jawAngle.position.set(jx, -0.22, 0.14);
+      jawAngle.rotation.y = isLeft ? 0.28 : -0.28;
+      jawAngle.rotation.z = isLeft ? -0.14 : 0.14;
       this.headGroup.add(jawAngle);
+
+      // Mandibular Body (Sharp jawline ridge tapering toward chin)
+      const jawRidge = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.10, 0.22), this.matSkin);
+      jawRidge.position.set(jx * 0.72, -0.27, 0.24);
+      jawRidge.rotation.y = isLeft ? 0.38 : -0.38;
+      jawRidge.rotation.z = isLeft ? -0.18 : 0.18;
+      this.headGroup.add(jawRidge);
     });
 
-    // 6. Strong Square Male Chin
-    const chin = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.13, 0.18), this.matSkin);
-    chin.position.set(0, -0.34, 0.32);
+    // Strong Square Male Chin (Mental Protuberance)
+    const chinGeo = new THREE.SphereGeometry(0.155, 18, 18);
+    chinGeo.scale(1.22, 0.82, 1.05);
+    const chin = new THREE.Mesh(chinGeo, this.matSkin);
+    chin.position.set(0, -0.32, 0.33);
     this.headGroup.add(chin);
 
-    // Handsome Masculine Chin Cleft (Subtle central groove)
-    const chinCleft = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.08, 0.025), this.matArmor);
-    chinCleft.position.set(0, -0.34, 0.415);
+    // Dual Mental Tubercles (Left & Right chin corners defining handsome square chin)
+    [-0.065, 0.065].forEach((tx) => {
+      const tubercle = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 12), this.matSkin);
+      tubercle.scale.set(0.95, 0.90, 1.15);
+      tubercle.position.set(tx, -0.325, 0.410);
+      this.headGroup.add(tubercle);
+    });
+
+    // Handsome Masculine Chin Cleft (Central dimple groove in shadow material)
+    const chinCleft = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.075, 0.024), this.matSkinShadow);
+    chinCleft.position.set(0, -0.325, 0.428);
     this.headGroup.add(chinCleft);
 
-    // 7. Handsome Modern Male Haircut (Stylish Quiff/Pompadour with Tapered Sides)
-    // 7a. Hair Base Cap (Top, crown, and back of cranium)
+    // ==========================================
+    // 4. HANDSOME MODERN MASCULINE HAIRCUT
+    // ==========================================
+    // 4a. Hair Base Cap (Top, crown, and back of cranium)
     const hairCapGeo = new THREE.SphereGeometry(0.51, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.52);
     hairCapGeo.scale(0.91, 1.06, 0.97);
     const hairCap = new THREE.Mesh(hairCapGeo, this.matHair);
     hairCap.position.set(0, 0.06, -0.02);
     this.headGroup.add(hairCap);
 
-    // 7b. Nape and Back Taper
+    // 4b. Nape and Back Taper
     const napeTaper = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.26, 0.16), this.matHair);
     napeTaper.position.set(0, -0.12, -0.36);
     this.headGroup.add(napeTaper);
 
-    // 7c. Styled Top Pompadour Volume
+    // 4c. Styled Top Pompadour Volume
     const topHair = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.13, 0.42), this.matHair);
     topHair.position.set(0, 0.51, 0.02);
     topHair.rotation.x = -0.06;
     this.headGroup.add(topHair);
 
-    // 7d. Swept Front Quiff / Fringe (Styled upward & swept back, clear of eyes)
+    // 4d. Swept Front Quiff / Fringe (Styled upward & swept back, clear of eyes)
     const frontQuiff = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.20, 0.38, 16), this.matHair);
     frontQuiff.rotation.z = Math.PI / 2;
     frontQuiff.rotation.x = 0.28;
     frontQuiff.position.set(0, 0.46, 0.24);
     this.headGroup.add(frontQuiff);
 
-    // 7e. Clean Male Sideburns (Descend in front of ears)
+    // 4e. Natural Hairline Temples
+    [-0.24, 0.24].forEach((tx) => {
+      const isLeft = tx < 0;
+      const templeHair = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.10), this.matHair);
+      templeHair.position.set(tx, 0.30, 0.28);
+      templeHair.rotation.y = isLeft ? 0.25 : -0.25;
+      this.headGroup.add(templeHair);
+    });
+
+    // 4f. Clean Male Sideburns (Descend in front of ears)
     [-0.41, 0.41].forEach((sx) => {
       const sideburn = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.12), this.matHair);
       sideburn.position.set(sx, 0.06, 0.08);
       this.headGroup.add(sideburn);
     });
 
-    // 8. Natural Masculine Ears with Cybernetic Comms Node
+    // ==========================================
+    // 5. NATURAL MASCULINE EARS WITH COMM NODES
+    // ==========================================
     [-0.46, 0.46].forEach((ex) => {
+      const isLeft = ex < 0;
       const earGroup = new THREE.Group();
       earGroup.position.set(ex, 0.02, 0.0);
 
+      // Auricle (Ear body)
       const earBody = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.19, 0.10), this.matSkin);
-      earBody.rotation.y = ex < 0 ? -0.16 : 0.16;
+      earBody.rotation.y = isLeft ? -0.16 : 0.16;
       earGroup.add(earBody);
 
+      // Outer Helix Rim
       const helix = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.016, 12, 24), this.matSkin);
       helix.rotation.y = Math.PI / 2;
       earGroup.add(helix);
 
+      // Cybernetic Comms Ring Node
       const commRing = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.007, 12, 24), this.matAccent);
       commRing.rotation.y = Math.PI / 2;
-      commRing.position.set(ex < 0 ? -0.02 : 0.02, -0.02, 0);
+      commRing.position.set(isLeft ? -0.02 : 0.02, -0.02, 0);
       earGroup.add(commRing);
 
       this.headGroup.add(earGroup);
     });
 
-    // 9. Muscular Male Neck with Adam's Apple & Collar Ring
+    // ==========================================
+    // 6. MUSCULAR MALE NECK & ADAM'S APPLE
+    // ==========================================
     const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.21, 0.28, 24), this.matSkin);
     neck.position.set(0, -0.50, 0);
     this.headGroup.add(neck);
 
+    // Sternocleidomastoid muscle bands running obliquely down neck
+    [-0.10, 0.10].forEach((sx) => {
+      const isLeft = sx < 0;
+      const scm = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.018, 0.26, 12), this.matSkin);
+      scm.position.set(sx, -0.50, 0.12);
+      scm.rotation.z = isLeft ? -0.18 : 0.18;
+      scm.rotation.x = -0.12;
+      this.headGroup.add(scm);
+    });
+
+    // Prominent Thyroid Cartilage (Adam's Apple)
     const adamsApple = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.07, 16), this.matSkin);
     adamsApple.rotation.x = Math.PI / 2;
     adamsApple.position.set(0, -0.48, 0.195);
@@ -656,81 +757,140 @@ class Robot3D {
     collarRing.position.set(0, -0.62, 0);
     this.headGroup.add(collarRing);
 
-    // 10. --- PROMINENT, CLEARLY VISIBLE 3D MALE NOSE ---
+    // ==========================================
+    // 7. HIGH-FIDELITY ANATOMICAL MALE NOSE
+    // ==========================================
     const noseGroup = new THREE.Group();
     noseGroup.position.set(0, 0.035, 0.42);
 
-    // 10a. Nasal Root & Straight Dorsal Bridge (Extends down from between eyes)
-    const bridgeGeo = new THREE.CylinderGeometry(0.026, 0.036, 0.15, 12);
-    bridgeGeo.scale(1.0, 1.0, 1.35);
+    // 7a. Nasion & Straight Nasal Dorsal Bridge
+    const bridgeGeo = new THREE.CylinderGeometry(0.024, 0.034, 0.155, 16);
+    bridgeGeo.scale(1.05, 1.0, 1.25);
     const bridge = new THREE.Mesh(bridgeGeo, this.matSkin);
-    bridge.rotation.x = 0.32;
-    bridge.position.set(0, 0.02, 0.04);
+    bridge.rotation.x = 0.30;
+    bridge.position.set(0, 0.025, 0.035);
     noseGroup.add(bridge);
 
-    // 10b. Defined Masculine Nose Tip (Apex / Lobule - proud & distinct)
-    const tipGeo = new THREE.SphereGeometry(0.038, 16, 16);
-    tipGeo.scale(1.15, 0.95, 1.25);
+    // Lateral Nasal Sidewalls
+    [-0.032, 0.032].forEach((nx) => {
+      const isLeft = nx < 0;
+      const sidewall = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.12, 0.04), this.matSkin);
+      sidewall.position.set(nx, 0.020, 0.028);
+      sidewall.rotation.y = isLeft ? 0.35 : -0.35;
+      sidewall.rotation.x = 0.28;
+      noseGroup.add(sidewall);
+    });
+
+    // 7b. Sculpted Nose Tip (Apex / Lobule with Supra-tip break)
+    const tipGeo = new THREE.SphereGeometry(0.036, 16, 16);
+    tipGeo.scale(1.15, 0.95, 1.20);
     const noseTip = new THREE.Mesh(tipGeo, this.matSkin);
-    noseTip.position.set(0, -0.058, 0.098);
+    noseTip.position.set(0, -0.052, 0.105);
     noseGroup.add(noseTip);
 
-    // 10c. Symmetrical Left and Right Nostril Wings (Alar Cartilages)
+    // 7c. Symmetrical Curved Alar Nostril Wings
     [-0.042, 0.042].forEach((nx) => {
-      const ala = new THREE.Mesh(new THREE.SphereGeometry(0.023, 12, 12), this.matSkin);
-      ala.scale.set(0.9, 0.85, 1.1);
-      ala.position.set(nx, -0.068, 0.078);
+      const ala = new THREE.Mesh(new THREE.SphereGeometry(0.023, 14, 14), this.matSkin);
+      ala.scale.set(0.88, 0.82, 1.12);
+      ala.position.set(nx, -0.062, 0.085);
       noseGroup.add(ala);
 
-      // Recessed dark nostril openings underneath
-      const nostril = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.011, 0.016, 8), this.matEyeSocket);
-      nostril.position.set(nx * 0.72, -0.084, 0.076);
-      nostril.rotation.x = 0.48;
+      // Anatomical Teardrop Nostril Openings
+      const nostril = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.010, 0.016, 10), this.matEyeSocket);
+      nostril.position.set(nx * 0.72, -0.078, 0.082);
+      nostril.rotation.x = 0.55;
       noseGroup.add(nostril);
     });
 
-    // 10d. Nasal Columella & Septum Base
-    const columella = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.030, 0.032), this.matSkin);
-    columella.position.set(0, -0.078, 0.078);
+    // 7d. Nasal Columella (Central column dividing nostrils)
+    const columella = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.028, 0.030), this.matSkin);
+    columella.position.set(0, -0.072, 0.082);
     noseGroup.add(columella);
 
-    // 10e. Philtrum Groove (Connecting nose to upper lip)
-    const philtrum = new THREE.Mesh(new THREE.BoxGeometry(0.030, 0.065, 0.016), this.matSkin);
-    philtrum.position.set(0, -0.125, 0.055);
-    noseGroup.add(philtrum);
+    // 7e. Philtrum Columns & Central Groove
+    [-0.016, 0.016].forEach((px) => {
+      const column = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.075, 10), this.matSkin);
+      column.position.set(px, -0.125, 0.060);
+      noseGroup.add(column);
+    });
+
+    const philtrumGroove = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.070, 0.012), this.matSkinShadow);
+    philtrumGroove.position.set(0, -0.125, 0.058);
+    noseGroup.add(philtrumGroove);
 
     this.faceNose = noseGroup;
     this.headGroup.add(noseGroup);
 
-    // 11. --- ULTRA-CLARITY SYMMETRICAL MALE EYES (Zero black defect!) ---
+    // ==========================================
+    // 8. HIGH-CLARITY ALMOND EYES & EYELIDS
+    // ==========================================
     this.leftEye = this.createHumanoidEye(-0.19);
     this.rightEye = this.createHumanoidEye(0.19);
     this.headGroup.add(this.leftEye);
     this.headGroup.add(this.rightEye);
 
-    // 12. --- GROOMED MASCULINE EYEBROWS ---
+    // ==========================================
+    // 9. GROOMED 3-PART MASCULINE EYEBROWS
+    // ==========================================
     this.leftBrow = this.createEyebrow(-0.19, true);
     this.rightBrow = this.createEyebrow(0.19, false);
     this.headGroup.add(this.leftBrow);
     this.headGroup.add(this.rightBrow);
 
-    // 13. --- MASCULINE LIPS & SPEECH BAR ---
+    // ==========================================
+    // 10. SCULPTED MASCULINE LIPS & SPEECH CAVITY
+    // ==========================================
     const lipsGroup = new THREE.Group();
     lipsGroup.position.set(0, -0.22, 0.42);
 
-    // Upper Lip with Cupid's bow contour
-    const upperLip = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.024, 0.038), this.matLips);
-    upperLip.position.set(0, 0.014, 0.005);
-    lipsGroup.add(upperLip);
+    // Oral Cavity Floor (Gives realistic oral depth)
+    const oralCavity = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.035, 0.025), this.matEyeSocket);
+    oralCavity.position.set(0, 0, -0.005);
+    lipsGroup.add(oralCavity);
 
-    // Full Masculine Lower Lip
-    const lowerLip = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.026, 0.040), this.matLips);
-    lowerLip.position.set(0, -0.016, 0.005);
-    lipsGroup.add(lowerLip);
+    // Enamel Teeth Line (Subtly visible between parted lips)
+    const teethLine = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.014, 0.012), this.matTeeth);
+    teethLine.position.set(0, 0.005, 0.008);
+    lipsGroup.add(teethLine);
+
+    // Upper Lip (Central Tubercle / Cupid's Bow & Lateral Wings)
+    const upperTubercle = new THREE.Mesh(new THREE.SphereGeometry(0.022, 14, 14), this.matLips);
+    upperTubercle.scale.set(1.2, 0.85, 0.95);
+    upperTubercle.position.set(0, 0.022, 0.020);
+    lipsGroup.add(upperTubercle);
+
+    [-0.058, 0.058].forEach((lx) => {
+      const isLeft = lx < 0;
+      const upperWing = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.009, 0.075, 12), this.matLips);
+      upperWing.position.set(lx, 0.018, 0.016);
+      upperWing.rotation.z = isLeft ? 1.38 : -1.38;
+      upperWing.rotation.y = isLeft ? 0.22 : -0.22;
+      lipsGroup.add(upperWing);
+    });
+
+    // Lower Lip (Dual Cushioned Muscle Pads)
+    [-0.036, 0.036].forEach((lx) => {
+      const lowerPad = new THREE.Mesh(new THREE.SphereGeometry(0.024, 14, 14), this.matLips);
+      lowerPad.scale.set(1.25, 0.90, 0.92);
+      lowerPad.position.set(lx, -0.014, 0.020);
+      lipsGroup.add(lowerPad);
+    });
+
+    // Oral Commissures (Natural dimple nodes at corners of mouth)
+    [-0.092, 0.092].forEach((cx) => {
+      const commissure = new THREE.Mesh(new THREE.SphereGeometry(0.010, 10, 10), this.matSkinShadow);
+      commissure.position.set(cx, 0.003, 0.012);
+      lipsGroup.add(commissure);
+    });
+
+    // Mentolabial Sulcus (Horizontal depression between lower lip and chin)
+    const mentolabial = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.012, 0.016), this.matSkinShadow);
+    mentolabial.position.set(0, -0.040, 0.014);
+    lipsGroup.add(mentolabial);
 
     // Acoustic Speech Light Bar (Pulses during voice activity)
-    this.speechLED = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.010, 0.022), this.matAccent);
-    this.speechLED.position.set(0, 0, 0.022);
+    this.speechLED = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.008, 0.016), this.matAccent);
+    this.speechLED.position.set(0, 0, 0.024);
     lipsGroup.add(this.speechLED);
 
     this.faceLips = lipsGroup;
@@ -740,12 +900,34 @@ class Robot3D {
   }
 
   createHumanoidEye(xPos) {
+    const isLeft = xPos < 0;
     const eyeGroup = new THREE.Group();
     eyeGroup.position.set(xPos, 0.065, 0.44);
 
-    // 1. Natural Skin-Toned Orbital Socket Rim
-    const socketRim = new THREE.Mesh(new THREE.TorusGeometry(0.118, 0.015, 16, 32), this.matSkin);
+    // 1. Almond-Shaped Palpebral Orbital Rim
+    const almondArchGeo = new THREE.TorusGeometry(0.112, 0.014, 16, 32);
+    almondArchGeo.scale(1.22, 0.88, 1.0);
+    const socketRim = new THREE.Mesh(almondArchGeo, this.matSkin);
+    socketRim.rotation.z = isLeft ? 0.08 : -0.08; // Positive canthal tilt
     eyeGroup.add(socketRim);
+
+    // Medial Canthus (Inner eye corner pointing toward nose)
+    const innerCorner = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), this.matSkin);
+    innerCorner.scale.set(1.4, 0.8, 0.8);
+    innerCorner.position.set(isLeft ? 0.092 : -0.092, -0.006, 0.012);
+    eyeGroup.add(innerCorner);
+
+    // Medial Lacrimal Caruncle (Natural pink inner tear node)
+    const caruncle = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 10), this.matCaruncle);
+    caruncle.scale.set(1.1, 0.85, 0.9);
+    caruncle.position.set(isLeft ? 0.082 : -0.082, -0.006, 0.018);
+    eyeGroup.add(caruncle);
+
+    // Lateral Canthus (Outer eye corner with crisp taper)
+    const outerCorner = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 10), this.matSkin);
+    outerCorner.scale.set(1.2, 0.8, 0.8);
+    outerCorner.position.set(isLeft ? -0.095 : 0.095, 0.008, 0.008);
+    eyeGroup.add(outerCorner);
 
     // 2. Pure Pearlescent White Eyeball Sclera (100% clean white on BOTH eyes - zero black defect!)
     const eyeballGeo = new THREE.SphereGeometry(0.10, 32, 32);
@@ -753,7 +935,7 @@ class Robot3D {
     eyeball.position.set(0, 0, -0.01);
     eyeGroup.add(eyeball);
 
-    // 3. Moving Gaze Assembly (Iris, Aperture, Pupil, Laser Diode, Catchlights)
+    // 3. Moving Gaze Assembly (Iris, Limbal Ring, Aperture, Pupil, Laser Diode, Catchlights)
     const gazeGroup = new THREE.Group();
     gazeGroup.position.set(0, 0, 0.038);
     eyeGroup.add(gazeGroup);
@@ -803,25 +985,35 @@ class Robot3D {
     lens.position.set(0, 0, 0.012);
     eyeGroup.add(lens);
 
-    // 5. Natural Upper Eyelid Fold (Supratarsal male eyelid crease in skin tone)
-    const lidArch = new THREE.Mesh(new THREE.TorusGeometry(0.102, 0.014, 12, 24, Math.PI), this.matSkin);
-    lidArch.rotation.z = Math.PI;
-    lidArch.position.set(0, 0.018, 0.032);
+    // 5. Upper Eyelash Fringe (Fine dark cilia defining the upper eyelid)
+    const lashGeo = new THREE.TorusGeometry(0.092, 0.006, 8, 28, Math.PI * 0.88);
+    lashGeo.scale(1.22, 0.86, 1.0);
+    const lash = new THREE.Mesh(lashGeo, this.matEyelash);
+    lash.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
+    lash.position.set(0, 0.018, 0.028);
+    eyeGroup.add(lash);
+
+    // 6. Supratarsal Upper Eyelid Crease (Natural double eyelid fold in skin shadow)
+    const lidArchGeo = new THREE.TorusGeometry(0.104, 0.009, 12, 24, Math.PI * 0.85);
+    lidArchGeo.scale(1.24, 0.86, 1.0);
+    const lidArch = new THREE.Mesh(lidArchGeo, this.matSkinShadow);
+    lidArch.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
+    lidArch.position.set(0, 0.038, 0.026);
     eyeGroup.add(lidArch);
 
-    // 6. Natural Skin-Toned Eyelid Shutter for Blinking (NEVER black - uses matSkin!)
+    // 7. Natural Skin-Toned Eyelid Shutter for Blinking (NEVER black - uses matSkin!)
     const lidGeo = new THREE.SphereGeometry(0.106, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
     const eyelid = new THREE.Mesh(lidGeo, this.matSkin);
     eyelid.position.set(0, 0, 0.016);
     eyelid.rotation.x = -Math.PI / 2; // Default open
     eyeGroup.add(eyelid);
 
-    // 7. Dedicated High-Definition Eye Point Light (Symmetrically illuminates both eyes!)
+    // 8. Dedicated High-Definition Eye Point Light (Symmetrically illuminates both eyes!)
     const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 1.3, 1.8);
     eyeLight.position.set(0, 0, 0.14);
     eyeGroup.add(eyeLight);
 
-    if (xPos < 0) this.leftEyeLight = eyeLight;
+    if (isLeft) this.leftEyeLight = eyeLight;
     else this.rightEyeLight = eyeLight;
 
     eyeGroup.userData = {
@@ -842,10 +1034,29 @@ class Robot3D {
     const brow = new THREE.Group();
     brow.position.set(xPos, 0.19, 0.47);
 
-    // Groomed masculine eyebrow: thicker at the glabella, tapering toward the temple
-    const browMesh = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.034, 0.04), this.matEyebrow);
-    browMesh.rotation.z = isLeft ? -0.08 : 0.08;
-    brow.add(browMesh);
+    // Groomed Masculine 3-Part Arched Eyebrow:
+    // 1. Head (Medial end at glabella: thicker, angled)
+    const headGeo = new THREE.CylinderGeometry(0.019, 0.017, 0.075, 12);
+    const head = new THREE.Mesh(headGeo, this.matEyebrow);
+    head.position.set(isLeft ? 0.065 : -0.065, -0.008, 0.010);
+    head.rotation.z = isLeft ? 1.42 : -1.42;
+    head.rotation.y = isLeft ? -0.16 : 0.16;
+    brow.add(head);
+
+    // 2. Body (Central arch over supraorbital ridge)
+    const bodyGeo = new THREE.CylinderGeometry(0.017, 0.014, 0.090, 12);
+    const body = new THREE.Mesh(bodyGeo, this.matEyebrow);
+    body.position.set(0, 0.002, 0.005);
+    body.rotation.z = isLeft ? 1.54 : -1.54;
+    brow.add(body);
+
+    // 3. Tail (Lateral end tapering toward temple)
+    const tailGeo = new THREE.CylinderGeometry(0.014, 0.008, 0.072, 12);
+    const tail = new THREE.Mesh(tailGeo, this.matEyebrow);
+    tail.position.set(isLeft ? -0.070 : 0.070, -0.012, -0.010);
+    tail.rotation.z = isLeft ? 1.78 : -1.78;
+    tail.rotation.y = isLeft ? 0.20 : -0.20;
+    brow.add(tail);
 
     return brow;
   }
@@ -1112,7 +1323,7 @@ class Robot3D {
     const upperArm = new THREE.Group();
     upperArm.position.set(isLeft ? -0.03 : 0.03, -0.04, 0);
     upperArm.rotation.x = 0.25;
-    upperArm.rotation.z = isLeft ? 0.12 : -0.12;
+    upperArm.rotation.z = isLeft ? -0.14 : 0.14; // Naturally angled OUTSIDE the torso
     armGroup.add(upperArm);
 
     // Upper arm structural humeral core
@@ -2641,16 +2852,16 @@ class Robot3D {
       let leftFingersTarget = Math.sin(time * 2.2) * 0.12 + 0.18;
       let rightFingersTarget = Math.sin(time * 2.2) * 0.12 + 0.18;
 
-      // Inquisitive Contemplative Arm Gestures during Thinking
+      // Inquisitive Contemplative Arm Gestures during Thinking (arms naturally outside body)
       if (this.expression === "thinking" && !this.currentAction) {
-        targetLeft.upper = { x: 0.48 + breathe, y: 0.24, z: 0.36 };
+        targetLeft.upper = { x: 0.48 + breathe, y: 0.24, z: -0.28 };
         targetLeft.fore = { x: -1.82, y: 0.18, z: 0.08 };
         targetLeft.hand = { x: -0.10, y: 0.38, z: 0.14 };
         leftFingersTarget = 0.32; // gently curled fingers near chin
       } else if (this.expression === "speaking" && !this.currentAction) {
-        // Conversational Explaining Gesture during Speech Streaming
+        // Conversational Explaining Gesture during Speech Streaming (gesturing outward from body)
         const talkWave = Math.sin(time * 5.0) * 0.14;
-        targetRight.upper = { x: 0.32 + talkWave * 0.4, y: -0.12, z: -0.28 };
+        targetRight.upper = { x: 0.32 + talkWave * 0.4, y: -0.12, z: 0.28 };
         targetRight.fore = { x: -1.45 + talkWave, y: 0.15, z: -0.10 };
         targetRight.hand = { x: 0.12, y: -0.20 + talkWave * 0.8, z: 0.0 };
         rightFingersTarget = 0.08 + Math.abs(talkWave) * 0.25;
@@ -2692,25 +2903,29 @@ class Robot3D {
         targetLeft.hand = { x: -0.15, y: -0.25, z: 0.0 };
       } else if (this.currentAction === "bye") {
         this.actionTimer += delta;
-        // Step-by-Step Action (OUTSIDE the body):
-        // Step 1 (0.0s - 0.6s): Right hand comes up over the right arm outside the body
-        // Step 2 (0.6s - 2.6s): Raised hand waves farewell over the right arm outside the body
-        // Step 3 (2.6s - 3.2s): Smoothly lowers arm back to idle ready stance
+        // Distinct Farewell "Bye-Bye" Animation:
+        // Mid-height forward arm stance with signature finger-curling fluttering wave & warm head tilt
+        // Step 1 (0.0s - 0.6s): Right hand raises forward to chest/shoulder height with open palm facing user
+        // Step 2 (0.6s - 2.6s): Hand rocks gently while fingers flutter in a distinct rhythmic "bye-bye" wave
+        // Step 3 (2.6s - 3.2s): Hand lowers softly back to idle stance
         if (this.actionTimer < 0.6) {
-          // Phase 1: Hand comes up over right arm outside the body
-          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 };
-          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 };
-          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 };
-          rightFingersTarget = -0.02;
-          targetHead.z = -0.08;
+          // Phase 1: Smooth lift forward to chest/shoulder level
+          targetRight.upper = { x: -0.79, y: -0.62, z: 1.46 };
+          targetRight.fore = { x: -0.40, y: -1.84, z: 1.35 };
+          targetRight.hand = { x: 0.79, y: -0.68, z: -0.42 };
+          rightFingersTarget = 0.08;
+          targetHead.z = -0.10;
+          targetHead.x = -0.05;
         } else if (this.actionTimer < 2.6) {
-          // Phase 2: Wave it farewell over right arm outside the body!
-          const byeWave = Math.sin((this.actionTimer - 0.6) * 5.0) * 0.32;
-          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 };
-          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 + byeWave * 0.15 };
-          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 + byeWave };
-          rightFingersTarget = -0.02;
-          targetHead.z = -0.10 + byeWave * 0.04;
+          // Phase 2: Distinct Farewell Wave — gentle hand sway + signature finger flutter ("bye-bye" 👋)
+          const byeWave = Math.sin((this.actionTimer - 0.6) * 5.0) * 0.25;
+          const fingerFlutter = Math.sin((this.actionTimer - 0.6) * 7.5) * 0.28;
+          targetRight.upper = { x: -0.79, y: -0.62, z: 1.46 };
+          targetRight.fore = { x: -0.40, y: -1.84, z: 1.35 + byeWave * 0.20 };
+          targetRight.hand = { x: 0.79, y: -0.68, z: -0.42 + byeWave };
+          rightFingersTarget = 0.20 + fingerFlutter; // Continuous rhythmic finger wave
+          targetHead.z = -0.14 + byeWave * 0.04; // Kind affectionate head tilt
+          targetHead.x = -0.06;
         } else {
           // Phase 3: Lower smoothly back down
           if (this.actionTimer > 3.2) {
@@ -2718,21 +2933,21 @@ class Robot3D {
           }
         }
 
-        // Left arm in supportive posture outside body
+        // Left arm in relaxed gentlemanly resting posture
         targetLeft.upper = { x: 0.12, y: 0.0, z: -0.15 };
         targetLeft.fore = { x: -0.85, y: -0.35, z: 0.0 };
         targetLeft.hand = { x: -0.10, y: -0.20, z: 0.0 };
       } else if (this.currentAction === "hifi") {
         this.actionTimer += delta;
         // Step-by-Step High-Five:
-        // Right hand positioned high on the UPPER OF RIGHT ARM OUTSIDE THE BODY (elevated straight up)
+        // Right hand reaches distinctly FORWARD toward the user/camera (Z = 0.50, Y = 0.70, X = 0.55)
         if (this.hifiSlapped) {
           this.hifiSlapTimer += delta;
           // Kinetic physical recoil from slap with damped harmonic recovery
           const recoil = Math.sin(Math.min(Math.PI, this.hifiSlapTimer * 7.0)) * Math.exp(-this.hifiSlapTimer * 2.2) * 0.40;
-          targetRight.upper = { x: 0.41 - recoil * 0.30, y: -0.22, z: 1.89 };
-          targetRight.fore = { x: -0.37 - recoil * 0.40, y: 0.09, z: 1.79 };
-          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 - recoil * 0.30 };
+          targetRight.upper = { x: 0.44 - recoil * 0.40, y: -0.47, z: 2.45 };
+          targetRight.fore = { x: -0.98 + recoil * 0.30, y: 0.18, z: 0.65 };
+          targetRight.hand = { x: 1.63, y: -0.68, z: 1.03 };
           rightFingersTarget = 0.02;
 
           targetLeft.upper = { x: -0.18, y: 0.0, z: -0.22 };
@@ -2742,10 +2957,10 @@ class Robot3D {
             this.endAction();
           }
         } else {
-          // Right hand held high on the UPPER OF RIGHT ARM OUTSIDE THE BODY, palm facing forward
-          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 }; // Elevated upper arm laterally outside
-          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 };  // Forearm reaches straight up outside
-          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 }; // Hand upright on top of arm
+          // Right hand held high, reaching FORWARD toward the user/camera, palm facing flat forward
+          targetRight.upper = { x: 0.44, y: -0.47, z: 2.45 }; // Upper arm extends forward & out
+          targetRight.fore = { x: -0.98, y: 0.18, z: 0.65 };  // Forearm reaches forward into screen at Z=0.50
+          targetRight.hand = { x: 1.63, y: -0.68, z: 1.03 };  // Hand upright, flat palm facing user
           rightFingersTarget = -0.05; // Flat open high-five palm
 
           targetLeft.upper = { x: -0.15, y: 0.0, z: -0.20 };   // Braced athletic stance outside body
@@ -2867,26 +3082,19 @@ class Robot3D {
         leftFingersTarget = 0.55; // clenched victory fist
         rightFingersTarget = 0.55;
         targetHead.x = -0.14; // head lifted high in victory
-        targetLeft.fore = { x: -1.15, y: 0.0, z: 0.0 };
-        targetRight.fore = { x: -1.15, y: 0.0, z: 0.0 };
-        targetLeft.hand = { x: 0.30, y: 0.0, z: 0.0 };
-        targetRight.hand = { x: 0.30, y: 0.0, z: 0.0 };
-        leftFingersTarget = 0.55; // clenched victory fist
-        rightFingersTarget = 0.55;
-        targetHead.x = -0.14; // head lifted high in victory
 
         if (this.actionTimer > 2.4) {
           this.endAction();
         }
       } else if (this.expression === "speaking") {
-        // Conversational Gesturing: Both hands articulate with natural speech rhythm
+        // Conversational Gesturing: Both hands articulate with natural speech rhythm outside body
         const wave1 = Math.sin(time * 3.8) * 0.16;
         const wave2 = Math.cos(time * 3.2) * 0.14;
-        targetRight.upper = { x: 0.32 + wave1 * 0.4, y: -0.12, z: -0.25 };
+        targetRight.upper = { x: 0.32 + wave1 * 0.4, y: -0.12, z: 0.25 };
         targetRight.fore = { x: -1.25 + wave1, y: -0.25, z: 0.0 };
         targetRight.hand = { x: 0.10, y: -0.30 + wave1 * 0.6, z: 0.0 };
 
-        targetLeft.upper = { x: 0.30 + wave2 * 0.4, y: 0.12, z: 0.25 };
+        targetLeft.upper = { x: 0.30 + wave2 * 0.4, y: 0.12, z: -0.25 };
         targetLeft.fore = { x: -1.20 + wave2, y: 0.25, z: 0.0 };
         targetLeft.hand = { x: 0.10, y: 0.30 + wave2 * 0.6, z: 0.0 };
 

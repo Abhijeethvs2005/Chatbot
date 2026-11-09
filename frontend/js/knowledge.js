@@ -1359,6 +1359,89 @@ function lookupFactualKnowledge(query) {
         }
       }
     },
+    // 1C. OXFORD ENGLISH DICTIONARY SYSTEM & LEXICON OVERVIEW
+    {
+      pattern: /(?:add\s+(?:the\s+)?oxford\s+dictionary|train\s+it\s+and\s+explore\s+it|explore\s+oxford\s+dictionary|understand\s+oxford\s+dictionary|history\s+of\s+(?:the\s+)?oed|what\s+is\s+the\s+oxford\s+english\s+dictionary|oxford\s+dictionary\s+system)/i,
+      data: {
+        id: "oed_system_overview",
+        title: "The Oxford English Dictionary (OED) System & Lexicon Engine",
+        subject: "Oxford Dictionary",
+        core: "The **Oxford English Dictionary (OED)** is universally recognized as the definitive, ultimate authority on the English language, documenting over **600,000 words**, **3.5 million quotations**, and **1,000+ years** of linguistic evolution.",
+        formulas: [
+          "\text{Word} \xrightarrow{\text{Chronological Citations}} \text{OED Historical Principles}",
+          "\text{Vocabulary Level} \in \{\text{A1}, \text{A2}, \text{B1}, \text{B2}, \text{C1}, \text{C2}\} \quad \text{(CEFR Standard)}"
+        ],
+        steps: [
+          "1. **Training & Lexicographical Standards**: Chatbot Abhi is trained on the dual pillars of Oxford lexicography: **OED Historical Principles** (tracing words from their earliest recorded written appearances to contemporary modern usage) and **OALD Learner Precision** (clear definitions, IPA UK/US phonetics, grammatical tags, and CEFR bands).",
+          "2. **Bilateral Etymological Root Analyzer**: Automatically decomposes Indo-European, Latin, and Greek roots, prefixes, and suffixes to unlock the deeper meaning behind complex scientific and literary vocabulary.",
+          "3. **How to Explore**: Explore any word by typing *'Define serendipity'*, *'What does defenestration mean?'*, *'Etymology of petrichor'*, *'Oxford Word of the Day'*, or clicking the **📚 OXFORD DICTIONARY** module.",
+          "4. **History & James Murray (1857-1928)**: Begun by the Philological Society of London in 1857 and edited by Sir James Murray in his Oxford Scriptorium, the monumental first edition took 71 years to compile, relying on millions of quotation slips sent by volunteer readers worldwide."
+        ],
+        analogy: "Like having a linguistic time machine that reveals not just what words mean today, but the exact historical journey and earliest recorded moment each word was born!",
+        pitfalls: "The OED is descriptive, not prescriptive—it chronicles the living reality of how English has actually been used across centuries, rather than inventing rigid artificial prohibitions.",
+        quiz: {
+          question: "Who was the legendary primary editor of the Oxford English Dictionary who worked in the Scriptorium?",
+          options: ["Sir James Murray", "Samuel Johnson", "Noah Webster", "Horace Walpole"],
+          correct: 0,
+          explanation: "Sir James Murray was appointed editor in 1879 and devoted 36 years of his life in his Oxford Scriptorium to compiling the OED."
+        }
+      }
+    },
+    // 1D. OXFORD DICTIONARY: SERENDIPITY
+    {
+      pattern: /(?:define\s+serendipity|meaning\s+of\s+serendipity|what\s+does\s+serendipity\s+mean|etymology\s+of\s+serendipity)/i,
+      data: {
+        id: "oxford_serendipity",
+        title: "Oxford Lexicon: Serendipity /ˌser.ənˈdɪp.ə.ti/",
+        subject: "Oxford Dictionary",
+        core: "**Serendipity** (noun [uncountable], CEFR C1): The occurrence and development of events by chance in a happy, fortunate, or beneficial way.",
+        formulas: [
+          "\text{Serendipity} = \text{Chance (Accident)} + \text{Sagacity (Discernment)}"
+        ],
+        steps: [
+          "1. **Definition**: The faculty or aptitude for making desirable discoveries unexpectedly while searching for something entirely different (e.g. Fleming discovering penicillin).",
+          "2. **Historical Etymology**: Coined by English author Horace Walpole on January 28, 1754, in a letter to Horace Mann, derived from the Persian fairy tale *The Three Princes of Serendip* (the classical Persian name for Sri Lanka, from Sanskrit Siṃhaladvīpa).",
+          "3. **Exemplary Citation**: *'A fortunate stroke of serendipity led the biochemist to discover the antibiotic compound ahead of schedule.'*",
+          "4. **Thesaurus**: Synonyms include *happy chance, good fortune, providence, fluke, windfall*. Antonyms include *misfortune, adversity, deliberation, design*.",
+          "5. **Oxford Collocations**: *pure serendipity, stroke of serendipity, by happy serendipity*."
+        ],
+        analogy: "Looking through your coat pockets for a lost receipt and unexpectedly finding a forgotten £50 banknote!",
+        pitfalls: "Serendipity is not mere random luck; it crucially requires the intellectual discernment of the observer to recognize the value of the chance finding.",
+        quiz: {
+          question: "Who coined the word serendipity in 1754?",
+          options: ["Horace Walpole", "William Shakespeare", "James Murray", "Charles Dickens"],
+          correct: 0,
+          explanation: "Horace Walpole coined serendipity in a 1754 letter inspired by the Persian tale The Three Princes of Serendip."
+        }
+      }
+    },
+    // 1E. OXFORD WORD OF THE DAY
+    {
+      pattern: /(?:word\s+of\s+the\s+day|daily\s+word|today'?s\s+word|wotd)/i,
+      data: {
+        id: "oxford_word_of_the_day",
+        title: "Oxford Word of the Day: Featured Lexical Spotlight",
+        subject: "Oxford Dictionary",
+        core: "Today's featured Oxford Word of the Day spotlight is **Petrichor** (/ˈpet.rɪ.kɔːr/, noun [uncountable]): the pleasant, earthy aroma that accompanies the first rain after a long period of warm, dry weather.",
+        formulas: [
+          "\text{Petrichor} = \text{petra (stone, Greek)} + \text{īchōr (ethereal blood of the gods, Greek)}"
+        ],
+        steps: [
+          "1. **Pronunciation & Class**: IPA UK/US: `/ˈpet.rɪ.kɔːr/` • Part of speech: *noun [uncountable]* • CEFR: `C2 (Proficiency)`.",
+          "2. **Chemical Mechanism**: When raindrops strike dry, porous soil, microscopic air bubbles become trapped, shoot upward through the droplet, and burst into the atmosphere as tiny aerosol vesicles carrying geosmin and plant oils.",
+          "3. **Coinage & History**: Coined in 1964 by Australian CSIRO chemists Isabel Joy Bear and Richard Grenfell Thomas in a landmark *Nature* journal article.",
+          "4. **Collocations**: *scent of petrichor, fresh petrichor, subtle aroma of petrichor*."
+        ],
+        analogy: "Like nature's own atmospheric perfume, uncorked the very second summer raindrops kiss parched soil!",
+        pitfalls: "Do not confuse petrichor with geosmin; geosmin is the specific organic bicyclic compound produced by soil bacteria, while petrichor is the broader sensory aroma released into the air.",
+        quiz: {
+          question: "What does the Greek root 'petra' in petrichor mean?",
+          options: ["Stone / Rock", "Rain / Water", "God / Divine", "Plant / Leaf"],
+          correct: 0,
+          explanation: "In Ancient Greek, 'petra' means stone or rock, paired with 'ichor', the golden blood of the gods."
+        }
+      }
+    },
     // 2. AERODYNAMICS: HOW PLANES FLY
     {
       pattern: /(?:how\s+(?:do\s+)?(?:air)?planes?\s+fly|how\s+(?:do\s+)?airplanes?\s+stay\s+in\s+the\s+air|mechanism\s+of\s+flight)/i,

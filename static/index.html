@@ -144,6 +144,7 @@
           <div class="subject-tabs">
             <button class="subject-pill active" data-subject="General">🌐 ALL DISCIPLINES</button>
             <button class="subject-pill" data-subject="Communication Skills">🗣️ COMMUNICATION</button>
+            <button class="subject-pill" data-subject="Oxford Dictionary">📚 OXFORD DICTIONARY</button>
             <button class="subject-pill" data-subject="Mathematics">📐 MATHEMATICS</button>
             <button class="subject-pill" data-subject="Physics">⚛️ PHYSICS</button>
             <button class="subject-pill" data-subject="Computer Science">💻 COMP SCI</button>
@@ -184,6 +185,7 @@
                     <li><strong>Interactive Gestures:</strong> Tap <strong>High-Five</strong>, <strong>Hello</strong>, <strong>Bye</strong>, <strong>Blow Kiss</strong> (with floating 3D hearts), or <strong>Salute</strong>!</li>
                     <li><strong>Communication Mastery:</strong> Master the 7 C's of Communication, STAR interview framework, active listening, and public speaking with real-time feedback.</li>
                     <li><strong>Wardrobe Dressing:</strong> Switch outfits in real-time (👔 Tailored Suit, 🎓 Student Uniform, 🥼 Lab Coat, 🧥 Urban Hoodie, 🚀 Space Suit).</li>
+                    <li><strong>Oxford English Dictionary & Lexicon:</strong> Comprehensive vocabulary definitions, IPA pronunciation, historical etymology (Greek, Latin, Old English), and Oxford Word of the Day.</li>
                     <li><strong>Cursor Zoom & 360° Orbit:</strong> Scroll mouse wheel to zoom in/out with cursor, and click-drag to rotate the robot 360°.</li>
                     <li><strong>Sub-10ms Academic Engine:</strong> High-precision math, science, and multi-domain solving with KaTeX and live factual retrieval.</li>
                   </ul>
@@ -196,6 +198,9 @@
 
         <!-- Quick Prompts Bar -->
         <div class="quick-prompts-row">
+          <button class="quick-prompt" data-prompt="Explore the Oxford English Dictionary: define serendipity with etymology and IPA">📚 Define Serendipity (Oxford)</button>
+          <button class="quick-prompt" data-prompt="What is the Oxford English Dictionary (OED) and how was it created?">📖 History of the OED</button>
+          <button class="quick-prompt" data-prompt="Give me the Oxford Word of the Day with full pronunciation, definitions, and word history">✨ Oxford Word of the Day</button>
           <button class="quick-prompt" data-prompt="Teach me the 7 C's of Effective Communication with examples">🗣️ 7 C's Communication</button>
           <button class="quick-prompt" data-prompt="How do I answer interview questions using the STAR Method?">💼 STAR Interview Method</button>
           <button class="quick-prompt" data-prompt="What are the essential keys to Active Listening and Empathy?">👂 Active Listening</button>
@@ -211,7 +216,7 @@
         <div class="terminal-input-bar">
           <div class="input-box">
             <button id="mic-btn" class="input-icon-btn" title="Speak via microphone">🎤</button>
-            <input type="text" id="chat-input" placeholder="Ask any STEM, math, or study question... (e.g. '15 * 14' or 'Explain QuickSort')" autocomplete="off">
+            <input type="text" id="chat-input" placeholder="Ask any question, explore Oxford definitions, or solve math... (e.g. 'define serendipity' or '15 * 14')" autocomplete="off">
             <button id="send-btn" class="send-action-btn" title="Send Query">➔</button>
           </div>
 
@@ -316,10 +321,10 @@
   </div>
 
   <!-- Scripts -->
-  <script src="/static/js/knowledge.js?v=5.0.0"></script>
-  <script src="/static/js/audio.js?v=5.0.0"></script>
-  <script src="/static/js/mathgraph.js?v=5.0.0"></script>
-  <script src="/static/js/robot3d.js?v=5.0.0"></script>
-  <script src="/static/js/app.js?v=5.0.0"></script>
+  <script src="/static/js/knowledge.js?v=5.2.0"></script>
+  <script src="/static/js/audio.js?v=5.2.0"></script>
+  <script src="/static/js/mathgraph.js?v=5.2.0"></script>
+  <script src="/static/js/robot3d.js?v=5.2.0"></script>
+  <script src="/static/js/app.js?v=5.2.0"></script>
 </body>
 </html>
