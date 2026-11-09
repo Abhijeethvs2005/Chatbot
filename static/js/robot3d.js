@@ -1592,7 +1592,7 @@ class Robot3D {
           else window.AudioEngine.playRobotChirp();
           window.AudioEngine.speak("Sending you lots of love and positive energy!");
         }
-        setTimeout(() => this.spawnHeartParticles(), 900);
+        setTimeout(() => this.spawnHeartParticles(), 1200);
       } else if (actionName === "salute") {
         this.setExpression("idle");
         if (window.AudioEngine) {
@@ -2085,146 +2085,232 @@ class Robot3D {
 
       if (this.currentAction === "hello") {
         this.actionTimer += delta;
-        const wave = Math.sin(this.actionTimer * 8.5) * 0.42;
-        const waveZ = Math.sin(this.actionTimer * 8.5) * 0.15;
-        // Right arm raised high with open palm waving smoothly
-        targetRight.upper = { x: 0.35, y: -0.15, z: -1.30 };
-        targetRight.fore = { x: -1.82, y: 0.0, z: 0.0 };
-        targetRight.hand = { x: 0.52, y: wave, z: waveZ };
-        rightFingersTarget = 0.02; // Open flat waving hand
+        // Step-by-Step Action:
+        // Step 1 (0.0s - 0.5s): Right hand comes up over the right arm
+        // Step 2 (0.5s - 2.4s): Raised hand waves side-to-side over the right arm
+        // Step 3 (2.4s - 3.0s): Smoothly lowers arm back to idle ready stance
+        if (this.actionTimer < 0.5) {
+          // Phase 1: Bringing right hand up over right arm
+          targetRight.upper = { x: 0.35, y: -0.15, z: -1.35 };
+          targetRight.fore = { x: -1.82, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.25, y: -0.10, z: 0.0 };
+          rightFingersTarget = 0.02;
+          targetHead.z = 0.10;
+          targetHead.x = -0.04;
+        } else if (this.actionTimer < 2.4) {
+          // Phase 2: Hand is over right arm — WAVE IT!
+          const wave = Math.sin((this.actionTimer - 0.5) * 8.0) * 0.45;
+          targetRight.upper = { x: 0.35, y: -0.15, z: -1.35 };
+          targetRight.fore = { x: -1.82, y: 0.0, z: wave * 0.15 };
+          targetRight.hand = { x: 0.25, y: -0.10, z: wave };
+          rightFingersTarget = 0.02; // Open flat waving hand
+          targetHead.z = 0.12;
+          targetHead.x = -0.04;
+        } else {
+          // Phase 3: Lowering arm smoothly back to idle
+          if (this.actionTimer > 3.0) {
+            this.endAction();
+          }
+        }
 
         // Left arm relaxed supportive posture
         targetLeft.upper = { x: 0.15, y: 0.0, z: 0.16 };
-        targetLeft.fore = { x: -0.90, y: 0.0, z: 0.0 };
+        targetLeft.fore = { x: -0.90, y: 0.35, z: 0.0 };
         targetLeft.hand = { x: -0.15, y: 0.25, z: 0.0 };
-
-        targetHead.z = 0.12;
-        targetHead.x = -0.04;
-
-        if (this.actionTimer > 3.0) {
-          this.currentAction = null;
-          this.setExpression("idle");
-        }
       } else if (this.currentAction === "bye") {
         this.actionTimer += delta;
-        const byeWave = Math.sin(this.actionTimer * 4.5) * 0.36;
-        // Right arm gentle farewell wave
-        targetRight.upper = { x: 0.22, y: -0.10, z: -1.05 };
-        targetRight.fore = { x: -1.65, y: 0.0, z: 0.0 };
-        targetRight.hand = { x: 0.40, y: byeWave, z: byeWave * 0.15 };
-        rightFingersTarget = 0.05;
+        // Step-by-Step Action (same as hello):
+        // Step 1 (0.0s - 0.5s): Right hand comes up over the right arm
+        // Step 2 (0.5s - 2.4s): Raised hand waves farewell over the right arm
+        // Step 3 (2.4s - 3.0s): Smoothly lowers arm back to idle ready stance
+        if (this.actionTimer < 0.5) {
+          // Phase 1: Hand comes up over right arm
+          targetRight.upper = { x: 0.26, y: -0.10, z: -1.20 };
+          targetRight.fore = { x: -1.75, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.25, y: -0.10, z: 0.0 };
+          rightFingersTarget = 0.05;
+          targetHead.z = -0.08;
+        } else if (this.actionTimer < 2.4) {
+          // Phase 2: Wave it farewell!
+          const byeWave = Math.sin((this.actionTimer - 0.5) * 5.0) * 0.40;
+          targetRight.upper = { x: 0.26, y: -0.10, z: -1.20 };
+          targetRight.fore = { x: -1.75, y: 0.0, z: byeWave * 0.12 };
+          targetRight.hand = { x: 0.25, y: -0.10, z: byeWave };
+          rightFingersTarget = 0.05;
+          targetHead.z = -0.10;
+        } else {
+          // Phase 3: Lower smoothly back down
+          if (this.actionTimer > 3.0) {
+            this.endAction();
+          }
+        }
 
         // Left arm in supportive posture
         targetLeft.upper = { x: 0.12, y: 0.0, z: 0.15 };
-        targetLeft.fore = { x: -0.85, y: 0.0, z: 0.0 };
+        targetLeft.fore = { x: -0.85, y: 0.35, z: 0.0 };
         targetLeft.hand = { x: -0.10, y: 0.20, z: 0.0 };
-
-        targetHead.z = -0.10;
-
-        if (this.actionTimer > 3.0) {
-          this.currentAction = null;
-          this.setExpression("idle");
-        }
       } else if (this.currentAction === "hifi") {
         this.actionTimer += delta;
+        // Step-by-Step High-Five:
+        // Right hand positioned high on the UPPER OF RIGHT ARM (elevated straight up)
         if (this.hifiSlapped) {
           this.hifiSlapTimer += delta;
-          // Kinetic physical recoil from slap
-          const recoil = Math.sin(Math.min(Math.PI, this.hifiSlapTimer * 6.5)) * 0.40;
-          targetRight.upper = { x: 0.70 - recoil * 0.7, y: 0.08, z: -0.35 };
-          targetRight.fore = { x: -0.75 - recoil * 0.9, y: 0.0, z: 0.0 };
-          targetRight.hand = { x: 0.75 - recoil, y: 0.0, z: 0.0 };
+          // Kinetic physical recoil from slap with damped harmonic recovery
+          const recoil = Math.sin(Math.min(Math.PI, this.hifiSlapTimer * 7.0)) * Math.exp(-this.hifiSlapTimer * 2.2) * 0.45;
+          targetRight.upper = { x: 0.40 - recoil * 0.6, y: -0.10, z: -1.25 };
+          targetRight.fore = { x: -1.85 - recoil * 0.8, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.15 - recoil * 0.5, y: 0.0, z: 0.0 };
           rightFingersTarget = 0.02;
 
           targetLeft.upper = { x: -0.18, y: 0.0, z: 0.22 };
-          targetHead.x = -recoil * 0.15;
+          targetHead.x = -recoil * 0.20;
 
-          if (this.hifiSlapTimer > 1.3) {
-            this.hifiSlapped = false;
-            this.currentAction = null;
-            this.setExpression("idle");
+          if (this.hifiSlapTimer > 1.4) {
+            this.endAction();
           }
         } else {
-          // Ready palm facing user at eye level
-          targetRight.upper = { x: 0.78, y: -0.06, z: -0.42 };
-          targetRight.fore = { x: -0.52, y: 0.0, z: 0.0 };
-          targetRight.hand = { x: 1.05, y: 0.0, z: 0.0 };
-          rightFingersTarget = 0.0; // Flat open palm
+          // Right hand held high on the UPPER OF RIGHT ARM, palm facing forward
+          targetRight.upper = { x: 0.40, y: -0.10, z: -1.25 }; // Elevated upper arm
+          targetRight.fore = { x: -1.85, y: 0.0, z: 0.0 };     // Forearm reaches straight up
+          targetRight.hand = { x: 0.15, y: 0.0, z: 0.0 };      // Hand upright on top of arm
+          rightFingersTarget = -0.05; // Flat open high-five palm
 
-          targetLeft.upper = { x: -0.12, y: 0.0, z: 0.18 };
-          targetLeft.fore = { x: -0.65, y: 0.0, z: 0.0 };
+          targetLeft.upper = { x: -0.15, y: 0.0, z: 0.20 };    // Braced athletic stance
+          targetLeft.fore = { x: -0.65, y: 0.35, z: 0.0 };
           targetLeft.hand = { x: 0.0, y: 0.30, z: 0.0 };
 
           targetHead.x = 0.05;
 
           if (this.actionTimer > 6.0) {
-            this.isHifiReady = false;
-            this.currentAction = null;
-            this.setExpression("idle");
+            this.endAction();
           }
         }
       } else if (this.currentAction === "kiss") {
         this.actionTimer += delta;
-        if (this.actionTimer < 1.1) {
-          // Phase 1: Bring hand right to lips
-          targetRight.upper = { x: 0.85, y: -0.12, z: -0.38 };
-          targetRight.fore = { x: -2.35, y: 0.0, z: 0.0 };
-          targetRight.hand = { x: 0.72, y: 0.0, z: 0.0 };
-          rightFingersTarget = 0.28; // Gently cupped at lips
-          targetHead.x = -0.12; // Bow head gently toward hand
-        } else if (this.actionTimer < 3.2) {
-          // Phase 2: Extend hand outward toward screen, blowing kiss
-          const sway = Math.sin(this.actionTimer * 4.0) * 0.18;
-          targetRight.upper = { x: 0.45, y: 0.0, z: -0.45 };
-          targetRight.fore = { x: -0.72, y: 0.0, z: 0.0 };
-          targetRight.hand = { x: 0.32, y: sway, z: 0.0 };
-          rightFingersTarget = 0.05; // Open fingers releasing kiss
-          targetHead.x = 0.08;
-          targetHead.z = 0.05;
+        // Step-by-Step Flying Kiss:
+        // Step 1: Right hand goes to lips
+        // Step 2: Flew it (extends arm forward and releases flying hearts)
+        // Step 3: Smooth return to idle
+        if (this.actionTimer < 1.2) {
+          // Step 1: Right hand goes directly to lips with gentle head bow
+          targetRight.upper = { x: 0.85, y: -0.12, z: -0.22 };
+          targetRight.fore = { x: -2.38, y: -0.15, z: 0.0 };
+          targetRight.hand = { x: 0.68, y: 0.0, z: -0.15 };
+          rightFingersTarget = 0.25; // Gently cupped at lips
+          targetHead.x = -0.14; // Bow head gently toward fingertips
+        } else if (this.actionTimer < 2.8) {
+          // Step 2: "Flew it" — arm extends forward into the air, blowing kiss!
+          const sway = Math.sin((this.actionTimer - 1.2) * 3.5) * 0.15;
+          targetRight.upper = { x: 0.38, y: 0.0, z: -0.35 };
+          targetRight.fore = { x: -0.60, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.42, y: sway, z: 0.0 }; // palm up pushing kiss into air
+          rightFingersTarget = -0.05; // Open fingers releasing the kiss
+          targetHead.x = 0.10;
+          targetHead.z = 0.06;
         } else {
-          // Phase 3: Smooth return
-          if (this.actionTimer > 3.8) {
-            this.currentAction = null;
-            this.setExpression("idle");
+          // Step 3: Smooth return to idle
+          if (this.actionTimer > 3.5) {
+            this.endAction();
           }
         }
         targetLeft.upper = { x: 0.10, y: 0.0, z: 0.16 };
-        targetLeft.fore = { x: -0.75, y: 0.0, z: 0.0 };
+        targetLeft.fore = { x: -0.75, y: 0.35, z: 0.0 };
         targetLeft.hand = { x: -0.10, y: 0.30, z: 0.0 };
       } else if (this.currentAction === "salute") {
         this.actionTimer += delta;
-        // Left arm pinned rigid flush down at attention
-        targetLeft.upper = { x: 0.0, y: 0.0, z: 0.08 };
-        targetLeft.fore = { x: 0.0, y: 0.0, z: 0.0 };
-        targetLeft.hand = { x: 0.0, y: 0.0, z: 0.0 };
+        // Step-by-Step Salute:
+        // Step 1 (0.0s - 0.5s): Right hand goes directly to right ear, left arm at attention
+        // Step 2 (0.5s - 2.2s): Holds crisp rigid salute at the right ear
+        // Step 3 (2.2s - 2.8s): Smartly snaps hand down to side and returns to ready stance
+        if (this.actionTimer < 2.2) {
+          // Steps 1 & 2: Right hand goes to right ear and holds
+          targetRight.upper = { x: 0.18, y: -0.12, z: -1.48 };
+          targetRight.fore = { x: -2.35, y: 0.28, z: 0.0 };
+          targetRight.hand = { x: 0.12, y: -0.15, z: 0.15 }; // fingertips touch right ear
+          rightFingersTarget = 0.0; // Pinned flat fingers at ear
 
-        // Right arm sharp salute: fingertips align to brow
-        targetRight.upper = { x: 0.42, y: -0.15, z: -1.38 };
-        targetRight.fore = { x: -2.42, y: 0.0, z: 0.0 };
-        targetRight.hand = { x: 0.15, y: 0.0, z: 0.38 };
-        rightFingersTarget = 0.0; // Pinned straight fingers
+          targetLeft.upper = { x: 0.0, y: 0.0, z: 0.06 }; // Left arm pinned flush to side
+          targetLeft.fore = { x: 0.0, y: 0.0, z: 0.0 };
+          targetLeft.hand = { x: 0.0, y: 0.0, z: 0.0 };
+          leftFingersTarget = 0.0;
 
-        targetHead.x = 0.06;
-        targetHead.y = 0.0;
-        targetHead.z = 0.0;
+          targetHead.x = 0.05;
+          targetHead.y = 0.0;
+          targetHead.z = 0.0;
+        } else {
+          // Step 3: Snap cleanly down to attention
+          targetRight.upper = { x: 0.0, y: 0.0, z: -0.06 };
+          targetRight.fore = { x: 0.0, y: 0.0, z: 0.0 };
+          targetRight.hand = { x: 0.0, y: 0.0, z: 0.0 };
+          rightFingersTarget = 0.0;
 
-        if (this.actionTimer > 2.8) {
-          this.currentAction = null;
-          this.setExpression("idle");
+          if (this.actionTimer > 2.8) {
+            this.endAction();
+          }
+        }
+      } else if (this.currentAction === "think") {
+        this.actionTimer += delta;
+        const dur = this.actionDuration || 2.5;
+        // Pondering pose: right hand under chin, left arm crossed supporting elbow
+        targetRight.upper = { x: 0.65, y: -0.10, z: -0.25 };
+        targetRight.fore = { x: -2.15, y: -0.15, z: 0.0 };
+        targetRight.hand = { x: 0.45, y: 0.10, z: -0.10 };
+        rightFingersTarget = 0.25;
+
+        targetLeft.upper = { x: 0.35, y: 0.0, z: 0.25 };
+        targetLeft.fore = { x: -1.35, y: 0.55, z: 0.0 };
+        targetLeft.hand = { x: -0.10, y: 0.50, z: 0.0 };
+
+        targetHead.z = -0.14;
+        targetHead.x = -0.06;
+
+        if (this.actionTimer > dur) {
+          this.endAction();
+        }
+      } else if (this.currentAction === "nod") {
+        this.actionTimer += delta;
+        const nod = Math.sin(this.actionTimer * 8.5) * 0.16;
+        targetHead.x = nod;
+        if (this.actionTimer > 1.5) {
+          this.endAction();
+        }
+      } else if (this.currentAction === "shakeHead") {
+        this.actionTimer += delta;
+        const shake = Math.sin(this.actionTimer * 8.5) * 0.20;
+        targetHead.y = shake;
+        if (this.actionTimer > 1.5) {
+          this.endAction();
+        }
+      } else if (this.currentAction === "celebrate") {
+        this.actionTimer += delta;
+        // Double victory arm raise with fists
+        targetLeft.upper = { x: 0.20, y: 0.0, z: 1.35 };
+        targetRight.upper = { x: 0.20, y: 0.0, z: -1.35 };
+        targetLeft.fore = { x: -1.15, y: 0.0, z: 0.0 };
+        targetRight.fore = { x: -1.15, y: 0.0, z: 0.0 };
+        targetLeft.hand = { x: 0.30, y: 0.0, z: 0.0 };
+        targetRight.hand = { x: 0.30, y: 0.0, z: 0.0 };
+        leftFingersTarget = 0.55; // clenched victory fist
+        rightFingersTarget = 0.55;
+        targetHead.x = -0.14; // head lifted high in victory
+
+        if (this.actionTimer > 2.4) {
+          this.endAction();
         }
       } else if (this.expression === "speaking") {
-        // Conversational Gesturing: Both hands articulate with speech rhythm
-        const wave = Math.sin(time * 5.0) * 0.14;
-        const wave2 = Math.cos(time * 4.2) * 0.12;
-        targetLeft.upper = { x: 0.35 + wave * 0.5, y: 0.0, z: 0.18 };
-        targetLeft.fore = { x: -1.10 + wave, y: 0.0, z: 0.0 };
-        targetLeft.hand = { x: -0.15, y: 0.45 + wave2, z: 0.0 };
+        // Conversational Gesturing: Both hands articulate with natural speech rhythm
+        const wave1 = Math.sin(time * 3.8) * 0.16;
+        const wave2 = Math.cos(time * 3.2) * 0.14;
+        targetRight.upper = { x: 0.32 + wave1 * 0.4, y: -0.12, z: -0.25 };
+        targetRight.fore = { x: -1.25 + wave1, y: -0.25, z: 0.0 };
+        targetRight.hand = { x: 0.10, y: -0.30 + wave1 * 0.6, z: 0.0 };
 
-        targetRight.upper = { x: 0.35 - wave * 0.5, y: 0.0, z: -0.18 };
-        targetRight.fore = { x: -1.10 - wave, y: 0.0, z: 0.0 };
-        targetRight.hand = { x: -0.15, y: -0.45 - wave2, z: 0.0 };
+        targetLeft.upper = { x: 0.30 + wave2 * 0.4, y: 0.12, z: 0.25 };
+        targetLeft.fore = { x: -1.20 + wave2, y: 0.25, z: 0.0 };
+        targetLeft.hand = { x: 0.10, y: 0.30 + wave2 * 0.6, z: 0.0 };
 
-        targetHead.y = Math.sin(time * 2.5) * 0.06;
+        targetHead.x = Math.sin(time * 3.8) * 0.04;
+        targetHead.y = Math.cos(time * 2.2) * 0.06;
       }
 
       // Smooth Kinematic Rotation Interpolation (Lerp)

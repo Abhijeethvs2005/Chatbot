@@ -510,8 +510,11 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".action-btn").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-        setTimeout(() => btn.classList.remove("active"), 2800);
-        if (robot) robot.doAction(cfg.action);
+        if (robot) {
+          robot.doAction(cfg.action, () => {
+            btn.classList.remove("active");
+          });
+        }
       });
     }
   });
@@ -925,90 +928,62 @@ Always double check starting assumptions, sign conventions, and ensure units are
     return true;
   }
 
-  // 11. Format Academic Topic to Rich Student Markdown/HTML
+  // 11. Format Academic Topic to Simplest Form (Accurate & Clean)
   function formatAcademicTopic(topic, mode) {
-    if (mode === "eli5") {
-      const analogyBox = topic.analogy ? `
-        <div class="analogy-box">
-          <div class="box-title">💡 The Simple Analogy</div>
-          <p>${topic.analogy}</p>
-        </div>` : "";
-      const quizBtn = topic.quiz ? `<button class="btn-sm quiz-trigger-btn" data-topic-id="${topic.id}">🎯 Test My Knowledge</button>` : "";
-      return `
-        <div class="topic-header">
-          <span class="badge eli5-badge">🎒 ELI5 Mode</span>
-          <h3>${topic.title}</h3>
-        </div>
-        <p class="core-statement">${topic.core}</p>
-        ${analogyBox}
-        <div class="action-buttons">
-          ${quizBtn}
-          <button class="btn-sm save-note-btn" data-title="${topic.title}">🎒 Save to Notes</button>
-        </div>
-      `;
-    }
+    const title = topic.title || "Academic Concept";
+    const core = topic.core || "";
 
-    let formulasHtml = "";
-    if (topic.formulas && topic.formulas.length > 0) {
-      formulasHtml = `
-        <div class="formula-block">
-          <div class="section-label">📐 Mathematical & Theoretical Formulation</div>
-          ${topic.formulas.map((f) => `<div class="katex-display">$$ ${f} $$</div>`).join("")}
-        </div>
-      `;
-    }
-
-    let stepsHtml = "";
+    // 1. Clean, punchy bullet points (top 3)
+    let bulletsHtml = "";
     if (topic.steps && topic.steps.length > 0) {
-      stepsHtml = `
-        <div class="steps-block">
-          <div class="section-label">🔬 Step-by-Step Analytical Breakdown</div>
-          <ul>
-            ${topic.steps.map((s) => `<li>${markedInline(s)}</li>`).join("")}
-          </ul>
+      const cleanSteps = topic.steps.slice(0, 3).map((s) => {
+        const cleaned = s.replace(/^\d+\.\s*/, "").trim();
+        return `<li>${markedInline(cleaned)}</li>`;
+      });
+      bulletsHtml = `<ul class="simple-topic-bullets">${cleanSteps.join("")}</ul>`;
+    }
+
+    // 2. Single Key Formula
+    let formulaHtml = "";
+    if (topic.formulas && topic.formulas.length > 0) {
+      formulaHtml = `
+        <div class="simple-formula-row">
+          <span class="formula-label">Key Formula:</span>
+          <div class="katex-display">$$ ${topic.formulas[0]} $$</div>
         </div>
       `;
     }
 
+    // 3. Real-time Graph if available
     let graphHtml = "";
     if (topic.graph) {
       graphHtml = `
         <div class="graph-block">
-          <div class="section-label">📈 Real-Time Function Visualization</div>
-          <canvas class="topic-graph-canvas" width="480" height="200"></canvas>
+          <canvas class="topic-graph-canvas" width="480" height="180"></canvas>
         </div>
       `;
     }
 
+    // 4. Single-line Simple Analogy
     const analogyHtml = topic.analogy ? `
-      <div class="analogy-box">
-        <div class="box-title">💡 Intuitive Mental Model</div>
-        <p>${topic.analogy}</p>
+      <div class="simple-analogy-row">
+        💡 <strong>Simple Analogy:</strong> ${markedInline(topic.analogy)}
       </div>` : "";
 
-    const pitfallHtml = topic.pitfalls ? `
-      <div class="pitfall-box">
-        <div class="box-title">⚠️ Common Exam Traps & Student Pitfalls</div>
-        <p>${topic.pitfalls}</p>
-      </div>` : "";
-
-    const quizBtnHtml = topic.quiz ? `<button class="btn-sm quiz-trigger-btn" data-topic-id="${topic.id}">🎯 Test My Knowledge</button>` : "";
+    const quizBtnHtml = topic.quiz ? `<button class="btn-sm quiz-trigger-btn" data-topic-id="${topic.id}">🎯 Test Knowledge</button>` : "";
 
     return `
-      <div class="topic-header">
-        <span class="badge subject-badge">${topic.subject || "Academic"}</span>
-        <span class="badge accuracy-badge">✓ 100% Deterministic Rigor</span>
-        <h3>${topic.title}</h3>
-      </div>
-      <p class="core-statement">${topic.core}</p>
-      ${formulasHtml}
-      ${stepsHtml}
-      ${graphHtml}
-      ${analogyHtml}
-      ${pitfallHtml}
-      <div class="action-buttons">
-        ${quizBtnHtml}
-        <button class="btn-sm save-note-btn" data-title="${topic.title}">🎒 Save to Notes</button>
+      <div class="simple-topic-card">
+        <h3 class="simple-title">${title}</h3>
+        <p class="simple-core">${markedInline(core)}</p>
+        ${bulletsHtml}
+        ${formulaHtml}
+        ${graphHtml}
+        ${analogyHtml}
+        <div class="action-buttons">
+          ${quizBtnHtml}
+          <button class="btn-sm save-note-btn" data-title="${escapeHtml(title)}">📌 Save Note</button>
+        </div>
       </div>
     `;
   }

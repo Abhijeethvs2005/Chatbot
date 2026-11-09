@@ -1316,7 +1316,7 @@ function lookupFactualKnowledge(query) {
         title: "Interactive Assistant: Chatbot Abhi",
         subject: "General",
         core: "I am **Chatbot Abhi**, an intelligent, interactive 3D AI educational assistant created by **Abhijeeth V S**.",
-        formulas: ["\\text{Identity: Chatbot Abhi} \\quad \\bullet \\quad \\text{Creator: Abhijeeth V S} \\quad \\bullet \\quad \\text{Engine: Real-time 3D + Sub-1ms STEM Core}"],
+        formulas: [],
         steps: [
           "1. **Creator & Purpose**: Conceived and developed by **Abhijeeth V S** to provide learners with an ultra-responsive, highly accurate, and engaging STEM companion.",
           "2. **3D Interactive Avatar**: Articulated humanoid 3D robot avatar with reactive expressions, five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",

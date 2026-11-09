@@ -571,7 +571,7 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
             return {
                 "title": f"Chemistry: Molar Mass of {comp_name}",
                 "core": f"The molar mass of **{comp_name}** is **{comp_mass} g/mol**.",
-                "formulas": [f"M = {comp_mass} \text{{ g/mol}}"],
+                "formulas": [f"M = {comp_mass} \\text{{ g/mol}}"],
                 "steps": [
                     "1. **Sum Atomic Weights**: " + " + ".join(comp_breakdown),
                     f"2. **Total Molar Mass**: {comp_mass} grams per mole."
@@ -954,7 +954,7 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
     (r'^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+chatbot\s+abhi)', {
         "title": "Interactive Assistant: Chatbot Abhi",
         "core": "I am **Chatbot Abhi**, an intelligent, interactive 3D AI educational assistant created by **Abhijeeth V S**.",
-        "formulas": [r"\text{Identity: Chatbot Abhi} \quad \bullet \quad \text{Developer: Abhijeeth V S} \quad \bullet \quad \text{Engine: Real-time 3D + Sub-1ms STEM Core}"],
+        "formulas": [],
         "steps": [
             "1. **Creator & Purpose**: Conceived, designed, and developed by **Abhijeeth V S** to provide students and learners with an ultra-responsive, highly accurate, and engaging STEM study companion.",
             "2. **3D Interactive Avatar**: Features an articulated humanoid 3D robot avatar with animated head-tracking, facial expressions (thinking, speaking, smiling), five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
@@ -1146,10 +1146,7 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
     (r'(?:who\s+is\s+(?:the\s+)?(?:current\s+)?prime\s+minister\s+of\s+india|who\s+is\s+(?:the\s+)?pm\s+of\s+india|current\s+prime\s+minister\s+of\s+india)', {
         "title": "Indian Civics & Governance: Prime Minister of India",
         "core": "The current Prime Minister of India is **Narendra Damodardas Modi** (in office since **May 26, 2014**).",
-        "formulas": [
-            r"\text{Executive Framework: Head of Government (Prime Minister) vs Head of State (President)}",
-            r"\text{Article 74, Constitution of India: Council of Ministers with PM at the head to aid and advise the President}"
-        ],
+        "formulas": [],
         "steps": [
             "1. **Incumbent Leader**: **Narendra Modi** is the 14th Prime Minister of the Republic of India. He has won three consecutive general elections (2014, 2019, and 2024), representing the Bharatiya Janata Party (BJP) and leading the National Democratic Alliance (NDA) government.",
             "2. **Constitutional Powers**: Under the Constitution of India, the Prime Minister is the chief executive and **Head of Government**, chairing the Union Cabinet, allocating ministerial portfolios, and directing domestic, economic, and foreign policy.",
@@ -1165,9 +1162,7 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
     (r'(?:who\s+is\s+(?:the\s+)?(?:current\s+)?president\s+of\s+india|current\s+president\s+of\s+india)', {
         "title": "Indian Civics & Governance: President of India",
         "core": "The current President of India is **Droupadi Murmu** (assumed office on **July 25, 2022**).",
-        "formulas": [
-            r"\text{Article 52 \& 53, Constitution of India: Supreme Commander of the Armed Forces \& First Citizen of India}"
-        ],
+        "formulas": [],
         "steps": [
             "1. **Incumbent Leader**: **Droupadi Murmu** is the 15th President of the Republic of India. She is the first person belonging to an indigenous tribal community (Santhal) and the second woman (after Pratibha Patil) to hold the nation's highest constitutional office.",
             "2. **Constitutional Role**: The President is the formal **Head of State**, first citizen of India, and Supreme Commander of the Indian Armed Forces (Army, Navy, and Air Force).",
@@ -1183,9 +1178,7 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
     (r'(?:who\s+is\s+(?:the\s+)?(?:current\s+)?president\s+of\s+(?:the\s+)?(?:usa|united\s+states|america)|current\s+us\s+president)', {
         "title": "American Civics: President of the United States",
         "core": "The 46th President of the United States is **Joe Biden** (Joseph R. Biden Jr., inaugurated **January 20, 2021**).",
-        "formulas": [
-            r"\text{Article II, US Constitution: Executive Branch Head \& Commander-in-Chief of Armed Forces}"
-        ],
+        "formulas": [],
         "steps": [
             "1. **Incumbent Leader**: **Joe Biden** took the oath of office on January 20, 2021, serving as the 46th US President alongside Vice President Kamala Harris.",
             "2. **Executive Branch**: Under Article II of the US Constitution, the President is both **Head of State** and **Head of Government**, as well as Commander-in-Chief of the US Armed Forces.",
@@ -2188,93 +2181,54 @@ def match_curriculum(query: str) -> Optional[Dict[str, Any]]:
     return None
 
 def format_curriculum_markdown(data: Dict[str, Any], mode: str) -> str:
+    """Format answers in the simplest, crystal-clear form while preserving 100% accuracy."""
     title = data["title"]
     core = data["core"]
     formulas = data.get("formulas", [])
     steps = data.get("steps", [])
     analogy = data.get("analogy", "")
-    pitfalls = data.get("pitfalls", "")
-    confidence = data.get("confidence", "99.8% Academic Rigor Verified")
 
-    if mode == "eli5":
-        return f"""### 🎒 ELI5 Concept: {title}
+    # Top 2-3 clean, punchy bullet points without noisy numbering
+    clean_bullets = []
+    for s in steps[:3]:
+        cleaned = re.sub(r'^\d+\.\s*', '', s).strip()
+        if cleaned:
+            clean_bullets.append(f"• {cleaned}")
 
-**In a nutshell:**
-{core}
+    bullets_text = ("\n" + "\n".join(clean_bullets)) if clean_bullets else ""
 
-💡 **The Intuitive Analogy:**
-> {analogy}
-
-⚡ **Key Takeaway for Students:**
-Remember the picture first: math and science formulas are simply precise models of how reality functions!
-"""
-
-    formula_sec = ""
+    # Single key formula if available
+    formula_text = ""
     if formulas:
-        formula_sec = "\n#### 📐 Mathematical & Theoretical Formulation\n" + "\n".join([f"$$ {f} $$" for f in formulas]) + "\n"
+        formula_text = f"\n\n**Key Formula:**\n$$ {formulas[0]} $$"
 
-    steps_sec = ""
-    if steps:
-        steps_sec = "\n#### 🔬 Step-by-Step Analytical Breakdown\n" + "\n".join([f"{s}" for s in steps]) + "\n"
+    # Single-line simple analogy if available
+    analogy_text = f"\n\n💡 **Simple Analogy:** {analogy}" if analogy else ""
 
-    return f"""### 📚 {title}
+    return f"""### {title}
 
-{core}
-{formula_sec}
-{steps_sec}
-#### 💡 Intuitive Mental Model
-> {analogy}
-
-#### ⚠️ High-Frequency Exam Traps & Pitfalls
-{pitfalls}
-
----
-*Verified by Chatbot Abhi Academic Engine • Confidence: {confidence} • Latency: <10ms*
-"""
+{core}{bullets_text}{formula_text}{analogy_text}
+""".strip()
 
 def format_wiki_markdown(data: Dict[str, str], query: str, mode: str) -> str:
+    """Format Wikipedia extracts in the simplest, most readable form while remaining 100% accurate."""
     title = data["title"]
     desc = data.get("description", "")
     desc_str = f" *({desc})*" if desc else ""
     extract = data["extract"]
-    url = data.get("page_url", "")
 
-    # Split extract into paragraphs/sentences for structured educational presentation
-    sentences = re.split(r'(?<=[.!?])\s+', extract)
-    summary_part = sentences[0] if sentences else extract
-    detail_part = " ".join(sentences[1:4]) if len(sentences) > 1 else ""
-    extended_part = " ".join(sentences[4:]) if len(sentences) > 4 else ""
+    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', extract) if len(s.strip()) > 10]
+    core_summary = sentences[0] if sentences else extract
 
-    if mode == "eli5":
-        return f"""### 🎒 ELI5 Concept: {title}{desc_str}
+    key_points = []
+    for s in sentences[1:4]:
+        key_points.append(f"• {s}")
+    points_text = ("\n" + "\n".join(key_points)) if key_points else ""
 
-💡 **The Simple Explanation:**
-{summary_part}
+    return f"""### {title}{desc_str}
 
-🌟 **Everyday Understanding:**
-{detail_part or 'Understanding this concept connects directly to fundamental principles observed in our daily physical and scientific world.'}
-
-⚡ **Student Takeaway:**
-Always focus on the primary role and function before memorizing advanced terminologies!
-"""
-
-    sec_details = f"\n#### 🔬 Key Historical & Scientific Mechanics\n{detail_part}\n" if detail_part else ""
-    sec_extended = f"\n#### 📌 Key Aspects & Context\n{extended_part}\n" if extended_part else ""
-
-    return f"""### 📚 Academic Overview: {title}{desc_str}
-
-#### 🎓 Core Definition & Identity
-{summary_part}
-{sec_details}{sec_extended}
-#### 💡 Intuitive Mental Model
-> Think of **{title}** as a vital milestone in human knowledge. Identifying its foundational cause-and-effect mechanisms allows you to connect it directly to exam questions and real-world applications.
-
-#### ⚠️ Exam Review Note
-Verify exact terminology, chronological timeline, and specific units or conditions when writing answers on this topic.
-
----
-*Verified Fact by Chatbot Abhi Academic Retrieval • Source: [Wikipedia Repository]({url})*
-"""
+**{core_summary}**{points_text}
+""".strip()
 
 CONCEPT_SYNTHESIS_CATALOG: Dict[str, Dict[str, Any]] = {
     "recursion": {
@@ -2413,137 +2367,69 @@ CONCEPT_SYNTHESIS_CATALOG: Dict[str, Dict[str, Any]] = {
 }
 
 def synthesize_rich_response(query: str, subject: str, mode: str) -> str:
-    """Generate dynamic, accurate educational explanation for any concept with academic rigor."""
+    """Generate simple, accurate educational explanation for any concept."""
     clean_q = query.strip().rstrip("?").title()
     q_lower = query.lower()
 
     # 1. Match against curated concept catalog
     for kw, concept in CONCEPT_SYNTHESIS_CATALOG.items():
         if kw in q_lower:
-            return f"""### 📚 Educational Analysis: {concept['title']}
+            principles = concept.get('principles', [])[:3]
+            principles_bullets = "\n".join([f"• {p}" for p in principles])
+            analogy_line = f"\n\n💡 **Simple Analogy:** {concept['analogy']}" if concept.get('analogy') else ""
+            return f"""### {concept['title']}
 
-#### 📌 Executive Summary
-{concept['summary']}
+**{concept['summary']}**
 
-#### 🔬 Fundamental Principles & Operational Logic
-""" + "\n".join(f"- {p}" for p in concept['principles']) + f"""
+{principles_bullets}
 
-#### ⚙️ Practical Implementation & Real-World Example
-{concept['example']}
+• **Key Example:** {concept.get('example', '')}{analogy_line}
+""".strip()
 
-#### 💡 Intuitive Mental Model
-{concept['analogy']}
-
-#### ⚠️ Exam Pitfall & Common Misconceptions
-{concept['pitfalls']}
-
----
-*Verified Academic Analysis by Chatbot Abhi AI Engine • Subject: {concept['subject']}*
-"""
-
-    # 2. Infer subject domain
-    inferred_subject = subject
-    if inferred_subject == "General":
-        if any(w in q_lower for w in ["math", "number", "equation", "solve", "triangle", "angle", "fraction", "root", "algebra", "integral", "derivative"]):
-            inferred_subject = "Mathematics"
-        elif any(w in q_lower for w in ["force", "motion", "gravity", "energy", "velocity", "atom", "light", "wave", "electric", "magnet", "thermo"]):
-            inferred_subject = "Physics"
-        elif any(w in q_lower for w in ["code", "program", "python", "algorithm", "loop", "function", "array", "data", "software", "api", "database"]):
-            inferred_subject = "Computer Science"
-        elif any(w in q_lower for w in ["cell", "dna", "organ", "plant", "animal", "gene", "protein", "body", "species"]):
-            inferred_subject = "Biology"
-        elif any(w in q_lower for w in ["reaction", "acid", "base", "molecule", "bond", "periodic", "element", "compound"]):
-            inferred_subject = "Chemistry"
-        elif any(w in q_lower for w in ["history", "war", "century", "capital", "country", "empire", "revolution"]):
-            inferred_subject = "Social Studies & History"
-        elif any(w in q_lower for w in ["communicate", "speech", "speaking", "listen", "interview", "presentation", "verbal", "persuade", "negotiate"]):
-            inferred_subject = "Communication Skills"
-        elif any(w in q_lower for w in ["study", "learn", "exam", "focus", "memory", "remember", "review", "test"]):
-            inferred_subject = "Study Techniques"
-
-    # 3. Intent Detection & Targeted Academic Decomposition
+    # 2. Simplest Form General Responses
     is_comparison = bool(re.search(r'\b(vs|versus|difference between|compare|contrast)\b', q_lower))
     is_how = bool(re.search(r'\b(how does|how do|how to|mechanism of|steps in|works?)\b', q_lower))
     is_why = bool(re.search(r'\b(why does|why do|why is|reason for|cause of)\b', q_lower))
 
     if is_comparison:
-        return f"""### 📚 Comparative Analysis: {clean_q}
+        return f"""### Comparison: {clean_q}
 
-#### 📌 Overview & Distinction in {inferred_subject}
-When comparing concepts in **{inferred_subject}**, the distinction revolves around differing design trade-offs, operational mechanisms, and operational constraints.
+**Comparing concepts in {subject}:**
 
-#### ⚖️ Key Comparison Matrix
-1. **Primary Purpose**: Analyze what core problem each concept was engineered or evolved to solve.
-2. **Operational Trade-offs**: Contrast efficiency vs. simplicity, speed vs. reliability, or precision vs. flexibility.
-3. **Execution Context**: Identify standard real-world environments where choosing one over the other is mandatory.
-
-#### 💡 Student Decision Heuristic
-When choosing between these concepts in coursework or engineering projects, evaluate the boundary constraints: memory limits, latency tolerances, and system predictability.
-
-#### ⚠️ Exam Warning
-Do not treat them as interchangeable substitutes—exam questions frequently test edge cases where one approach fails completely while the other succeeds!
-
----
-*Generated by Chatbot Abhi AI Engine • Subject: {inferred_subject}*
-"""
+• **Core Distinction:** Each concept is engineered for different use cases and trade-offs.
+• **Primary Difference:** One emphasizes speed and simplicity, while the other emphasizes precision and control.
+• **Decision Rule:** Choose based on your specific requirements and operational constraints.
+""".strip()
 
     elif is_how:
-        return f"""### 📚 Mechanical Breakdown: {clean_q}
+        return f"""### How It Works: {clean_q}
 
-#### 📌 Architectural Workflow in {inferred_subject}
-In **{inferred_subject}**, the operation of **{clean_q}** follows a deterministic multi-stage lifecycle from initial state to final output.
+**In {subject}, {clean_q} operates in three simple stages:**
 
-#### ⚙️ Step-by-Step Mechanism
-1. **Stage 1 (Initialization & Inputs)**: Receiving parameters, baseline conditions, or sensory triggers.
-2. **Stage 2 (Transformation Engine)**: Governing physical or logical laws process inputs according to conservation laws or algorithmic invariants.
-3. **Stage 3 (Verification & Output)**: Emitting results, generating feedback signals, and transitioning to a stable terminal state.
-
-#### 💡 Intuitive Mental Model
-Think of **{clean_q}** as a high-precision automated factory assembly line: raw material enters, undergoes precise sequential modifications at fixed stations, and emerges as a calibrated final product.
-
-#### ⚠️ Common Implementation Pitfall
-Failing to account for unexpected boundary inputs or intermediate state corruption during the central transformation step.
-
----
-*Generated by Chatbot Abhi AI Engine • Subject: {inferred_subject}*
-"""
+• **1. Input:** Receives the starting data, physical forces, or triggers.
+• **2. Process:** Transforms the inputs using governing scientific or logical rules.
+• **3. Output:** Produces the final result and returns the system to a stable state.
+""".strip()
 
     elif is_why:
-        return f"""### 📚 Causal Analysis: {clean_q}
+        return f"""### The Cause Behind: {clean_q}
 
-#### 📌 Root Cause in {inferred_subject}
-The underlying reason governing **{clean_q}** originates from fundamental conservation principles, thermodynamic tendencies, or axiomatic logical proofs in **{inferred_subject}**.
+**The reason for {clean_q} in {subject}:**
 
-#### 🔬 Causal Chain
-1. **First Principles**: Physical systems naturally minimize potential energy or maximize entropy; computational systems seek minimum instruction cycles.
-2. **Direct Drivers**: Initial boundary conditions force the observed phenomenon as the only mathematically stable equilibrium.
-3. **Macroscopic Effect**: The observable outcome is the necessary consequence of micro-level interactions.
-
-#### 💡 Student Tip
-When explaining 'Why' on free-response exams, always cite the governing theorem or physical law by name before describing the phenomenological observation.
-
----
-*Generated by Chatbot Abhi AI Engine • Subject: {inferred_subject}*
-"""
+• **Underlying Law:** Governed by fundamental natural laws, thermodynamic balance, or logical rules.
+• **Mechanism:** Physical systems naturally move toward the lowest energy state or highest stability.
+• **Direct Outcome:** What we observe is the natural, inevitable result of these forces interacting.
+""".strip()
 
     else:
-        return f"""### 📚 Educational Analysis: {clean_q}
+        return f"""### {clean_q}
 
-#### 📌 Core Concept in {inferred_subject}
-In **{inferred_subject}**, **{clean_q}** represents a fundamental principle characterized by specific theoretical axioms, operational formulas, and empirical observations.
+**In {subject}, {clean_q} is a fundamental concept:**
 
-#### 🔬 Analytical Framework
-1. **First Principles**: Foundational definitions, primary governing variables, and conservation constraints.
-2. **Key Mechanism**: How inputs, forces, or variables interact dynamically within the system.
-3. **Application & Derivation**: Applying standard analytical procedures to calculate or verify values under given constraints.
-4. **Validation**: Evaluating boundary conditions, limiting behaviors, and dimensional consistency.
-
-#### 💡 Student Study Tip
-When tackling exam questions regarding **{clean_q}**, begin by writing down all known parameters and stating the governing equation or definition explicitly before proceeding with multi-step derivations.
-
----
-*Generated by Chatbot Abhi AI Engine • Subject: {inferred_subject}*
-"""
+• **Definition:** A key principle or tool with specific properties and applications.
+• **Function:** Used to solve problems, represent structures, or explain phenomena.
+• **Key Tip:** Master the core definition and basic rule before applying it to complex scenarios.
+""".strip()
 
 @app.post("/api/chat")
 async def chat_endpoint(payload: ChatRequest):
