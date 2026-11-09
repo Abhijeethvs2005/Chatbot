@@ -1848,6 +1848,10 @@ async def generate_quiz(req: QuizRequest):
         
     return JSONResponse(content={"status": "success", "topic": req.topic, "quiz": selected_quiz})
 
+@app.get("/api/quiz")
+async def get_quiz(topic: str = "general"):
+    return await generate_quiz(QuizRequest(topic=topic))
+
 @app.get("/health")
 @app.get("/api/health")
 async def health_check():
