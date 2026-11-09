@@ -55,6 +55,8 @@ class Robot3D {
     this.lowerTeeth = null;
     this.tongue = null;
     this.speechLED = null;
+    this.hairGroup = null;
+    this.hairQuiff = null;
     this.leftEye = null;
     this.rightEye = null;
     this.leftBrow = null;
@@ -400,10 +402,35 @@ class Robot3D {
       opacity: 0.0 // Ramped up dynamically when muscle level is high
     });
 
+    // --- REALISTIC HUMAN HAIR GROWTH & FOLLICULAR MATERIALS ---
     this.matHair = new THREE.MeshStandardMaterial({
-      color: 0x1c1917, // Refined dark espresso brunette hair
-      roughness: 0.72,
+      color: 0x1a1614, // Deep espresso brunette base root tone
+      roughness: 0.65,
+      metalness: 0.06
+    });
+
+    this.matHairHighlight = new THREE.MeshStandardMaterial({
+      color: 0x2e241d, // Sun-kissed warm chestnut strand highlight
+      roughness: 0.56,
+      metalness: 0.08
+    });
+
+    this.matHairDeep = new THREE.MeshStandardMaterial({
+      color: 0x0e0c0a, // Deep root / under-layer follicular shadow
+      roughness: 0.78,
+      metalness: 0.04
+    });
+
+    this.matHairFine = new THREE.MeshStandardMaterial({
+      color: 0x261f1a, // Fine hairline transition micro-strands
+      roughness: 0.62,
       metalness: 0.05
+    });
+
+    this.matBeardShadow = new THREE.MeshStandardMaterial({
+      color: 0xb57c62, // Subtle masculine 5 o'clock stubble shadow framing jaw & chin
+      roughness: 0.75,
+      metalness: 0.02
     });
 
     this.matEyebrow = new THREE.MeshStandardMaterial({
@@ -769,48 +796,181 @@ class Robot3D {
     this.headGroup.add(chinCleft);
 
     // ==========================================
-    // 4. HANDSOME MODERN MASCULINE HAIRCUT
+    // 4. NORMAL HUMAN HAIR GROWTH SYSTEM
     // ==========================================
-    // 4a. Hair Base Cap (Top, crown, and back of cranium)
-    const hairCapGeo = new THREE.SphereGeometry(0.51, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.52);
-    hairCapGeo.scale(0.91, 1.06, 0.97);
-    const hairCap = new THREE.Mesh(hairCapGeo, this.matHair);
-    hairCap.position.set(0, 0.06, -0.02);
-    this.headGroup.add(hairCap);
+    const hairRoot = new THREE.Group();
 
-    // 4b. Nape and Back Taper
-    const napeTaper = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.26, 0.16), this.matHair);
-    napeTaper.position.set(0, -0.12, -0.36);
-    this.headGroup.add(napeTaper);
+    // 4a. Anatomical Cranial Scalp Base (Follicular Sub-layer)
+    // Conforms cleanly to vertex, parietal bones, and occipital contour
+    const hairCapGeo = new THREE.SphereGeometry(0.512, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.54);
+    hairCapGeo.scale(0.92, 1.05, 0.98);
+    const hairCap = new THREE.Mesh(hairCapGeo, this.matHairDeep);
+    hairCap.position.set(0, 0.055, -0.015);
+    hairRoot.add(hairCap);
 
-    // 4c. Styled Top Pompadour Volume
-    const topHair = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.13, 0.42), this.matHair);
-    topHair.position.set(0, 0.51, 0.02);
-    topHair.rotation.x = -0.06;
-    this.headGroup.add(topHair);
+    // 4b. Natural Hairline Boundary & Feathered Baby Hair Locks
+    // Real hairlines curve gently with a subtle central peak, temporal recession, and parietal points
+    const hairlinePoints = [
+      // Central Forehead Peak (Apex)
+      { x: 0.0, y: 0.385, z: 0.370, scale: [0.075, 0.024, 0.050], rotX: 0.28, rotZ: 0.0, mat: this.matHairHighlight },
+      // Left Frontal Arc
+      { x: -0.075, y: 0.380, z: 0.362, scale: [0.070, 0.022, 0.048], rotX: 0.26, rotZ: -0.12, mat: this.matHair },
+      { x: -0.145, y: 0.368, z: 0.342, scale: [0.065, 0.022, 0.045], rotX: 0.24, rotZ: -0.22, mat: this.matHairHighlight },
+      // Left Temporal Recession & Fronto-Temporal Angle
+      { x: -0.215, y: 0.345, z: 0.305, scale: [0.060, 0.025, 0.045], rotX: 0.20, rotZ: -0.35, mat: this.matHairFine },
+      { x: -0.275, y: 0.305, z: 0.245, scale: [0.055, 0.030, 0.045], rotX: 0.15, rotZ: -0.45, mat: this.matHairFine },
+      // Right Frontal Arc
+      { x: 0.075, y: 0.380, z: 0.362, scale: [0.070, 0.022, 0.048], rotX: 0.26, rotZ: 0.12, mat: this.matHair },
+      { x: 0.145, y: 0.368, z: 0.342, scale: [0.065, 0.022, 0.045], rotX: 0.24, rotZ: 0.22, mat: this.matHairHighlight },
+      // Right Temporal Recession & Fronto-Temporal Angle
+      { x: 0.215, y: 0.345, z: 0.305, scale: [0.060, 0.025, 0.045], rotX: 0.20, rotZ: 0.35, mat: this.matHairFine },
+      { x: 0.275, y: 0.305, z: 0.245, scale: [0.055, 0.030, 0.045], rotX: 0.15, rotZ: 0.45, mat: this.matHairFine }
+    ];
 
-    // 4d. Swept Front Quiff / Fringe (Styled upward & swept back, clear of eyes)
-    const frontQuiff = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.20, 0.38, 16), this.matHair);
-    frontQuiff.rotation.z = Math.PI / 2;
-    frontQuiff.rotation.x = 0.28;
-    frontQuiff.position.set(0, 0.46, 0.24);
-    this.headGroup.add(frontQuiff);
+    hairlinePoints.forEach(p => {
+      const lock = new THREE.Mesh(new THREE.CylinderGeometry(p.scale[0] * 0.4, p.scale[0], p.scale[1], 10), p.mat);
+      lock.position.set(p.x, p.y, p.z);
+      lock.rotation.x = p.rotX;
+      lock.rotation.z = p.rotZ;
+      hairRoot.add(lock);
+    });
 
-    // 4e. Natural Hairline Temples
-    [-0.24, 0.24].forEach((tx) => {
+    // 4c. Crown Whorl & Volumetric Top Hair Growth Strands
+    // Flowing from parietal crown vertex radiating forward and laterally
+    const topStrands = [
+      // Central & Crown Whorl Core
+      { x: 0.02, y: 0.525, z: -0.06, sx: 0.38, sy: 0.11, sz: 0.34, rotX: -0.04, rotY: 0.04, rotZ: 0.02, mat: this.matHair },
+      { x: -0.08, y: 0.520, z: -0.02, sx: 0.24, sy: 0.10, sz: 0.32, rotX: -0.03, rotY: -0.08, rotZ: -0.06, mat: this.matHairHighlight },
+      { x: 0.10, y: 0.518, z: -0.02, sx: 0.24, sy: 0.10, sz: 0.32, rotX: -0.03, rotY: 0.08, rotZ: 0.06, mat: this.matHairHighlight },
+      // Mid-Scalp Forward Flow Clumps
+      { x: -0.12, y: 0.510, z: 0.12, sx: 0.18, sy: 0.09, sz: 0.26, rotX: 0.08, rotY: -0.10, rotZ: -0.08, mat: this.matHair },
+      { x: 0.0, y: 0.515, z: 0.14, sx: 0.22, sy: 0.10, sz: 0.28, rotX: 0.10, rotY: 0.02, rotZ: 0.01, mat: this.matHairHighlight },
+      { x: 0.12, y: 0.510, z: 0.12, sx: 0.18, sy: 0.09, sz: 0.26, rotX: 0.08, rotY: 0.10, rotZ: 0.08, mat: this.matHair }
+    ];
+
+    topStrands.forEach(s => {
+      const lockGeo = new THREE.BoxGeometry(s.sx, s.sy, s.sz);
+      const lockMesh = new THREE.Mesh(lockGeo, s.mat);
+      lockMesh.position.set(s.x, s.y, s.z);
+      lockMesh.rotation.set(s.rotX, s.rotY, s.rotZ);
+      hairRoot.add(lockMesh);
+    });
+
+    // 4d. Front Textured Quiff / Fringe Locks (Natural forward & upward swept locks with subtle micro-sway)
+    const quiffGroup = new THREE.Group();
+    quiffGroup.position.set(0, 0.46, 0.24);
+
+    const quiffLocks = [
+      // Central Swept Lock (Flowing forward and gently upward)
+      { x: 0.0, y: 0.03, z: 0.06, rTop: 0.028, rBot: 0.075, len: 0.26, rotX: 0.32, rotY: 0.02, rotZ: 0.04, mat: this.matHairHighlight },
+      // Left Side Fringe Locks
+      { x: -0.085, y: 0.02, z: 0.04, rTop: 0.024, rBot: 0.065, len: 0.24, rotX: 0.28, rotY: -0.14, rotZ: -0.12, mat: this.matHair },
+      { x: -0.165, y: -0.01, z: 0.01, rTop: 0.020, rBot: 0.055, len: 0.20, rotX: 0.22, rotY: -0.22, rotZ: -0.20, mat: this.matHairHighlight },
+      // Right Side Swept Fringe Locks
+      { x: 0.085, y: 0.02, z: 0.04, rTop: 0.024, rBot: 0.065, len: 0.24, rotX: 0.28, rotY: 0.14, rotZ: 0.12, mat: this.matHair },
+      { x: 0.165, y: -0.01, z: 0.01, rTop: 0.020, rBot: 0.055, len: 0.20, rotX: 0.22, rotY: 0.22, rotZ: 0.20, mat: this.matHairHighlight },
+      // Crest Top Strands
+      { x: -0.04, y: 0.05, z: -0.02, rTop: 0.022, rBot: 0.060, len: 0.22, rotX: 0.18, rotY: -0.06, rotZ: 0.02, mat: this.matHair },
+      { x: 0.05, y: 0.05, z: -0.02, rTop: 0.022, rBot: 0.060, len: 0.22, rotX: 0.18, rotY: 0.06, rotZ: -0.02, mat: this.matHairHighlight }
+    ];
+
+    quiffLocks.forEach(q => {
+      const qGeo = new THREE.CylinderGeometry(q.rTop, q.rBot, q.len, 12);
+      const qMesh = new THREE.Mesh(qGeo, q.mat);
+      qMesh.position.set(q.x, q.y, q.z);
+      qMesh.rotation.set(q.rotX, q.rotY, q.rotZ);
+      quiffGroup.add(qMesh);
+    });
+
+    this.hairQuiff = quiffGroup;
+    hairRoot.add(quiffGroup);
+
+    // 4e. Parietal Ridge & Lateral Temple Hair Flow (Left & Right Sides)
+    [-0.32, 0.32].forEach((tx) => {
       const isLeft = tx < 0;
-      const templeHair = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.10), this.matHair);
-      templeHair.position.set(tx, 0.30, 0.28);
-      templeHair.rotation.y = isLeft ? 0.25 : -0.25;
-      this.headGroup.add(templeHair);
+      // Upper parietal ridge volume
+      const parietalLock = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.065, 0.085, 0.28, 12),
+        this.matHair
+      );
+      parietalLock.position.set(tx * 1.05, 0.28, 0.02);
+      parietalLock.rotation.z = isLeft ? 0.30 : -0.30;
+      parietalLock.rotation.y = isLeft ? 0.18 : -0.18;
+      hairRoot.add(parietalLock);
+
+      // Supra-auricular curved lock (curves gracefully over the top of the ear)
+      const earArchLockGeo = new THREE.TorusGeometry(0.12, 0.032, 10, 20, Math.PI * 0.65);
+      const earArchLock = new THREE.Mesh(earArchLockGeo, this.matHairDeep);
+      earArchLock.position.set(isLeft ? -0.38 : 0.38, 0.16, -0.02);
+      earArchLock.rotation.y = Math.PI / 2;
+      earArchLock.rotation.x = isLeft ? -0.22 : 0.22;
+      hairRoot.add(earArchLock);
     });
 
-    // 4f. Clean Male Sideburns (Descend in front of ears)
+    // 4f. Natural Tapered Masculine Sideburns (Descend naturally in front of tragus to mid-ear level)
     [-0.41, 0.41].forEach((sx) => {
-      const sideburn = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.22, 0.12), this.matHair);
-      sideburn.position.set(sx, 0.06, 0.08);
-      this.headGroup.add(sideburn);
+      const isLeft = sx < 0;
+      const sideburnGroup = new THREE.Group();
+      sideburnGroup.position.set(sx, 0.05, 0.07);
+
+      // Upper thicker sideburn base
+      const sbUpper = new THREE.Mesh(
+        new THREE.BoxGeometry(0.038, 0.14, 0.09),
+        this.matHair
+      );
+      sideburnGroup.add(sbUpper);
+
+      // Lower feathered tapering point (graduated masculine fade)
+      const sbLower = new THREE.Mesh(
+        new THREE.ConeGeometry(0.022, 0.09, 10),
+        this.matHairFine
+      );
+      sbLower.position.set(0, -0.09, -0.005);
+      sbLower.rotation.x = Math.PI;
+      sideburnGroup.add(sbLower);
+
+      hairRoot.add(sideburnGroup);
     });
+
+    // 4g. Occipital & Nape Taper (Back of head curving smoothly into neck)
+    const occipitalBulge = new THREE.Mesh(
+      new THREE.SphereGeometry(0.24, 16, 16),
+      this.matHairDeep
+    );
+    occipitalBulge.scale.set(1.45, 1.0, 0.72);
+    occipitalBulge.position.set(0, 0.08, -0.38);
+    hairRoot.add(occipitalBulge);
+
+    // Nape taper hugging cervical curvature
+    const napeLocks = [
+      { x: 0.0, y: -0.10, z: -0.36, w: 0.28, h: 0.20, d: 0.12, rotX: -0.20, mat: this.matHair },
+      { x: -0.12, y: -0.12, z: -0.33, w: 0.16, h: 0.18, d: 0.10, rotX: -0.18, rotZ: -0.10, mat: this.matHairDeep },
+      { x: 0.12, y: -0.12, z: -0.33, w: 0.16, h: 0.18, d: 0.10, rotX: -0.18, rotZ: 0.10, mat: this.matHairDeep }
+    ];
+
+    napeLocks.forEach(n => {
+      const napeMesh = new THREE.Mesh(new THREE.BoxGeometry(n.w, n.h, n.d), n.mat);
+      napeMesh.position.set(n.x, n.y, n.z);
+      napeMesh.rotation.x = n.rotX;
+      if (n.rotZ) napeMesh.rotation.z = n.rotZ;
+      hairRoot.add(napeMesh);
+    });
+
+    // 4h. Subtle Natural Masculine Jawline Shadow (Delicate 5 o'clock stubble shadow)
+    [-0.24, 0.24].forEach((jx) => {
+      const isLeft = jx < 0;
+      const jawStubble = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.022, 0.20, 10),
+        this.matBeardShadow
+      );
+      jawStubble.position.set(jx, -0.22, 0.25);
+      jawStubble.rotation.z = isLeft ? -0.48 : 0.48;
+      jawStubble.rotation.y = isLeft ? 0.32 : -0.32;
+      hairRoot.add(jawStubble);
+    });
+
+    this.hairGroup = hairRoot;
+    this.headGroup.add(hairRoot);
 
     // ==========================================
     // 5. AUTHENTIC ANATOMICAL HUMAN EARS
@@ -3455,6 +3615,13 @@ class Robot3D {
         this.headGroup.rotation.y = this.mouse.x * 0.45;
         this.headGroup.rotation.x = -this.mouse.y * 0.30;
         this.headGroup.rotation.z = 0;
+      }
+
+      // Natural human hair micro-dynamics (subtle organic response of front hair locks to movement & breathing)
+      if (this.hairQuiff) {
+        const hairSway = Math.sin(time * 3.2) * 0.010 + (this.expression === "speaking" ? Math.sin(time * 6.5) * 0.015 : 0);
+        this.hairQuiff.rotation.x = hairSway;
+        this.hairQuiff.rotation.z = Math.cos(time * 2.8) * 0.006;
       }
     }
 
