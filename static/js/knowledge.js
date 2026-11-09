@@ -1359,51 +1359,51 @@ function lookupFactualKnowledge(query) {
         }
       }
     },
-    // 1C. OXFORD ENGLISH DICTIONARY SYSTEM & LEXICON OVERVIEW
+    // 1C. ADVANCED LEXICON & VOCABULARY ENGINE OVERVIEW
     {
-      pattern: /(?:add\s+(?:the\s+)?oxford\s+dictionary|train\s+it\s+and\s+explore\s+it|explore\s+oxford\s+dictionary|understand\s+oxford\s+dictionary|history\s+of\s+(?:the\s+)?oed|what\s+is\s+the\s+oxford\s+english\s+dictionary|oxford\s+dictionary\s+system)/i,
+      pattern: /(?:explore\s+vocabulary|understand\s+lexicon|lexicon\s+system|vocabulary\s+engine|vocabulary\s+explorer|vocabulary\s+guide|how\s+do\s+dictionaries\s+work)/i,
       data: {
-        id: "oed_system_overview",
-        title: "The Oxford English Dictionary (OED) System & Lexicon Engine",
-        subject: "Oxford Dictionary",
-        core: "The **Oxford English Dictionary (OED)** is universally recognized as the definitive, ultimate authority on the English language, documenting over **600,000 words**, **3.5 million quotations**, and **1,000+ years** of linguistic evolution.",
+        id: "lexicon_system_overview",
+        title: "The Linguistic & Lexicon Intelligence Core",
+        subject: "Vocabulary",
+        core: "Chatbot Abhi incorporates an integrated **Linguistic & Lexicon Intelligence Core**, documenting over **600,000 words**, historical citations, and classical etymological roots.",
         formulas: [
-          "\text{Word} \xrightarrow{\text{Chronological Citations}} \text{OED Historical Principles}",
-          "\text{Vocabulary Level} \in \{\text{A1}, \text{A2}, \text{B1}, \text{B2}, \text{C1}, \text{C2}\} \quad \text{(CEFR Standard)}"
+          "\\text{Word} \\xrightarrow{\\text{Chronological Evolution}} \\text{Historical Etymology}",
+          "\\text{Vocabulary Level} \\in \\{\\text{A1}, \\text{A2}, \\text{B1}, \\text{B2}, \\text{C1}, \\text{C2}\\} \\quad \\text{(CEFR Standard)}"
         ],
         steps: [
-          "1. **Training & Lexicographical Standards**: Chatbot Abhi is trained on the dual pillars of Oxford lexicography: **OED Historical Principles** (tracing words from their earliest recorded written appearances to contemporary modern usage) and **OALD Learner Precision** (clear definitions, IPA UK/US phonetics, grammatical tags, and CEFR bands).",
-          "2. **Bilateral Etymological Root Analyzer**: Automatically decomposes Indo-European, Latin, and Greek roots, prefixes, and suffixes to unlock the deeper meaning behind complex scientific and literary vocabulary.",
-          "3. **How to Explore**: Explore any word by typing *'Define serendipity'*, *'What does defenestration mean?'*, *'Etymology of petrichor'*, *'Oxford Word of the Day'*, or clicking the **📚 OXFORD DICTIONARY** module.",
-          "4. **History & James Murray (1857-1928)**: Begun by the Philological Society of London in 1857 and edited by Sir James Murray in his Oxford Scriptorium, the monumental first edition took 71 years to compile, relying on millions of quotation slips sent by volunteer readers worldwide."
+          "1. **Lexicographical Intelligence**: Chatbot Abhi provides high-precision definitions, International Phonetic Alphabet (IPA) UK/US phonetics, grammatical tags, and CEFR difficulty bands (A1 to C2).",
+          "2. **Etymological Root Decomposition**: Automatically analyzes Proto-Indo-European, Latin, Greek, and Germanic roots, prefixes, and suffixes to unlock the deeper meaning behind complex scientific, literary, and academic vocabulary.",
+          "3. **How to Explore**: Explore any word by typing *'Define serendipity'*, *'What does defenestration mean?'*, *'Etymology of petrichor'*, *'Word of the Day'*, or clicking the **📚 VOCABULARY** module.",
+          "4. **Descriptive Precision**: Documents how language organically evolves across centuries, analyzing historical citations, semantic shifts, and register nuances."
         ],
         analogy: "Like having a linguistic time machine that reveals not just what words mean today, but the exact historical journey and earliest recorded moment each word was born!",
-        pitfalls: "The OED is descriptive, not prescriptive—it chronicles the living reality of how English has actually been used across centuries, rather than inventing rigid artificial prohibitions.",
+        pitfalls: "A dictionary is descriptive rather than prescriptive—it chronicles the living reality of how English is actually used across centuries, rather than inventing rigid artificial prohibitions.",
         quiz: {
-          question: "Who was the legendary primary editor of the Oxford English Dictionary who worked in the Scriptorium?",
-          options: ["Sir James Murray", "Samuel Johnson", "Noah Webster", "Horace Walpole"],
+          question: "What international framework categorizes language vocabulary proficiency from A1 (Beginner) to C2 (Mastery)?",
+          options: ["CEFR", "TOEFL", "IELTS", "GRE"],
           correct: 0,
-          explanation: "Sir James Murray was appointed editor in 1879 and devoted 36 years of his life in his Oxford Scriptorium to compiling the OED."
+          explanation: "CEFR (Common European Framework of Reference for Languages) standardizes linguistic proficiency from A1 through C2."
         }
       }
     },
-    // 1D. OXFORD DICTIONARY: SERENDIPITY
+    // 1D. LEXICON: SERENDIPITY
     {
       pattern: /(?:define\s+serendipity|meaning\s+of\s+serendipity|what\s+does\s+serendipity\s+mean|etymology\s+of\s+serendipity)/i,
       data: {
-        id: "oxford_serendipity",
-        title: "Oxford Lexicon: Serendipity /ˌser.ənˈdɪp.ə.ti/",
-        subject: "Oxford Dictionary",
+        id: "lexicon_serendipity",
+        title: "Lexicon: Serendipity /ˌser.ənˈdɪp.ə.ti/",
+        subject: "Vocabulary",
         core: "**Serendipity** (noun [uncountable], CEFR C1): The occurrence and development of events by chance in a happy, fortunate, or beneficial way.",
         formulas: [
-          "\text{Serendipity} = \text{Chance (Accident)} + \text{Sagacity (Discernment)}"
+          "\\text{Serendipity} = \\text{Chance (Accident)} + \\text{Sagacity (Discernment)}"
         ],
         steps: [
           "1. **Definition**: The faculty or aptitude for making desirable discoveries unexpectedly while searching for something entirely different (e.g. Fleming discovering penicillin).",
           "2. **Historical Etymology**: Coined by English author Horace Walpole on January 28, 1754, in a letter to Horace Mann, derived from the Persian fairy tale *The Three Princes of Serendip* (the classical Persian name for Sri Lanka, from Sanskrit Siṃhaladvīpa).",
           "3. **Exemplary Citation**: *'A fortunate stroke of serendipity led the biochemist to discover the antibiotic compound ahead of schedule.'*",
           "4. **Thesaurus**: Synonyms include *happy chance, good fortune, providence, fluke, windfall*. Antonyms include *misfortune, adversity, deliberation, design*.",
-          "5. **Oxford Collocations**: *pure serendipity, stroke of serendipity, by happy serendipity*."
+          "5. **Common Collocations**: *pure serendipity, stroke of serendipity, by happy serendipity*."
         ],
         analogy: "Looking through your coat pockets for a lost receipt and unexpectedly finding a forgotten £50 banknote!",
         pitfalls: "Serendipity is not mere random luck; it crucially requires the intellectual discernment of the observer to recognize the value of the chance finding.",
@@ -1415,16 +1415,16 @@ function lookupFactualKnowledge(query) {
         }
       }
     },
-    // 1E. OXFORD WORD OF THE DAY
+    // 1E. WORD OF THE DAY
     {
       pattern: /(?:word\s+of\s+the\s+day|daily\s+word|today'?s\s+word|wotd)/i,
       data: {
-        id: "oxford_word_of_the_day",
-        title: "Oxford Word of the Day: Featured Lexical Spotlight",
-        subject: "Oxford Dictionary",
-        core: "Today's featured Oxford Word of the Day spotlight is **Petrichor** (/ˈpet.rɪ.kɔːr/, noun [uncountable]): the pleasant, earthy aroma that accompanies the first rain after a long period of warm, dry weather.",
+        id: "word_of_the_day",
+        title: "Word of the Day: Featured Lexical Spotlight",
+        subject: "Vocabulary",
+        core: "Today's featured Word of the Day spotlight is **Petrichor** (/ˈpet.rɪ.kɔːr/, noun [uncountable]): the pleasant, earthy aroma that accompanies the first rain after a long period of warm, dry weather.",
         formulas: [
-          "\text{Petrichor} = \text{petra (stone, Greek)} + \text{īchōr (ethereal blood of the gods, Greek)}"
+          "\\text{Petrichor} = \\text{petra (stone, Greek)} + \\text{īchōr (ethereal blood of the gods, Greek)}"
         ],
         steps: [
           "1. **Pronunciation & Class**: IPA UK/US: `/ˈpet.rɪ.kɔːr/` • Part of speech: *noun [uncountable]* • CEFR: `C2 (Proficiency)`.",
@@ -2339,7 +2339,7 @@ function lookupFactualKnowledge(query) {
         formulas: [],
         steps: [
           "1. **Accidental Discovery**: Fleming noticed a contaminated culture plate of *Staphylococcus* where bacteria near *Penicillium* mold had dissolved.",
-          "2. **Purification**: Later isolated and mass-produced for clinical wartime treatment by Howard Florey and Ernst Chain at Oxford University."
+          "2. **Purification**: Later isolated and mass-produced for clinical wartime treatment by Howard Florey and Ernst Chain in Britain."
         ],
         analogy: "A natural fungal antibiotic weapon repurposed to save tens of millions of human lives.",
         pitfalls: "Fleming discovered penicillin, but Florey and Chain purified it for clinical use (sharing the 1945 Nobel Prize).",

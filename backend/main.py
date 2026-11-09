@@ -980,7 +980,7 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
         "formulas": [],
         "steps": [
             "1. **Creator & Purpose**: Conceived, designed, and developed by **Abhijeeth V S** to provide students and learners with an ultra-responsive, highly accurate, and engaging STEM study companion.",
-            "2. **3D Interactive Avatar**: Features an articulated humanoid 3D avatar sculpted with athletic masculine human anatomy and dressed in tailored modern menswear (navy blazer, collared dress shirt, silk tie, leather belt, slacks, and Oxford dress shoes) with animated head-tracking, expressive eyes, five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
+            "2. **3D Interactive Avatar**: Features an articulated humanoid 3D avatar sculpted with athletic masculine human anatomy and dressed in tailored modern menswear (navy blazer, collared dress shirt, silk tie, leather belt, slacks, and classic leather dress shoes) with animated head-tracking, expressive eyes, five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
             "3. **Multi-Discipline Intelligence**: Equipped with sub-millisecond symbolic mathematical solvers (Calculus, Polynomial Integration, Differentiation, Molar Mass chemistry), comprehensive physics/biology/computer science encyclopedias, and professional communication skills coaching.",
             "4. **Zero-Latency Architecture**: Answers common academic and factual queries deterministically in under 1 millisecond, complete with step-by-step reasoning, KaTeX mathematical formulas, intuitive analogies, and exam pitfalls."
         ],
@@ -1550,7 +1550,7 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
             "core": "Scottish bacteriologist **Sir Alexander Fleming** discovered penicillin in **1928** at St. Mary's Hospital in London.",
             "steps": [
                 "1. **Accidental Discovery**: Fleming noticed a contaminated culture plate of *Staphylococcus* where bacteria surrounding a mold colony (*Penicillium notatum*) had dissolved.",
-                "2. **Mass Production**: Later isolated and purified for clinical wartime use by Howard Florey and Ernst Chain at Oxford University.",
+                "2. **Mass Production**: Later isolated and purified for clinical wartime use by Howard Florey and Ernst Chain in Britain.",
                 "3. **Legacy**: The world's first true antibiotic, saving tens of millions of lives from bacterial infections."
             ],
             "formulas": [],
@@ -2554,21 +2554,21 @@ async def chat_endpoint(payload: ChatRequest):
                             if not is_custom:
                                 OPENAI_KEY_EXHAUSTED = True
 
-                # 4B. Oxford English Dictionary & Lexicon Engine (OED / OALD / Etymology)
+                # 4B. Dictionary & Lexicon Engine (Historical & Academic Standards)
                 if not response_text:
                     if is_oed_overview_query(user_msg):
                         response_text = get_oed_overview_markdown(mode)
-                        source = "Chatbot Abhi Oxford English Dictionary System"
+                        source = "Chatbot Abhi Lexicon Intelligence"
                     elif is_word_of_the_day_query(user_msg):
                         response_text = get_word_of_the_day_markdown()
-                        source = "Chatbot Abhi Oxford Word of the Day Engine"
+                        source = "Chatbot Abhi Word of the Day Core"
                     else:
                         dict_word = extract_dictionary_word(user_msg, subject)
                         if dict_word:
                             dict_entry = await fetch_oxford_dictionary_entry(dict_word)
                             if dict_entry:
                                 response_text = format_oxford_markdown(dict_entry, user_msg, mode)
-                                source = "Chatbot Abhi Oxford English Lexicon Engine (OED & OALD Verified)"
+                                source = "Chatbot Abhi Lexicon Intelligence"
 
                 # 5. Live Encyclopedic Factual Knowledge Retrieval via Wikipedia (Free, Fast, Factual)
                 if not response_text:
@@ -2673,24 +2673,28 @@ async def generate_quiz(req: QuizRequest):
 async def get_quiz(topic: str = "general"):
     return await generate_quiz(QuizRequest(topic=topic))
 
-# --- OXFORD ENGLISH DICTIONARY & LEXICON ENDPOINTS ---
+# --- LEXICON & VOCABULARY ENDPOINTS ---
 
 @app.get("/api/dictionary/{word}")
+@app.get("/api/lexicon/lookup/{word}")
 @app.get("/api/oxford/lookup/{word}")
 async def lookup_dictionary_endpoint(word: str):
     entry = await fetch_oxford_dictionary_entry(word)
     if not entry:
-        raise HTTPException(status_code=404, detail=f"Word '{word}' not found in Oxford Lexicon.")
+        raise HTTPException(status_code=404, detail=f"Word '{word}' not found in Lexicon.")
     return entry
 
+@app.get("/api/lexicon/word-of-the-day")
 @app.get("/api/oxford/word-of-the-day")
 async def word_of_the_day_endpoint():
     return {"content": get_word_of_the_day_markdown()}
 
+@app.get("/api/lexicon/overview")
 @app.get("/api/oxford/overview")
 async def oed_overview_endpoint():
     return {"content": get_oed_overview_markdown()}
 
+@app.get("/api/lexicon/explore")
 @app.get("/api/oxford/explore")
 async def oxford_explore_endpoint():
     return {
@@ -2698,8 +2702,8 @@ async def oxford_explore_endpoint():
         "categories": [
             {"name": "Literary & Emotional Gems", "words": ["serendipity", "sonder", "petrichor", "ephemeral"]},
             {"name": "Historical & Rhetorical Oddities", "words": ["defenestration", "sesquipedalian", "schadenfreude"]},
-            {"name": "Academic & Scientific Mastery", "words": ["perspicacious", "quintessential", "ubiquitous"]},
-            {"name": "Publishing & Lexicographical Standards", "words": ["oxford comma", "oxford english dictionary"]}
+            {"name": "Academic & Scientific Mastery", "words": ["perspicacious", "quintessential", "ubiquitous", "lexicography"]},
+            {"name": "Grammatical & Linguistic Mastery", "words": ["serial comma"]}
         ]
     }
 
@@ -2716,7 +2720,7 @@ async def health_check():
         "openai_configured": has_key,
         "features": [
             "Real 3D Humanoid Robot Dressed in Tailored Modern Menswear with Expressive Eyes & 5-Digit Hands",
-            "Oxford English Dictionary & Historical Lexicon Engine (OED & OALD Standards)",
+            "Advanced Lexicon & Historical Etymological Intelligence",
             "Deterministic Math & Quadratic Equation Solver",
             "Multi-Domain Academic Knowledge Base",
             "Live Free Wikipedia Encyclopedic Factual Engine",

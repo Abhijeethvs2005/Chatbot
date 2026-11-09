@@ -387,7 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const camCommandBtn = document.getElementById("cam-command-btn");
   const camLegsBtn = document.getElementById("cam-legs-btn");
   const camCoreBtn = document.getElementById("cam-core-btn");
-  const camHandsBtn = document.getElementById("cam-hands-btn");
   const camOrbitBtn = document.getElementById("cam-orbit-btn");
   const toggleGridBtn = document.getElementById("toggle-grid-btn");
   const frameThemeBtn = document.getElementById("frame-theme-btn");
@@ -434,19 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (camHandsBtn) {
-    camHandsBtn.addEventListener("click", () => {
-      if (robot) {
-        if (robot.isOrbiting) robot.toggleOrbit();
-        robot.setCameraView("hands");
-      }
-      if (camOrbitBtn) {
-        camOrbitBtn.classList.remove("active");
-        camOrbitBtn.innerHTML = "🔄 ORBIT";
-      }
-      window.AudioEngine.playHydraulicClick();
-    });
-  }
 
   if (camOrbitBtn) {
     camOrbitBtn.addEventListener("click", () => {
@@ -519,18 +505,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  const toggleHandBtn = document.getElementById("act-toggle-hand-btn");
-  if (toggleHandBtn) {
-    toggleHandBtn.addEventListener("click", () => {
-      if (robot) {
-        const newHand = robot.toggleHand();
-        toggleHandBtn.textContent = newHand === "left" ? "🔄 Hand: Left (Reversed)" : "🔄 Hand: Right (Standard)";
-        if (newHand === "left") toggleHandBtn.classList.add("active");
-        else toggleHandBtn.classList.remove("active");
-        robot.doAction("hello");
-      }
-    });
-  }
 
   const waveBtn = document.getElementById("wave-btn");
   if (waveBtn) {
@@ -555,10 +529,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (window.AudioEngine && window.AudioEngine.voiceEnabled) {
           window.AudioEngine.speak("Communication skills module engaged. Ready to master active listening, public speaking, and interviews!");
         }
-      } else if (state.subject === "Oxford Dictionary" && robot) {
+      } else if (state.subject === "Vocabulary" && robot) {
         robot.doAction("hello");
         if (window.AudioEngine && window.AudioEngine.voiceEnabled) {
-          window.AudioEngine.speak("Welcome to the Oxford English Dictionary and Lexicon Explorer! What word would you like to define, explore, or trace the etymology of?");
+          window.AudioEngine.speak("Welcome to the Vocabulary and Lexicon Explorer! What word would you like to define or explore?");
         }
       } else if (robot) {
         robot.setExpression("happy");
@@ -664,20 +638,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Robot Reacts: Thinking & Overdrive State or Gesture Trigger
     const lower = text.toLowerCase();
     if (robot) {
-      if (lower.includes("change hand") || lower.includes("reverse hand") || lower.includes("change the hand") || lower.includes("reverse the hand") || lower.includes("revsre") || lower.includes("switch hand") || lower.includes("swap hand")) {
-        const newHand = robot.toggleHand();
-        const handLabel = newHand === "left" ? "Left Hand (Reversed)" : "Right Hand (Standard)";
-        const toggleBtn = document.getElementById("act-toggle-hand-btn");
-        if (toggleBtn) {
-          toggleBtn.textContent = newHand === "left" ? "🔄 Hand: Left (Reversed)" : "🔄 Hand: Right (Standard)";
-          if (newHand === "left") toggleBtn.classList.add("active");
-          else toggleBtn.classList.remove("active");
-        }
-        setTimeout(() => robot.hello(), 400);
-        const msgHtml = `<p>🔄 <strong>Action Hand Reversal Activated!</strong></p><p>I have reversed my active action hand to my <strong>${handLabel}</strong>! Watch me wave with it right now.</p><p>All physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute, and conversational speaking gestures) will now be performed with my <strong>${handLabel}</strong>.</p><p style="margin-top:8px; font-size:12px; color:var(--text-dim);">💡 You can also tap the <strong>🔄 Hand: ${newHand === "left" ? "Left (Reversed)" : "Right (Standard)"}</strong> button in the 3D action bar below the robot anytime to swap hands instantly!</p>`;
-        appendMessage("bot", msgHtml);
-        return;
-      } else if (lower.includes("high five") || lower.includes("hifi") || lower.includes("high-five")) {
+      if (lower.includes("high five") || lower.includes("hifi") || lower.includes("high-five")) {
         robot.hifi();
       } else if (lower.includes("salute")) {
         robot.salute();

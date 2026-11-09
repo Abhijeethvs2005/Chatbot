@@ -85,7 +85,6 @@ class Robot3D {
     this.heartParticles = [];
 
     // Current Action & Animation Timers
-    this.activeHand = "left"; // 'left' (viewer perspective) or 'right'
     this.currentAction = null;
     this.actionTimer = 0;
     this.isHifiReady = false;
@@ -460,7 +459,7 @@ class Robot3D {
     });
 
     this.matShoes = new THREE.MeshStandardMaterial({
-      color: 0x1c120c, // Hand-burnished mahogany espresso Oxford leather
+      color: 0x1c120c, // Hand-burnished mahogany espresso leather
       roughness: 0.32,
       metalness: 0.08
     });
@@ -1964,13 +1963,13 @@ class Robot3D {
       rightPantsCalf.position.set(0, -0.25, 0);
       register("student", rightPantsCalf, this.rightLeg.calf);
 
-      const leftOxford = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matChassis);
-      leftOxford.position.set(0, 0, 0.03);
-      register("student", leftOxford, this.leftLeg.foot);
+      const leftDressShoe = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matChassis);
+      leftDressShoe.position.set(0, 0, 0.03);
+      register("student", leftDressShoe, this.leftLeg.foot);
 
-      const rightOxford = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matChassis);
-      rightOxford.position.set(0, 0, 0.03);
-      register("student", rightOxford, this.rightLeg.foot);
+      const rightDressShoe = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matChassis);
+      rightDressShoe.position.set(0, 0, 0.03);
+      register("student", rightDressShoe, this.rightLeg.foot);
     }
 
     // ==========================================
@@ -2291,11 +2290,6 @@ class Robot3D {
       if (window.AudioEngine.playChime) window.AudioEngine.playChime();
       else if (window.AudioEngine.playRobotChirp) window.AudioEngine.playRobotChirp();
     }
-  }
-
-  toggleHand() {
-    this.activeHand = (this.activeHand === "left") ? "right" : "left";
-    return this.activeHand;
   }
 
   buildHoloPlatform() {
@@ -3112,29 +3106,6 @@ class Robot3D {
         if (target.y !== undefined) bone.rotation.y += (target.y - bone.rotation.y) * alpha;
         if (target.z !== undefined) bone.rotation.z += (target.z - bone.rotation.z) * alpha;
       };
-
-      if (this.activeHand === "left" && this.currentAction) {
-        const mirror = (rot) => ({
-          x: rot.x,
-          y: rot.y !== undefined ? -rot.y : undefined,
-          z: rot.z !== undefined ? -rot.z : undefined
-        });
-        const mirroredLeft = {
-          upper: mirror(targetRight.upper),
-          fore: mirror(targetRight.fore),
-          hand: mirror(targetRight.hand)
-        };
-        const mirroredRight = {
-          upper: mirror(targetLeft.upper),
-          fore: mirror(targetLeft.fore),
-          hand: mirror(targetLeft.hand)
-        };
-        targetLeft = mirroredLeft;
-        targetRight = mirroredRight;
-        const tempCurl = leftFingersTarget;
-        leftFingersTarget = rightFingersTarget;
-        rightFingersTarget = tempCurl;
-      }
 
       lerpBone(this.leftArm.upperArm, targetLeft.upper);
       lerpBone(this.leftArm.forearm, targetLeft.fore);
