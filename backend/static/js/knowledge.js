@@ -281,6 +281,58 @@ const ACADEMIC_TOPICS = [
       correct: 1,
       explanation: "Active recall forces the brain to retrieve information from neural pathways, which strengthens synaptic connections far more than passive re-reading."
     }
+  },
+  {
+    id: "comm_7cs",
+    title: "The 7 C's of Effective Communication",
+    subject: "Communication Skills",
+    keywords: ["communication", "communication skills", "7 c", "7 cs of communication", "effective communication", "verbal communication"],
+    core: "Effective communication is the purposeful transmission and mutual decoding of ideas, thoughts, and emotions. The universally recognized framework is the 7 C's of Communication: Clear, Concise, Concrete, Correct, Coherent, Complete, and Courteous.",
+    formulas: [
+      "\\text{Communication Loop: } \\text{Sender (Encode)} \\to \\text{Message (Channel)} \\to \\text{Receiver (Decode)} \\to \\text{Feedback}",
+      "\\text{Mehrabian's Rule: } 55\\% \\text{ Body Language} + 38\\% \\text{ Vocal Tone} + 7\\% \\text{ Verbal Content}",
+      "\\text{The 7 C's: } \\{\\text{Clear, Concise, Concrete, Correct, Coherent, Complete, Courteous}\\}"
+    ],
+    steps: [
+      "1. **Clarity**: State your central thesis immediately; avoid unnecessary jargon and convoluted sentence structures.",
+      "2. **Conciseness**: Eliminate conversational filler ('um', 'you know', 'basically'); respect your listener's time and attention span.",
+      "3. **Concreteness**: Support statements with measurable facts, quantitative metrics, and tangible real-world examples.",
+      "4. **Correctness & Coherence**: Verify grammatical and factual accuracy; arrange your arguments in a logical sequential progression.",
+      "5. **Completeness & Courtesy**: Provide all essential information needed for the receiver to act, delivered with empathetic, professional respect."
+    ],
+    analogy: "Think of communication like an electrical circuit: unless the sender's signal closes the feedback loop at the receiver's end with minimal resistance (noise), no actual energy or message has been transferred.",
+    pitfalls: "Confusing *hearing* with *active listening*, and ignoring non-verbal cues—listeners absorb emotional intent and sincerity primarily from posture, gaze, and vocal pacing, not bare vocabulary alone!",
+    quiz: {
+      question: "In the 7 C's of Communication, which principle requires backing up statements with specific facts and figures rather than vague generalizations?",
+      options: ["Concrete", "Concise", "Courteous", "Coherent"],
+      correct: 0,
+      explanation: "Concreteness ensures statements are supported by specific data, measurable facts, and tangible examples rather than ambiguity."
+    }
+  },
+  {
+    id: "comm_star",
+    title: "The STAR Method for Behavioral Interviews",
+    subject: "Communication Skills",
+    keywords: ["star method", "interview skills", "job interview", "behavioral question", "interview preparation", "mock interview"],
+    core: "The STAR technique (Situation, Task, Action, Result) is the gold standard framework for structuring compelling answers to behavioral interview questions, transforming past experiences into quantifiable proof of competence.",
+    formulas: [
+      "\\text{STAR Breakdown: } \\text{Situation (20\\%)} + \\text{Task (15\\%)} + \\text{Action (50\\%)} + \\text{Result (15\\%)}",
+      "\\text{Measurable Impact: } \\text{Action Taken} \\implies \\Delta \\text{Metric (e.g. +40\\% throughput, -25\\% latency)}"
+    ],
+    steps: [
+      "1. **Situation (Context)**: Set the scene briefly—describe the company, project, team challenge, or bottleneck.",
+      "2. **Task (Responsibility)**: Define your personal role, the target goal, and the constraints (time, budget, resources).",
+      "3. **Action (The Core 50%)**: Detail the exact engineering steps, leadership decisions, and tools YOU employed to solve it.",
+      "4. **Result (Impact)**: Quantify the outcome with concrete numbers, business impact, and key engineering lessons learned."
+    ],
+    analogy: "Telling a story using STAR is like directing a short film: introduce the setting, introduce the looming conflict, spotlight the protagonist taking decisive action, and close with the triumphant measurable resolution.",
+    pitfalls: "Using 'We' instead of 'I'—interviewers want to evaluate YOUR personal contribution, critical thinking, and technical execution, not what the entire team did collectively!",
+    quiz: {
+      question: "In the STAR interview response technique, which phase should take the majority (approx. 50%) of your answer time?",
+      options: ["Action (What specific steps you took)", "Situation (Background story)", "Task (What was assigned)", "Result (Final metric)"],
+      correct: 0,
+      explanation: "The Action component is the heart of the STAR method; interviewers want to assess your personal execution, problem-solving, and technical contribution."
+    }
   }
 ];
 

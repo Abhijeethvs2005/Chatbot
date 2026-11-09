@@ -529,8 +529,15 @@ document.addEventListener("DOMContentLoaded", () => {
       pill.classList.add("active");
       state.subject = pill.dataset.subject || "General";
       window.AudioEngine.playClick();
-      if (robot) robot.setExpression("happy");
-      setTimeout(() => { if (robot) robot.setExpression("idle"); }, 800);
+      if (state.subject === "Communication Skills" && robot) {
+        robot.doAction("hello");
+        if (window.AudioEngine && window.AudioEngine.voiceEnabled) {
+          window.AudioEngine.speak("Communication skills module engaged. Ready to master active listening, public speaking, and interviews!");
+        }
+      } else if (robot) {
+        robot.setExpression("happy");
+        setTimeout(() => { if (robot) robot.setExpression("idle"); }, 800);
+      }
     });
   });
 

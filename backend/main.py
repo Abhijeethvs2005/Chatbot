@@ -89,12 +89,170 @@ SAFE_OPS = {
 # In-memory LRU Wikipedia fact cache
 WIKI_CACHE: Dict[str, Dict[str, str]] = {}
 
+def differentiate_polynomial(expr: str) -> str:
+    """Compute exact derivative of a single-variable polynomial in x."""
+    clean = expr.replace(' ', '')
+    if not clean.startswith('+') and not clean.startswith('-'):
+        clean = '+' + clean
+    pattern = re.compile(r'([+-])\s*(\d*(?:\.\d+)?)?\s*(x)?(?:\^(\d+))?')
+    pos = 0
+    deriv_terms = []
+    for m in pattern.finditer(clean):
+        if m.start() != pos or m.group(0) == '':
+            continue
+        pos = m.end()
+        sign = -1 if m.group(1) == '-' else 1
+        coeff_str = m.group(2)
+        has_x = bool(m.group(3))
+        power_str = m.group(4)
+        if not has_x and not coeff_str:
+            continue
+        coeff = float(coeff_str) if coeff_str else 1.0
+        coeff *= sign
+        power = int(power_str) if power_str else (1 if has_x else 0)
+        if power == 0:
+            continue
+        new_coeff = coeff * power
+        new_power = power - 1
+        c_fmt = int(new_coeff) if new_coeff.is_integer() else round(new_coeff, 4)
+        if new_power == 0:
+            term_str = f"{c_fmt}"
+        elif new_power == 1:
+            term_str = f"{c_fmt}x" if c_fmt != 1 else "x"
+            if c_fmt == -1: term_str = "-x"
+        else:
+            term_str = f"{c_fmt}x^{new_power}" if c_fmt != 1 else f"x^{new_power}"
+            if c_fmt == -1: term_str = f"-x^{new_power}"
+        deriv_terms.append((new_coeff, term_str))
+    if not deriv_terms:
+        return "0"
+    res = ""
+    for i, (c, t) in enumerate(deriv_terms):
+        if i == 0:
+            res += t
+        else:
+            if c > 0: res += " + " + t
+            else: res += " - " + t.lstrip('-')
+    return res
+
+def integrate_polynomial(expr: str) -> str:
+    """Compute indefinite integral of a single-variable polynomial in x."""
+    clean = expr.replace(' ', '')
+    if not clean.startswith('+') and not clean.startswith('-'):
+        clean = '+' + clean
+    pattern = re.compile(r'([+-])\s*(\d*(?:\.\d+)?)?\s*(x)?(?:\^(\d+))?')
+    pos = 0
+    integ_terms = []
+    for m in pattern.finditer(clean):
+        if m.start() != pos or m.group(0) == '':
+            continue
+        pos = m.end()
+        sign = -1 if m.group(1) == '-' else 1
+        coeff_str = m.group(2)
+        has_x = bool(m.group(3))
+        power_str = m.group(4)
+        if not has_x and not coeff_str:
+            continue
+        coeff = float(coeff_str) if coeff_str else 1.0
+        coeff *= sign
+        power = int(power_str) if power_str else (1 if has_x else 0)
+        new_power = power + 1
+        new_coeff = coeff / new_power
+        c_fmt = int(new_coeff) if new_coeff.is_integer() else round(new_coeff, 4)
+        if new_power == 1:
+            term_str = f"{c_fmt}x" if c_fmt != 1 else "x"
+            if c_fmt == -1: term_str = "-x"
+        else:
+            term_str = f"{c_fmt}x^{new_power}" if c_fmt != 1 else f"x^{new_power}"
+            if c_fmt == -1: term_str = f"-x^{new_power}"
+        integ_terms.append((new_coeff, term_str))
+    res = ""
+    for i, (c, t) in enumerate(integ_terms):
+        if i == 0:
+            res += t
+        else:
+            if c > 0: res += " + " + t
+            else: res += " - " + t.lstrip('-')
+    return (res + " + C") if res else "C"
+
 def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
-    """Safely detect and calculate arithmetic, algebraic, geometric expressions, and conversions."""
+    """Safely detect and calculate arithmetic, algebraic, geometric, calculus, physics, and conversion problems."""
     raw = query.strip()
     raw_lower = raw.lower()
-    
-    # 1. Quadratic Equation Solver: e.g. "x^2 - 5x + 6 = 0" or "solve x^2 + 4x - 5 = 0"
+
+    # 1. Polynomial Differentiation: e.g. "derivative of 3x^3 - 5x^2 + 4x - 9" or "d/dx(4x^2 + 2x)"
+    m_diff = re.search(r'(?:derivative of|d/dx\s*\(?)\s*([0-9xX\^\+\-\s\.\*]+)\)?', raw_lower)
+    if m_diff:
+        poly_str = m_diff.group(1).strip()
+        ans = differentiate_polynomial(poly_str)
+        return {
+            "title": f"Calculus Derivative: d/dx ({poly_str})",
+            "core": f"The derivative of $${poly_str}$$ with respect to $x$ is **$${ans}$$**.",
+            "formulas": [
+                r"\frac{d}{dx}[x^n] = n \cdot x^{n-1} \quad \text{(Power Rule)}",
+                f"\\frac{{d}}{{dx}} \\left( {poly_str} \\right) = {ans}"
+            ],
+            "steps": [
+                f"1. **Apply Power Rule**: Multiply each coefficient by its exponent, then decrement the exponent by 1.",
+                f"2. **Differentiate Constants**: Constant terms have zero rate of change: \\frac{{d}}{{dx}}[c] = 0.",
+                f"3. **Result**: $$\\mathbf{{\\frac{{d}}{{dx}}[{poly_str}] = {ans}}}$$"
+            ],
+            "analogy": "Differentiating a function tells you its instantaneous slope or speedometer reading at every point.",
+            "pitfalls": "Be careful with negative coefficients and remember that the derivative of a constant term is 0!",
+            "confidence": "100% Deterministic Calculus Standard"
+        }
+
+    # 2. Polynomial Integration: e.g. "integral of 3x^2 - 4x + 5" or "integrate 6x^2"
+    m_integ = re.search(r'(?:integral of|integrate)\s*([0-9xX\^\+\-\s\.\*]+)', raw_lower)
+    if m_integ and not any(w in raw_lower for w in ["circuit", "system", "chip"]):
+        poly_str = m_integ.group(1).strip()
+        ans = integrate_polynomial(poly_str)
+        return {
+            "title": f"Calculus Indefinite Integral: ∫ ({poly_str}) dx",
+            "core": f"The indefinite integral of $${poly_str}$$ is **$${ans}$$**.",
+            "formulas": [
+                r"\int x^n \, dx = \frac{x^{n+1}}{n+1} + C \quad (n \neq -1)",
+                f"\\int \\left( {poly_str} \\right) dx = {ans}"
+            ],
+            "steps": [
+                f"1. **Apply Reverse Power Rule**: Increment each power by 1 and divide by the new power.",
+                f"2. **Integrate Constants**: \\int c \\, dx = c x.",
+                f"3. **Add Constant of Integration**: Always append + C for indefinite integrals.",
+                f"4. **Result**: $$\\mathbf{{\\int ({poly_str}) \\, dx = {ans}}}$$"
+            ],
+            "analogy": "Integration accumulates all the tiny slices of area under the curve to find total accumulation.",
+            "pitfalls": "Never forget the arbitrary constant of integration + C on indefinite integrals!",
+            "confidence": "100% Deterministic Calculus Standard"
+        }
+
+    # 3. Linear Equation Solver: e.g. "solve 3x + 9 = 24" or "5x - 15 = 35"
+    m_lin = re.search(r'([+-]?\s*\d*(?:\.\d+)?)\s*x\s*([+-]\s*\d*(?:\.\d+)?)\s*=\s*([+-]?\s*\d*(?:\.\d+)?)', raw_lower)
+    if m_lin and "x^2" not in raw_lower:
+        try:
+            a_str = (m_lin.group(1) or "1").replace(" ", "")
+            a = float(a_str) if a_str not in ["", "+", "-"] else float(a_str + "1")
+            b = float(m_lin.group(2).replace(" ", ""))
+            c = float(m_lin.group(3).replace(" ", ""))
+            if a != 0:
+                x = (c - b) / a
+                x_fmt = int(x) if x.is_integer() else round(x, 4)
+                return {
+                    "title": f"Linear Equation Solution: {a}x + ({b}) = {c}",
+                    "core": f"The solution to the equation $${a}x + ({b}) = {c}$$ is **x = {x_fmt}**.",
+                    "formulas": [f"{a}x + ({b}) = {c} \\implies {a}x = {c - b} \\implies x = {x_fmt}"],
+                    "steps": [
+                        f"1. **Isolate Variable Term**: Subtract {b} from both sides: {a}x = {c} - ({b}) = {c - b}.",
+                        f"2. **Divide by Coefficient**: Divide both sides by {a}: x = {c - b} / {a} = {x_fmt}.",
+                        f"3. **Verification**: {a}({x_fmt}) + ({b}) = {a * x_fmt + b} (Matches {c})."
+                    ],
+                    "analogy": "Like balancing a scale: whatever operation you perform on one side, you must mirror on the other.",
+                    "pitfalls": "Watch out for negative signs when subtracting constant terms across the equals sign!",
+                    "confidence": "100% Algebraic Precision"
+                }
+        except Exception:
+            pass
+
+    # 4. Quadratic Equation Solver: e.g. "x^2 - 5x + 6 = 0"
     m_quad = re.search(r'([+-]?\s*\d*(?:\.\d+)?)\s*x\^2\s*([+-]\s*\d*(?:\.\d+)?)\s*x\s*([+-]\s*\d*(?:\.\d+)?)\s*(?:=\s*0)?', raw_lower)
     if m_quad:
         try:
@@ -139,17 +297,209 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
                     f"4. **Exact Solutions**: $${roots_str}$$"
                 ],
                 "analogy": "A quadratic equation graphs a parabola. The roots correspond to where the curve intersects the ground (x-axis).",
-                "pitfalls": "Remember that dividing by 2a applies to the entire numerator (-b ± √Δ), and be careful with negative signs when evaluating -b!",
+                "pitfalls": "Remember that dividing by 2a applies to the entire numerator (-b ± √Δ)!",
                 "confidence": "100% Deterministic Algebraic Standard"
             }
         except Exception:
             pass
 
-    clean = query.lower().strip()
-    clean = re.sub(r'^(what is|calculate|evaluate|solve|compute|find|tell me)\s+', '', clean)
-    clean = clean.replace('?', '').replace('=', '').strip()
+    # 5. Percentage: e.g. "15% of 240" or "what is 20 percent of 850"
+    m_pct = re.search(r'(\d+(?:\.\d+)?)\s*(?:%|percent)\s+of\s+(\d+(?:\.\d+)?)', raw_lower)
+    if m_pct:
+        pct = float(m_pct.group(1))
+        tot = float(m_pct.group(2))
+        val = (pct / 100.0) * tot
+        val_fmt = int(val) if val.is_integer() else round(val, 4)
+        return {
+            "title": f"Percentage Calculation: {pct}% of {tot}",
+            "core": f"**{pct}% of {tot} is {val_fmt}**.",
+            "formulas": [f"\\text{{Value}} = \\left(\\frac{{{pct}}}{{100}}\\right) \\times {tot} = {val_fmt}"],
+            "steps": [
+                f"1. **Convert Percent to Decimal**: {pct}% = {pct} / 100 = {pct/100}.",
+                f"2. **Multiply by Whole**: {pct/100} × {tot} = {val_fmt}."
+            ],
+            "analogy": f"If you divide {tot} into 100 equal parts, taking {pct} of those parts gives exactly {val_fmt}.",
+            "pitfalls": "Remember 'of' means multiplication in percentage word problems.",
+            "confidence": "100% Deterministic Arithmetic"
+        }
 
-    # 2. Square Root: sqrt(144) or square root of 144
+    # 6. Physics Word Problem: Force (F = m * a)
+    if ("force" in raw_lower or "f=ma" in raw_lower) and ("mass" in raw_lower or "kg" in raw_lower):
+        m_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*kg', r'mass\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: m_val = float(m.group(1)); break
+        a_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*m\/s(?:\^2|2)?', r'accel\w*\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: a_val = float(m.group(1)); break
+        if m_val is not None and a_val is not None:
+            f = m_val * a_val
+            f_fmt = int(f) if f.is_integer() else round(f, 4)
+            return {
+                "title": f"Physics Calculation: Force (m = {m_val} kg, a = {a_val} m/s²)",
+                "core": f"The required net force is **{f_fmt} Newtons (N)**.",
+                "formulas": [f"F = m \\cdot a = ({m_val} \\text{{ kg}}) \\times ({a_val} \\text{{ m/s}}^2) = {f_fmt} \\text{{ N}}"],
+                "steps": [
+                    f"1. **Newton's Second Law**: F_net = m × a.",
+                    f"2. **Substitute Knowns**: Mass m = {m_val} kg, Acceleration a = {a_val} m/s².",
+                    f"3. **Compute**: F = {m_val} × {a_val} = {f_fmt} N."
+                ],
+                "analogy": "The heavier an object (mass) and the faster you want to change its speed (acceleration), the harder you must push (force).",
+                "pitfalls": "Ensure mass is in kilograms (kg) and acceleration in m/s² so the resulting unit is in standard Newtons.",
+                "confidence": "100% Classical Physics Mechanics"
+            }
+
+    # 7. Physics Word Problem: Kinetic Energy (1/2 m v^2)
+    if ("kinetic energy" in raw_lower or "ke" in raw_lower) and ("mass" in raw_lower or "kg" in raw_lower):
+        m_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*kg', r'mass\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: m_val = float(m.group(1)); break
+        v_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*m\/s', r'(?:speed|veloc\w*)\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: v_val = float(m.group(1)); break
+        if m_val is not None and v_val is not None:
+            ke = 0.5 * m_val * (v_val ** 2)
+            ke_fmt = int(ke) if ke.is_integer() else round(ke, 4)
+            return {
+                "title": f"Physics Calculation: Kinetic Energy (m = {m_val} kg, v = {v_val} m/s)",
+                "core": f"The kinetic energy of the object is **{ke_fmt} Joules (J)**.",
+                "formulas": [f"E_k = \\frac{{1}}{{2}} m v^2 = \\frac{{1}}{{2}} ({m_val}) ({v_val})^2 = {ke_fmt} \\text{{ J}}"],
+                "steps": [
+                    f"1. **Formula**: E_k = 1/2 · m · v².",
+                    f"2. **Square Velocity**: v² = ({v_val})² = {v_val**2}.",
+                    f"3. **Compute**: 0.5 × {m_val} × {v_val**2} = {ke_fmt} J."
+                ],
+                "analogy": "Doubling your car's speed quadruples its braking energy because kinetic energy scales with the square of velocity.",
+                "pitfalls": "Do not forget to square the velocity BEFORE multiplying by 1/2 mass!",
+                "confidence": "100% Classical Physics Mechanics"
+            }
+
+    # 8. Physics Word Problem: Speed (v = d / t)
+    if ("speed" in raw_lower or "velocity" in raw_lower) and ("distance" in raw_lower or "km" in raw_lower or "miles" in raw_lower):
+        d_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*(?:km|miles|meters|m\b)', r'distance\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: d_val = float(m.group(1)); break
+        t_val = None
+        for pat in [r'(\d+(?:\.\d+)?)\s*(?:hours|hrs|hr|seconds|sec|s\b|minutes|min)', r'time\s*(?:of|=|:)?\s*(\d+(?:\.\d+)?)']:
+            m = re.search(pat, raw_lower)
+            if m: t_val = float(m.group(1)); break
+        if d_val is not None and t_val is not None and t_val > 0:
+            spd = d_val / t_val
+            spd_fmt = int(spd) if spd.is_integer() else round(spd, 4)
+            return {
+                "title": f"Kinematics Speed Calculation (d = {d_val}, t = {t_val})",
+                "core": f"The average speed is **{spd_fmt}** units per time.",
+                "formulas": [f"v = \\frac{{d}}{{t}} = \\frac{{{d_val}}}{{{t_val}}} = {spd_fmt}"],
+                "steps": [
+                    f"1. **Definition**: Average speed is total distance divided by elapsed time.",
+                    f"2. **Compute**: v = {d_val} / {t_val} = {spd_fmt}."
+                ],
+                "analogy": "Speed measures the rate at which distance is covered per tick of the clock.",
+                "pitfalls": "Make sure distance and time units match (e.g., km with hours, or meters with seconds).",
+                "confidence": "100% Kinematics Standard"
+            }
+
+    # 9. Temperature Conversions: C to F, F to C
+    m_c2f = re.search(r'convert\s*(-?\d+(?:\.\d+)?)\s*(?:c|celsius)\s*to\s*(?:f|fahrenheit)', raw_lower)
+    if m_c2f:
+        c = float(m_c2f.group(1))
+        f = (c * 9.0 / 5.0) + 32.0
+        f_fmt = int(f) if f.is_integer() else round(f, 2)
+        return {
+            "title": f"Temperature Conversion: {c}°C to Fahrenheit",
+            "core": f"**{c}°C is equal to {f_fmt}°F**.",
+            "formulas": [f"F = \\left(C \\times \\frac{{9}}{{5}}\\right) + 32 = \\left({c} \\times 1.8\\right) + 32 = {f_fmt}^\\circ\\text{{F}}"],
+            "steps": [
+                f"1. **Multiply by 9/5 (1.8)**: {c} × 1.8 = {round(c * 1.8, 2)}.",
+                f"2. **Add 32**: {round(c * 1.8, 2)} + 32 = {f_fmt}°F."
+            ],
+            "analogy": "Water freezes at 0°C (32°F) and boils at 100°C (212°F).",
+            "pitfalls": "Remember to add 32 AFTER multiplying by 9/5, not before!",
+            "confidence": "100% Thermodynamic Standard"
+        }
+
+    m_f2c = re.search(r'convert\s*(-?\d+(?:\.\d+)?)\s*(?:f|fahrenheit)\s*to\s*(?:c|celsius)', raw_lower)
+    if m_f2c:
+        f = float(m_f2c.group(1))
+        c = (f - 32.0) * 5.0 / 9.0
+        c_fmt = int(c) if c.is_integer() else round(c, 2)
+        return {
+            "title": f"Temperature Conversion: {f}°F to Celsius",
+            "core": f"**{f}°F is equal to {c_fmt}°C**.",
+            "formulas": [f"C = (F - 32) \\times \\frac{{5}}{{9}} = ({f} - 32) \\times \\frac{{5}}{{9}} = {c_fmt}^\\circ\\text{{C}}"],
+            "steps": [
+                f"1. **Subtract 32**: {f} - 32 = {round(f - 32, 2)}.",
+                f"2. **Multiply by 5/9**: {round(f - 32, 2)} × (5/9) = {c_fmt}°C."
+            ],
+            "analogy": "Subtracting 32 aligns freezing points; multiplying by 5/9 scales the interval.",
+            "pitfalls": "Subtract 32 first before multiplying by 5/9!",
+            "confidence": "100% Thermodynamic Standard"
+        }
+
+    # 10. Factorial: e.g. "factorial of 6" or "6!"
+    m_fact = re.search(r'(?:factorial of\s+(\d+)|(\d+)\s*!)', raw_lower)
+    if m_fact:
+        n = int(m_fact.group(1) or m_fact.group(2))
+        if n <= 100:
+            val = math.factorial(n)
+            return {
+                "title": f"Factorial Calculation: {n}!",
+                "core": f"**{n}! = {val}**.",
+                "formulas": [f"{n}! = \\prod_{{i=1}}^{{{n}}} i = {val}"],
+                "steps": [
+                    f"1. **Definition**: The factorial n! is the product of all positive integers less than or equal to n.",
+                    f"2. **Calculation**: {' × '.join(str(i) for i in range(n, 0, -1)[:8])}{'...' if n > 8 else ''} = {val}."
+                ],
+                "analogy": f"The number of unique ways to arrange {n} books on a shelf is {n}!.",
+                "pitfalls": "Remember that by mathematical definition, 0! = 1.",
+                "confidence": "100% Combinatoric Precision"
+            }
+
+    # 11. GCD / LCM
+    m_gcd = re.search(r'gcd\s+(?:of\s+)?(\d+)\s*(?:and|,)\s*(\d+)', raw_lower)
+    if m_gcd:
+        a, b = int(m_gcd.group(1)), int(m_gcd.group(2))
+        g = math.gcd(a, b)
+        return {
+            "title": f"Greatest Common Divisor: GCD({a}, {b})",
+            "core": f"The greatest common divisor of {a} and {b} is **{g}**.",
+            "formulas": [f"\\gcd({a}, {b}) = {g}"],
+            "steps": [
+                f"1. **Euclidean Algorithm**: Repeatedly take remainders: {a} mod {b}.",
+                f"2. **Result**: The greatest integer dividing both numbers is {g}."
+            ],
+            "analogy": "The largest square tile that can evenly pave a floor of dimensions {a} × {b} without cutting tiles.",
+            "pitfalls": "Do not confuse GCD (largest divisor) with LCM (smallest multiple).",
+            "confidence": "100% Number Theory Standard"
+        }
+
+    # 12. Prime Check
+    m_prime = re.search(r'is\s+(\d+)\s+prime', raw_lower)
+    if m_prime:
+        n = int(m_prime.group(1))
+        is_p = n > 1 and all(n % i != 0 for i in range(2, int(math.isqrt(n)) + 1))
+        verdict = f"**{n} IS a prime number** (it has no divisors other than 1 and itself)." if is_p else f"**{n} is NOT a prime number** (it is composite)."
+        return {
+            "title": f"Primality Test: Is {n} Prime?",
+            "core": verdict,
+            "formulas": [f"\\text{{Prime}}({n}) = {is_p}"],
+            "steps": [
+                f"1. **Trial Division**: Test all prime factors up to √{n} ≈ {int(math.isqrt(n))}.",
+                f"2. **Divisibility Check**: {'No divisors found' if is_p else 'Divisor exists in range'}."
+            ],
+            "analogy": "Prime numbers are the 'atoms' of arithmetic; all integers are built by multiplying primes.",
+            "pitfalls": "1 is neither prime nor composite by definition. 2 is the only even prime number.",
+            "confidence": "100% Number Theory Standard"
+        }
+
+    clean = raw_lower.replace('?', '').replace('=', '').strip()
+    clean = re.sub(r'^(what is|calculate|evaluate|solve|compute|find|tell me)\s+', '', clean).strip()
+
+    # 13. Square Root: sqrt(144)
     m_sqrt = re.search(r'(?:sqrt|square root of)\s*\(?(\d+(?:\.\d+)?)\)?', clean)
     if m_sqrt:
         val = float(m_sqrt.group(1))
@@ -169,7 +519,7 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
             "confidence": "100% Deterministic Mathematical Precision"
         }
 
-    # 3. Geometry: Circle Area
+    # 14. Geometry: Circle Area
     m_circle = re.search(r'area of (?:a )?circle.*?radius\s*(\d+(?:\.\d+)?)', clean)
     if m_circle:
         r = float(m_circle.group(1))
@@ -189,7 +539,27 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
             "confidence": "100% Geometric Standard"
         }
 
-    # 4. Geometry: Hypotenuse / Pythagorean theorem
+    # 15. Geometry: Triangle Area
+    m_tri = re.search(r'area of (?:a )?triangle.*?(?:base\s*(\d+(?:\.\d+)?).*?height\s*(\d+(?:\.\d+)?)|height\s*(\d+(?:\.\d+)?).*?base\s*(\d+(?:\.\d+)?))', clean)
+    if m_tri:
+        b = float(m_tri.group(1) or m_tri.group(4))
+        h = float(m_tri.group(2) or m_tri.group(3))
+        area = 0.5 * b * h
+        a_fmt = int(area) if area.is_integer() else round(area, 4)
+        return {
+            "title": f"Triangle Area Calculation (base={b}, height={h})",
+            "core": f"The area of the triangle is **{a_fmt}** square units.",
+            "formulas": [f"A = \\frac{{1}}{{2}} b \\cdot h = \\frac{{1}}{{2}} ({b}) ({h}) = {a_fmt}"],
+            "steps": [
+                f"1. **Formula**: Area = 1/2 × base × height.",
+                f"2. **Compute**: 0.5 × {b} × {h} = {a_fmt}."
+            ],
+            "analogy": "Any triangle is exactly half of a parallelogram with the same base and height.",
+            "pitfalls": "Height must be measured perpendicular to the base, not along the slanted side!",
+            "confidence": "100% Geometric Standard"
+        }
+
+    # 16. Geometry: Hypotenuse / Pythagorean theorem
     m_pyth = re.search(r'hypotenuse.*?(?:sides?|legs?)\s*(\d+(?:\.\d+)?)\s*(?:and|,)\s*(\d+(?:\.\d+)?)', clean)
     if m_pyth:
         a, b = float(m_pyth.group(1)), float(m_pyth.group(2))
@@ -209,7 +579,7 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
             "confidence": "100% Deterministic Pythagorean Theorem"
         }
 
-    # 5. Arithmetic Expressions (e.g. "25 * 16", "100 / 4 + 7", "2^8")
+    # 17. Arithmetic Expressions (e.g. "25 * 16", "100 / 4 + 7", "2^8")
     math_pattern = r'^[\d\s\+\-\*\/\^\(\)\.\%xX]+$'
     if re.match(math_pattern, clean) and any(c in clean for c in '+-*/^xX%'):
         try:
@@ -250,6 +620,220 @@ def try_eval_math(query: str) -> Optional[Dict[str, Any]]:
         except Exception:
             return None
     return None
+
+def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
+    """Accurately match common factual, scientific, and geographic questions with verified answers."""
+    q = query.lower().strip()
+    
+    FACTS_CATALOG = [
+        # CELL BIOLOGY
+        (r'power\s*house\s+of\s+(?:the\s+)?cell', {
+            "title": "Cellular Biology: Mitochondria",
+            "core": "**The Mitochondria** (singular: mitochondrion) is the powerhouse of the cell.",
+            "formulas": [r"\text{C}_6\text{H}_{12}\text{O}_6 + 6\text{O}_2 \to 6\text{CO}_2 + 6\text{H}_2\text{O} + 36\text{-}38\text{ ATP}"],
+            "steps": [
+                "1. **Primary Function**: Mitochondria generate over 90% of cellular chemical energy stored in Adenosine Triphosphate (ATP).",
+                "2. **Key Stages**: Cellular respiration proceeds through Glycolysis (cytoplasm) ⟶ Krebs Cycle (mitochondrial matrix) ⟶ Electron Transport Chain (inner cristae).",
+                "3. **Unique Trait**: Mitochondria possess their own independent circular DNA (mtDNA) and double-membrane structure, supporting the endosymbiotic theory."
+            ],
+            "analogy": "Mitochondria are like the electrical power plants of a bustling city, converting incoming fuel (sugar/glucose) into electricity (ATP).",
+            "pitfalls": "Red blood cells (erythrocytes) do NOT contain mitochondria; they produce energy exclusively via anaerobic glycolysis!",
+            "confidence": "100% Cell Biology Standard"
+        }),
+        # SPEED OF LIGHT
+        (r'speed\s+of\s+light', {
+            "title": "Fundamental Constant: Speed of Light (c)",
+            "core": "The speed of light in a vacuum is exactly **299,792,458 m/s** (commonly approximated as $$3.0 \\times 10^8\\text{ m/s}$$).",
+            "formulas": [r"c = 299{,}792{,}458 \, \text{m/s} \approx 3.0 \times 10^8 \, \text{m/s}", r"E = m c^2"],
+            "steps": [
+                "1. **Universal Invariant**: Under Einstein's Special Relativity, the speed of light in vacuum is identical for all inertial observers regardless of motion.",
+                "2. **Cosmic Speed Limit**: No massive particle or information can travel faster than c in vacuum.",
+                "3. **Refraction**: Light slows down when entering denser media like water (v ≈ 2.25 × 10⁸ m/s) or glass (v ≈ 2.0 × 10⁸ m/s)."
+            ],
+            "analogy": "Light travels fast enough to circumnavigate Earth's equator roughly 7.5 times in a single second.",
+            "pitfalls": "The speed of light is only exactly 299,792,458 m/s in a true vacuum; inside glass or water, refractive index n reduces its phase velocity (v = c / n).",
+            "confidence": "100% Physical Constant Precision"
+        }),
+        # PLANCK'S CONSTANT
+        (r'planck(?:\'s)?\s*constant', {
+            "title": "Quantum Constant: Planck's Constant (h)",
+            "core": "Planck's constant is **$$6.62607015 \\times 10^{-34} \\text{ J}\\cdot\\text{s}$$**.",
+            "formulas": [r"h = 6.62607015 \times 10^{-34} \, \text{J}\cdot\text{s}", r"E = h\nu = \frac{hc}{\lambda}", r"\hbar = \frac{h}{2\pi} \approx 1.05457 \times 10^{-34} \, \text{J}\cdot\text{s}"],
+            "steps": [
+                "1. **Quantum of Action**: Relates photon energy directly to its electromagnetic frequency: E = h·ν.",
+                "2. **Reduced Planck Constant**: \\hbar = h / (2π), fundamental to Heisenberg's Uncertainty Principle (\\Delta x \\Delta p \\ge \\hbar/2).",
+                "3. **SI Definition**: Since 2019, the kilogram is officially defined in terms of Planck's constant."
+            ],
+            "analogy": "Planck's constant is the universal 'pixel resolution' of quantum reality—energy cannot be exchanged in continuous amounts, only in discrete packets of h.",
+            "pitfalls": "Do not confuse Planck's constant h with reduced Planck's constant \\hbar (h-bar = h / 2π).",
+            "confidence": "100% Quantum Physics Precision"
+        }),
+        # AVOGADRO'S NUMBER
+        (r'avogadro(?:\'s)?\s*(?:number|constant)?', {
+            "title": "Chemical Constant: Avogadro's Number (N_A)",
+            "core": "Avogadro's constant is **$$6.02214076 \\times 10^{23} \\text{ mol}^{-1}$$**.",
+            "formulas": [r"N_A = 6.02214076 \times 10^{23} \, \text{particles/mol}", r"n = \frac{N}{N_A} = \frac{m}{M}"],
+            "steps": [
+                "1. **Mole Definition**: Exactly one mole of any pure chemical substance contains 6.022 × 10²³ constituent particles (atoms, molecules, or ions).",
+                "2. **Atomic Weight Link**: Makes atomic mass units numerically equal to grams per mole (e.g., 1 Carbon-12 atom = 12 u, 1 mole of C-12 = 12 grams)."
+            ],
+            "analogy": "Just like a 'dozen' represents 12 items, a 'mole' represents 6.022 × 10²³ chemical items.",
+            "pitfalls": "Avogadro's number is a pure count; it applies equally to atoms, molecules, electrons, or ions.",
+            "confidence": "100% Chemical Standard"
+        }),
+        # GRAVITATIONAL ACCELERATION
+        (r'(?:acceleration due to gravity|gravity on earth)', {
+            "title": "Earth Surface Gravity (g)",
+            "core": "Standard acceleration due to gravity at Earth's surface is **$$g \\approx 9.80665 \\text{ m/s}^2$$** (commonly rounded to $$9.81 \\text{ m/s}^2$$ or $$9.8 \\text{ m/s}^2$$).",
+            "formulas": [r"g = \frac{G M_{\text{earth}}}{R_{\text{earth}}^2} \approx 9.81 \, \text{m/s}^2", r"W = m \cdot g"],
+            "steps": [
+                "1. **Free Fall**: Every second an object falls freely in vacuum near Earth, its downward velocity increases by ~9.81 m/s.",
+                "2. **Variation**: Slightly higher at the poles (~9.83 m/s²) than at the equator (~9.78 m/s²) due to Earth's equatorial bulge and centrifugal spin."
+            ],
+            "analogy": "If you drop a bowling ball from rest without air resistance, it travels at 9.8 m/s after 1s, 19.6 m/s after 2s, and 29.4 m/s after 3s.",
+            "pitfalls": "g is an acceleration (m/s²), whereas weight W = mg is a force measured in Newtons (N)!",
+            "confidence": "100% Astrophysical Standard"
+        }),
+        # WORLD CAPITALS
+        (r'capital\s+of\s+france', {"title": "World Capital: France", "core": "The capital of France is **Paris**.", "steps": ["1. Paris is situated along the Seine River in north-central France.", "2. It serves as France's political, cultural, and economic center."], "formulas": [], "analogy": "The City of Light.", "pitfalls": "None", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+japan', {"title": "World Capital: Japan", "core": "The capital of Japan is **Tokyo**.", "steps": ["1. Tokyo is the most populous metropolitan area in the world.", "2. Formerly known as Edo until the Meiji Restoration in 1868."], "formulas": [], "analogy": "Global tech and financial hub.", "pitfalls": "Kyoto was the imperial capital of Japan before Tokyo.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+(?:the\s+)?(?:united\s+states|usa|america)', {"title": "World Capital: United States", "core": "The capital of the United States is **Washington, D.C.**", "steps": ["1. D.C. stands for the District of Columbia, a federal district not part of any US state.", "2. Established by the Residence Act in 1790 along the Potomac River."], "formulas": [], "analogy": "Seat of the three branches of the US federal government.", "pitfalls": "New York City is the most populous city, but NOT the capital!", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+(?:the\s+)?(?:united\s+kingdom|uk|england)', {"title": "World Capital: United Kingdom", "core": "The capital of the United Kingdom and England is **London**.", "steps": ["1. London is situated on the River Thames in southeastern England.", "2. Global financial capital established by the Romans as Londinium."], "formulas": [], "analogy": "Hub of global trade and history.", "pitfalls": "London is the capital of both England and the wider United Kingdom.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+germany', {"title": "World Capital: Germany", "core": "The capital of Germany is **Berlin**.", "steps": ["1. Berlin is Germany's largest city and seat of the Bundestag.", "2. Re-unified as capital following the fall of the Berlin Wall in 1989."], "formulas": [], "analogy": "Cultural and technological center of Central Europe.", "pitfalls": "Bonn served as the provisional capital of West Germany from 1949 to 1990.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+india', {"title": "World Capital: India", "core": "The capital of India is **New Delhi**.", "steps": ["1. New Delhi is an urban district located within the National Capital Territory of Delhi.", "2. Designed by British architects Edwin Lutyens and Herbert Baker; capital moved from Calcutta in 1911."], "formulas": [], "analogy": "Administrative heart of the world's most populous democracy.", "pitfalls": "New Delhi is the specific capital territory, while Delhi refers to the broader metropolitan region.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+italy', {"title": "World Capital: Italy", "core": "The capital of Italy is **Rome**.", "steps": ["1. Rome is known as the 'Eternal City', located along the Tiber River.", "2. Encompasses Vatican City, an independent country within its boundaries."], "formulas": [], "analogy": "Cradle of Western civilization and Roman law.", "pitfalls": "Milan is Italy's financial center, but Rome is the political capital.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+spain', {"title": "World Capital: Spain", "core": "The capital of Spain is **Madrid**.", "steps": ["1. Madrid is located in the geographic center of the Iberian Peninsula.", "2. Home to the royal palace and the Prado Museum."], "formulas": [], "analogy": "Center of Spanish culture, language, and art.", "pitfalls": "Barcelona is Catalonia's regional capital, but Madrid is Spain's national capital.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+canada', {"title": "World Capital: Canada", "core": "The capital of Canada is **Ottawa**.", "steps": ["1. Located in Ontario on the border of Quebec, along the Ottawa River.", "2. Chosen by Queen Victoria in 1857 as a strategic compromise between Toronto and Montreal."], "formulas": [], "analogy": "Seat of the Canadian Parliament on Parliament Hill.", "pitfalls": "Toronto and Montreal are Canada's largest cities, but Ottawa is the capital!", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+australia', {"title": "World Capital: Australia", "core": "The capital of Australia is **Canberra**.", "steps": ["1. Canberra is located in the Australian Capital Territory (ACT).", "2. Selected as a compromise in 1908 to resolve the rivalry between Sydney and Melbourne."], "formulas": [], "analogy": "A purpose-built planned garden city.", "pitfalls": "Sydney and Melbourne are NOT the capital of Australia!", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+china', {"title": "World Capital: China", "core": "The capital of China is **Beijing**.", "steps": ["1. One of the Four Great Ancient Capitals of China, formerly romanized as Peking.", "2. Home to the Forbidden City and Tiananmen Square."], "formulas": [], "analogy": "Political center of East Asia for over eight centuries.", "pitfalls": "Shanghai is China's largest economic city, but Beijing is the political capital.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+russia', {"title": "World Capital: Russia", "core": "The capital of Russia is **Moscow**.", "steps": ["1. Moscow is situated on the Moskva River and is Europe's second-most populous city.", "2. Historic site of the Kremlin and Red Square."], "formulas": [], "analogy": "Heart of Russian politics and culture.", "pitfalls": "Saint Petersburg was the Russian imperial capital from 1712 to 1918.", "confidence": "100% Geographic Standard"}),
+        (r'capital\s+of\s+brazil', {"title": "World Capital: Brazil", "core": "The capital of Brazil is **Brasília**.", "steps": ["1. Planned federal capital founded in 1960 and designed by Oscar Niemeyer and Lúcio Costa.", "2. Shaped like a bird/airplane from above."], "formulas": [], "analogy": "Modernist planned administrative capital.", "pitfalls": "Rio de Janeiro and São Paulo are NOT the capital of Brazil!", "confidence": "100% Geographic Standard"}),
+        # HUMAN BIOLOGY
+        (r'(?:largest organ|biggest organ)\s+in\s+(?:the\s+)?human\s+body', {
+            "title": "Human Anatomy: Largest Organ",
+            "core": "**The Skin** (integumentary system) is the largest organ of the human body.",
+            "steps": [
+                "1. **Surface Area & Mass**: Covers approximately 1.5 to 2.0 square meters in adults, accounting for ~16% of total body weight.",
+                "2. **Three Layers**: Epidermis (outer barrier), Dermis (connective tissue, nerves, sweat glands), Hypodermis (subcutaneous fat).",
+                "3. **Key Roles**: Thermoregulation, protection against pathogens, sensation, and synthesis of Vitamin D."
+            ],
+            "formulas": [],
+            "analogy": "The skin is your body's waterproof, self-repairing biometric shield.",
+            "pitfalls": "The liver is the largest INTERNAL organ, but the skin is the largest organ overall!",
+            "confidence": "100% Anatomical Standard"
+        }),
+        (r'(?:how many bones|number of bones)\s+in\s+(?:the\s+)?(?:adult\s+)?human\s+body', {
+            "title": "Human Anatomy: Skeletal System",
+            "core": "An adult human body has **206 bones**.",
+            "steps": [
+                "1. **Infant vs Adult**: Babies are born with ~270 bones; many fuse together during growth (such as skull plates and sacrum).",
+                "2. **Division**: Axial skeleton (80 bones: skull, spine, rib cage) and Appendicular skeleton (126 bones: limbs and girdles).",
+                "3. **Smallest & Largest**: The stapes (stirrup) in the middle ear is the smallest (~3 mm); the femur (thigh bone) is the largest and strongest."
+            ],
+            "formulas": [],
+            "analogy": "The skeleton is the structural steel framework of the human architecture.",
+            "pitfalls": "Infants have ~270 bones; 206 is strictly the adult count after fusion.",
+            "confidence": "100% Anatomical Standard"
+        }),
+        (r'(?:how many chromosomes|number of chromosomes)\s+in\s+(?:the\s+)?human', {
+            "title": "Human Genetics: Chromosome Count",
+            "core": "Humans possess **46 chromosomes** organized into **23 pairs** in each somatic cell.",
+            "steps": [
+                "1. **Autosomes**: 22 homologous pairs (44 chromosomes) governing general somatic traits.",
+                "2. **Sex Chromosomes**: 1 pair (XX in biological females, XY in biological males).",
+                "3. **Gametes**: Human sperm and egg cells are haploid (n = 23 chromosomes), restoring the diploid count (2n = 46) upon fertilization."
+            ],
+            "formulas": [r"2n = 46 \quad \text{(Diploid Somatic)}, \quad n = 23 \quad \text{(Haploid Gamete)}"],
+            "analogy": "Chromosomes are like 23 volumes of an instruction encyclopedia, with two editions (one from mom, one from dad).",
+            "pitfalls": "Down Syndrome (Trisomy 21) is caused by an extra 47th chromosome on pair 21.",
+            "confidence": "100% Genetics Precision"
+        }),
+        # CHEMISTRY & PHYSICS
+        (r'ph\s+of\s+(?:pure\s+)?water', {
+            "title": "Chemistry: pH of Pure Water",
+            "core": "Pure water at 25°C has a neutral pH of exactly **7.0**.",
+            "formulas": [r"\text{pH} = -\log_{10}[\text{H}^+] = -\log_{10}(1.0 \times 10^{-7}) = 7.0", r"K_w = [\text{H}^+][\text{OH}^-] = 1.0 \times 10^{-14} \quad (\text{at } 25^\circ\text{C})"],
+            "steps": [
+                "1. **Auto-Ionization**: Water naturally self-ionizes into hydronium (H₃O⁺) and hydroxide (OH⁻) ions in equal measure: 10⁻⁷ M each.",
+                "2. **Neutrality**: Because [H⁺] = [OH⁻], the solution is perfectly neutral."
+            ],
+            "analogy": "7.0 is the exact balance point on a seesaw between acidic (<7) and basic (>7).",
+            "pitfalls": "pH of water drops slightly with increased temperature because auto-ionization Kw increases, but it remains neutral because [H⁺] still equals [OH⁻]!",
+            "confidence": "100% Chemical Standard"
+        }),
+        (r'boiling\s+point\s+of\s+water', {
+            "title": "Chemistry: Boiling Point of Water",
+            "core": "At standard atmospheric pressure (1 atm / 101.325 kPa), pure water boils at **100°C** (212°F / 373.15 K).",
+            "formulas": [r"T_{\text{boil}} = 100^\circ\text{C} = 212^\circ\text{F} = 373.15 \, \text{K}"],
+            "steps": [
+                "1. **Phase Change**: Liquid water vaporizes into steam when its vapor pressure equals ambient atmospheric pressure.",
+                "2. **Altitude Effect**: At higher elevations (lower atmospheric pressure), water boils at a lower temperature (e.g., ~93°C in Denver)."
+            ],
+            "analogy": "Boiling occurs when the escaping vapor pressure overcomes the atmospheric blanket pressing down on the liquid.",
+            "pitfalls": "100°C is strictly at sea-level 1 atm pressure. In a pressure cooker (high pressure), boiling point exceeds 120°C.",
+            "confidence": "100% Physical Chemistry Standard"
+        }),
+        (r'most\s+abundant\s+gas\s+in\s+earth(?:\'s)?\s+atmosphere', {
+            "title": "Atmospheric Science: Air Composition",
+            "core": "**Nitrogen (N₂)** is the most abundant gas in Earth's atmosphere, constituting **78.08%** of dry air by volume.",
+            "steps": [
+                "1. **Nitrogen (N₂)**: 78.08% (Triple-bonded diatomic molecule, relatively inert).",
+                "2. **Oxygen (O₂)**: 20.95% (Vital for aerobic respiration and combustion).",
+                "3. **Argon (Ar)**: 0.93% (Inert noble gas).",
+                "4. **Carbon Dioxide (CO₂)**: ~0.04% (~420 ppm, primary greenhouse gas)."
+            ],
+            "formulas": [],
+            "analogy": "Air is roughly 4 parts nitrogen and 1 part oxygen.",
+            "pitfalls": "Many people incorrectly guess Oxygen, but Nitrogen makes up nearly 4/5ths of the atmosphere!",
+            "confidence": "100% Atmospheric Standard"
+        }),
+        # COMPUTER SCIENCE
+        (r'(?:difference between tcp and udp|tcp vs udp)', {
+            "title": "Computer Networks: TCP vs UDP",
+            "core": "**TCP** is connection-oriented, reliable, and guarantees ordered packet delivery, whereas **UDP** is connectionless, lightweight, and focuses on maximum speed without delivery guarantees.",
+            "steps": [
+                "1. **TCP (Transmission Control Protocol)**: Uses a 3-Way Handshake (SYN -> SYN-ACK -> ACK), verifies delivery with acknowledgments, retransmits lost packets, and manages flow control. Used for HTTP/HTTPS, SSH, File Transfer (FTP), Email (SMTP).",
+                "2. **UDP (User Datagram Protocol)**: Sends packets ('datagrams') with zero handshake or delivery confirmation. Has minimal header overhead (8 bytes vs 20+ bytes). Used for real-time video streaming, Discord voice/VoIP, DNS lookups, and multiplayer games."
+            ],
+            "formulas": [r"\text{TCP Overhead: } \ge 20 \text{ bytes}, \quad \text{UDP Overhead: } 8 \text{ bytes}"],
+            "analogy": "TCP is like certified registered mail with signature confirmation; UDP is like sending postcards without tracking.",
+            "pitfalls": "UDP is NOT 'worse' than TCP; it is deliberately chosen when low latency is far more important than recovering occasional lost packets.",
+            "confidence": "100% Networking Standard"
+        }),
+        (r'(?:time complexity of binary search|binary search complexity)', {
+            "title": "Algorithms: Binary Search Time Complexity",
+            "core": "Binary search has a worst-case and average time complexity of **O(log n)**, with **O(1)** auxiliary space.",
+            "formulas": [r"T(n) = T(n/2) + O(1) \implies O(\log_2 n)"],
+            "steps": [
+                "1. **Divide and Conquer**: Compares the target against the middle element of a sorted array.",
+                "2. **Halving**: Discards half of the remaining array on every iteration.",
+                "3. **Logarithmic Scaling**: In an array of 1,000,000 items, binary search finds any element in at most ~20 comparisons (log₂(1,000,000) ≈ 19.93)."
+            ],
+            "analogy": "Looking up a word in a printed physical dictionary by opening to the middle, then flipping to the middle of the remaining half.",
+            "pitfalls": "Binary search STRICTLY requires the input array to be pre-sorted. On an unsorted array, linear search O(n) must be used unless sorted first O(n log n).",
+            "confidence": "100% Computer Science Standard"
+        }),
+        (r'who\s+discovered\s+penicillin', {
+            "title": "History of Medicine: Discovery of Penicillin",
+            "core": "Scottish bacteriologist **Sir Alexander Fleming** discovered penicillin in **1928** at St. Mary's Hospital in London.",
+            "steps": [
+                "1. **Accidental Discovery**: Fleming noticed a contaminated culture plate of *Staphylococcus* where bacteria surrounding a mold colony (*Penicillium notatum*) had dissolved.",
+                "2. **Mass Production**: Later isolated and purified for clinical wartime use by Howard Florey and Ernst Chain at Oxford University.",
+                "3. **Legacy**: The world's first true antibiotic, saving tens of millions of lives from bacterial infections."
+            ],
+            "formulas": [],
+            "analogy": "A fungal defense weapon repurposed into a human medical shield.",
+            "pitfalls": "Fleming discovered penicillin, but Florey and Chain were responsible for purifying and mass-producing it into a medicine (all three shared the 1945 Nobel Prize).",
+            "confidence": "100% Medical History Standard"
+        })
+    ]
+    
+    for pattern, data in FACTS_CATALOG:
+        if re.search(pattern, q):
+            return data
+            
+    return None
+
 
 # Comprehensive Multi-Domain Academic Curriculum Repository
 ACADEMIC_REPOSITORY = {
@@ -542,6 +1126,81 @@ ACADEMIC_REPOSITORY = {
         "analogy": "A calendar: just as Mondays repeat weekly with similar routines, elements recur periodically with matching chemical properties.",
         "pitfalls": "Noble gases (Group 18) have the highest ionization energies, but zero electronegativity on the Pauling scale because they do not form bonds!",
         "confidence": "100% Chemical Standard"
+    },
+    # COMMUNICATION SKILLS & PROFESSIONAL SOFT SKILLS
+    "communication_skills": {
+        "title": "The 7 C's of Effective Communication",
+        "keywords": ["communication", "communication skills", "7 c", "7 cs of communication", "effective communication", "verbal communication"],
+        "core": "Effective communication is the purposeful transmission and mutual decoding of ideas, thoughts, and emotions. The universally recognized framework is the 7 C's of Communication: Clear, Concise, Concrete, Correct, Coherent, Complete, and Courteous.",
+        "formulas": [
+            r"\text{Communication Loop: } \text{Sender (Encode)} \to \text{Message (Channel)} \to \text{Receiver (Decode)} \to \text{Feedback Loop}",
+            r"\text{Mehrabian's Rule: } 55\% \text{ Body Language} + 38\% \text{ Tone \& Vocal Inflection} + 7\% \text{ Verbal Words}",
+            r"\text{The 7 C's: } \{\text{Clear, Concise, Concrete, Correct, Coherent, Complete, Courteous}\}"
+        ],
+        "steps": [
+            "1. **Clarity**: State your central thesis immediately; avoid unnecessary jargon and convoluted sentence structures.",
+            "2. **Conciseness**: Eliminate conversational filler ('um', 'you know', 'basically'); respect your listener's time and attention span.",
+            "3. **Concreteness**: Support statements with measurable facts, quantitative metrics, and tangible real-world examples.",
+            "4. **Correctness & Coherence**: Verify grammatical and factual accuracy; arrange your arguments in a logical sequential progression.",
+            "5. **Completeness & Courtesy**: Provide all essential information needed for the receiver to act, delivered with empathetic, professional respect."
+        ],
+        "analogy": "Think of communication like an electrical circuit: unless the sender's signal closes the feedback loop at the receiver's end with minimal resistance (noise), no actual energy or message has been transferred.",
+        "pitfalls": "Confusing *hearing* with *active listening*, and ignoring non-verbal cues—listeners absorb emotional intent and sincerity primarily from posture, gaze, and vocal pacing, not bare vocabulary alone!",
+        "confidence": "100% Professional Communication Standard"
+    },
+    "star_method": {
+        "title": "The STAR Method for Behavioral Interviews",
+        "keywords": ["star method", "interview skills", "job interview", "behavioral question", "interview preparation", "mock interview"],
+        "core": "The STAR technique (Situation, Task, Action, Result) is the gold standard framework for structuring compelling answers to behavioral interview questions, transforming past experiences into quantifiable proof of competence.",
+        "formulas": [
+            r"\text{STAR Breakdown: } \text{Situation (20\%)} + \text{Task (15\%)} + \text{Action (50\%)} + \text{Result (15\%)}",
+            r"\text{Measurable Impact: } \text{Technical/Leadership Action} \implies \Delta \text{Metric (e.g. } +40\% \text{ throughput, } -25\% \text{ latency)}"
+        ],
+        "steps": [
+            "1. **Situation (Context)**: Set the scene briefly—describe the company, project, team challenge, or bottleneck.",
+            "2. **Task (Responsibility)**: Define your personal role, the target goal, and the constraints (time, budget, resources).",
+            "3. **Action (The Core 50%)**: Detail the exact engineering steps, leadership decisions, and tools YOU employed to solve it.",
+            "4. **Result (Impact)**: Quantify the outcome with concrete numbers, business impact, and key engineering lessons learned."
+        ],
+        "analogy": "Telling a story using STAR is like directing a short film: introduce the setting, introduce the looming conflict, spotlight the protagonist taking decisive action, and close with the triumphant measurable resolution.",
+        "pitfalls": "Using 'We' instead of 'I'—interviewers want to evaluate YOUR personal contribution, critical thinking, and technical execution, not what the entire team did collectively!",
+        "confidence": "100% Career & Leadership Verified"
+    },
+    "active_listening": {
+        "title": "Active Listening & Empathetic Feedback",
+        "keywords": ["active listening", "listening skills", "empathy", "non verbal communication", "paraphrasing", "feedback"],
+        "core": "Active listening is the deliberate cognitive process of fully concentrating on, understanding, mirroring, and remembering what another person communicates, rather than passively waiting for your turn to speak.",
+        "formulas": [
+            r"\text{Active Listening} = \text{Undivided Attention} + \text{Paraphrasing} + \text{Open Inquiry (What / How)}",
+            r"\text{Empathetic Mirroring: } \text{'What I understand you are experiencing is... Is that accurate?'}"
+        ],
+        "steps": [
+            "1. **Undivided Focus**: Maintain friendly, steady eye contact, silence digital notifications, and adopt an open physical posture.",
+            "2. **Suspend Premature Evaluation**: Withhold judgment, solutions, or counter-arguments until the speaker concludes their thoughts.",
+            "3. **Paraphrase & Reflect**: Rephrase the speaker's emotional core in your own words to validate mutual understanding.",
+            "4. **Ask Clarifying Questions**: Use open-ended inquiry ('What factors led to that?', 'How can we address this together?')."
+        ],
+        "analogy": "Active listening is like tuning a high-fidelity radio receiver: you don't just amplify static; you filter out internal mental noise to align precisely with the speaker's frequency.",
+        "pitfalls": "Offering unsolicited advice or attempting to 'fix' the problem immediately before the speaker feels genuinely heard and understood.",
+        "confidence": "99.9% Interpersonal Psychology Standard"
+    },
+    "public_speaking": {
+        "title": "Public Speaking & Rhetorical Mastery (Aristotle's Triad)",
+        "keywords": ["public speaking", "presentation skills", "stage fear", "rhetoric", "ethos pathos logos", "speech", "presentation"],
+        "core": "Public speaking blends structured storytelling, persuasive rhetoric, and vocal dynamics to engage audiences. Rooted in Aristotle's triad of Ethos (credibility), Pathos (emotional resonance), and Logos (logical argument).",
+        "formulas": [
+            r"\text{Rhetorical Triad: } \text{Persuasion} = \text{Ethos (Credibility)} + \text{Pathos (Emotion)} + \text{Logos (Evidence)}",
+            r"\text{Speech Architecture: } \text{Hook (10\%)} \to \text{Rule of Three Pillars (75\%)} \to \text{Call to Action (15\%)}"
+        ],
+        "steps": [
+            "1. **Strong Hook**: Begin with an intriguing question, startling statistic, or compelling short narrative—never open with boring logistics.",
+            "2. **Rule of Three**: Structure your core body into three distinct, easily digestible thematic pillars.",
+            "3. **Vocal Variety**: Modulate pacing, volume, and intentional dramatic pauses (silence builds suspense and commands authority).",
+            "4. **Stage Presence**: Stand grounded with feet shoulder-width, use purposeful open-palm gestures, and connect with eye contact across room quadrants."
+        ],
+        "analogy": "A great presentation is like an orchestral symphony: it never plays one monotone note at constant volume; it alternates between energetic crescendos and quiet pauses that let profound insights resonate.",
+        "pitfalls": "Cramming slides with dense walls of text and reading off them—slides exist as visual amplifiers for the audience, never as teleprompters for the speaker!",
+        "confidence": "100% Rhetoric & Communication Standard"
     }
 }
 
@@ -734,6 +1393,8 @@ def synthesize_rich_response(query: str, subject: str, mode: str) -> str:
             inferred_subject = "Chemistry"
         elif any(w in q_lower for w in ["history", "war", "century", "capital", "country", "empire"]):
             inferred_subject = "Social Studies & History"
+        elif any(w in q_lower for w in ["communicate", "communication", "speech", "speaking", "listen", "interview", "presentation", "body language", "verbal", "persuade", "negotiate", "star method"]):
+            inferred_subject = "Communication Skills"
         elif any(w in q_lower for w in ["study", "learn", "exam", "focus", "memory", "remember"]):
             inferred_subject = "Study Techniques"
 
@@ -765,17 +1426,17 @@ async def chat_endpoint(payload: ChatRequest):
     if not user_msg:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
-    # 1. Check for Math Arithmetic / Equation Solving (Deterministic)
+    # 1. Math, Physics & Word Problem Analytical Solver (Deterministic 100%)
     math_match = try_eval_math(user_msg)
     if math_match:
         response_text = format_curriculum_markdown(math_match, mode)
-        source = "Chatbot Abhi Math Solver (Deterministic 100%)"
+        source = "Chatbot Abhi Math & Physics Solver (Deterministic 100%)"
     else:
-        # 2. Check for Curriculum Match in Local Academic Repository
-        matched = match_curriculum(user_msg)
-        if matched:
-            response_text = format_curriculum_markdown(matched, mode)
-            source = "Chatbot Abhi Academic Core (<10ms Verified)"
+        # 2. Direct Factual Intelligence & Q&A
+        fact_match = lookup_factual_knowledge(user_msg)
+        if fact_match:
+            response_text = format_curriculum_markdown(fact_match, mode)
+            source = "Chatbot Abhi Verified Facts Engine (100% Accuracy)"
         else:
             # 3. Check for Live OpenAI API Key if provided by user
             api_key = payload.api_key or os.getenv("OPENAI_API_KEY")
@@ -819,9 +1480,15 @@ async def chat_endpoint(payload: ChatRequest):
                 response_text = format_wiki_markdown(wiki_data, user_msg, mode)
                 source = "Chatbot Abhi Encyclopedic Core (Wikipedia Academic Repository)"
             else:
-                # 5. High-Precision Domain Synthesis
-                response_text = synthesize_rich_response(user_msg, subject, mode)
-                source = "Chatbot Abhi Dynamic Reasoning Engine"
+                # 5. Check for Curriculum Match in Local Academic Repository
+                matched = match_curriculum(user_msg)
+                if matched:
+                    response_text = format_curriculum_markdown(matched, mode)
+                    source = "Chatbot Abhi Academic Core (<10ms Verified)"
+                else:
+                    # 6. High-Precision Domain Synthesis
+                    response_text = synthesize_rich_response(user_msg, subject, mode)
+                    source = "Chatbot Abhi Dynamic Reasoning Engine"
 
     # Streaming Response generator for smooth, high-speed delivery
     async def fast_stream():
@@ -869,6 +1536,24 @@ async def generate_quiz(req: QuizRequest):
             "options": ["DNA Polymerase", "DNA Helicase", "DNA Ligase", "Primase"],
             "correct_index": 1,
             "explanation": "DNA Helicase unwinds the double helix at the replication fork by breaking hydrogen bonds between base pairs."
+        },
+        "communication": {
+            "question": "In the 7 C's of Communication, which principle requires backing up statements with specific facts and figures rather than vague generalizations?",
+            "options": ["Concrete", "Concise", "Courteous", "Coherent"],
+            "correct_index": 0,
+            "explanation": "Concreteness ensures statements are supported by specific data, measurable facts, and tangible examples rather than ambiguity."
+        },
+        "interview": {
+            "question": "In the STAR interview response technique, which phase should take the majority (approx. 50%) of your answer time?",
+            "options": ["Action (What specific steps you took)", "Situation (Background story)", "Task (What was assigned)", "Result (Final metric)"],
+            "correct_index": 0,
+            "explanation": "The Action component is the heart of the STAR method; interviewers want to assess your personal execution, problem-solving, and technical contribution."
+        },
+        "star": {
+            "question": "In the STAR interview response technique, which phase should take the majority (approx. 50%) of your answer time?",
+            "options": ["Action (What specific steps you took)", "Situation (Background story)", "Task (What was assigned)", "Result (Final metric)"],
+            "correct_index": 0,
+            "explanation": "The Action component is the heart of the STAR method; interviewers want to assess your personal execution, problem-solving, and technical contribution."
         }
     }
     
