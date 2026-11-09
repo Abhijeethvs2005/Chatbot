@@ -1,22 +1,18 @@
 /**
- * NOVA-3D Robot System Engine (v3.0 Mecha / Robotics Lab Edition)
- * Articulated procedural 3D Robot System featuring:
- * - Multi-segment mecha chassis with carbon-fiber accents
- * - Rotating dual gyroscope rings around quantum core reactor
- * - Dynamic OLED canvas visor with expressive states
- * - Inverse kinematics head & eye cursor tracking
- * - Floating magnetic hands with energy force-fields
- * - Dual ion plasma thruster exhausts with dynamic particles
- * - 3D holographic HUD diagnostic nodes
- * - Theme switcher: Cyber Cyan, Amber Hazard, Quantum Violet, Cleanroom White
- * Built by a student roboticist for students.
+ * Chatbot Abhi - High-Precision 3D Robot System
+ * Features:
+ * - Real 3D Articulated Robot with Sculpted Chassis
+ * - Clear 3D Glowing Expressive Eyes (Physical Eye Sockets, Iris Rings, Pupils, Lids)
+ * - Clear 5-Digit Articulated Mechanical Hands (Palm, Knuckles, Segmented Fingers, Glowing Tips)
+ * - Realistic Inverse Kinematics (Head, Eyes, and Arms track cursor)
+ * - Multi-theme Material Engine (Obsidian Cyan, Industrial Amber, Cleanroom White, Neon Violet)
  */
 
 class Robot3D {
-  constructor(canvasContainerId) {
-    this.container = document.getElementById(canvasContainerId);
+  constructor(containerId) {
+    this.container = document.getElementById(containerId);
     if (!this.container) {
-      console.error("Canvas container not found:", canvasContainerId);
+      console.error("Canvas container not found:", containerId);
       return;
     }
 
@@ -27,627 +23,470 @@ class Robot3D {
     // Groups
     this.robotGroup = null;
     this.headGroup = null;
-    this.torsoGroup = null;
+    this.leftEye = null;
+    this.rightEye = null;
+    this.leftEyelid = null;
+    this.rightEyelid = null;
+    this.leftArm = null;
+    this.rightArm = null;
     this.leftHand = null;
     this.rightHand = null;
-    this.gyroGroup = null;
-    this.holoHudGroup = null;
-    this.thrusterParticles = null;
-    this.ambientNodes = null;
-
-    // Visor canvas
-    this.visorMesh = null;
-    this.visorCanvas = null;
-    this.visorCtx = null;
-    this.visorTexture = null;
-    this.visorExpression = "idle";
-    this.visorFrame = 0;
-
-    // Subsystems & Meshes for dynamic theming
-    this.themeMaterials = {};
-    this.currentTheme = "cyber_cyan";
+    this.leftFingers = [];
+    this.rightFingers = [];
     this.coreMesh = null;
     this.coreLight = null;
-    this.thrusterLight = null;
-    this.gyroRing1 = null;
-    this.gyroRing2 = null;
-    this.leftAntenna = null;
-    this.rightAntenna = null;
+    this.thrusterParticles = null;
 
-    // Animation & State
+    // Colors & Theme
+    this.currentTheme = "cyber_cyan";
+    this.themes = {
+      cyber_cyan: {
+        armor: 0xf1f5f9,
+        chassis: 0x0f172a,
+        accent: 0x0ea5e9,
+        glow: 0x38bdf8,
+        eyeColor: 0x38bdf8,
+        pupilColor: 0xffffff,
+        light: 0x38bdf8
+      },
+      amber_hazard: {
+        armor: 0x1e293b,
+        chassis: 0x090d16,
+        accent: 0xf59e0b,
+        glow: 0xfbbf24,
+        eyeColor: 0xf59e0b,
+        pupilColor: 0xffedd5,
+        light: 0xf59e0b
+      },
+      cleanroom_white: {
+        armor: 0xffffff,
+        chassis: 0x334155,
+        accent: 0x2563eb,
+        glow: 0x60a5fa,
+        eyeColor: 0x3b82f6,
+        pupilColor: 0xdbeafe,
+        light: 0x60a5fa
+      },
+      quantum_violet: {
+        armor: 0x18181b,
+        chassis: 0x09090b,
+        accent: 0xa855f7,
+        glow: 0xc084fc,
+        eyeColor: 0xa855f7,
+        pupilColor: 0xf3e8ff,
+        light: 0xc084fc
+      }
+    };
+
+    // State & Tracking
     this.clock = new THREE.Clock();
     this.mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
-    this.isOverdrive = false;
+    this.expression = "idle"; // 'idle', 'happy', 'thinking', 'speaking', 'surprised'
+    this.isBlinking = false;
+    this.blinkProgress = 0;
     this.isPoked = false;
-    this.spinAngle = 0;
-    this.cameraMode = "command"; // 'command', 'core', 'orbit'
+    this.isOverdrive = false;
 
     this.init();
   }
 
   init() {
-    const width = this.container.clientWidth || window.innerWidth / 2;
-    const height = this.container.clientHeight || window.innerHeight;
+    const width = this.container.clientWidth || 500;
+    const height = this.container.clientHeight || 500;
 
     // 1. Scene
     this.scene = new THREE.Scene();
 
     // 2. Camera
-    this.camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
-    this.camera.position.set(0, 0.8, 5.4);
+    this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+    this.camera.position.set(0, 0.4, 4.6);
 
-    // 3. Renderer
+    // 3. WebGL Renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMappingExposure = 1.1;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.container.appendChild(this.renderer.domElement);
 
-    // 4. Lighting
-    this.setupLighting();
+    // 4. Lights
+    this.setupLights();
 
-    // 5. Materials & Themes
+    // 5. Materials
     this.initMaterials();
 
-    // 6. Dynamic Visor Canvas
-    this.initVisorCanvas();
+    // 6. Build the Accurate Robot Model
+    this.buildRobot();
 
-    // 7. Build Robot System
-    this.buildRobotSystem();
-
-    // 8. 3D Holographic Diagnostic HUD
-    this.buildHoloHUD();
-
-    // 9. Ambient Particle Field
-    this.buildAmbientNodes();
-
-    // 10. Event Listeners
+    // 7. Event Listeners
     window.addEventListener("resize", () => this.onResize());
     window.addEventListener("mousemove", (e) => this.onMouseMove(e));
     this.renderer.domElement.addEventListener("click", () => this.pokeRobot());
 
-    // 11. Render Loop
+    // 8. Start Loop
     this.animate();
   }
 
-  setupLighting() {
-    // Ambient light
-    this.ambientLight = new THREE.AmbientLight(0xdbeafe, 0.9);
+  setupLights() {
+    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
     this.scene.add(this.ambientLight);
 
-    // Key front light
     this.keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
-    this.keyLight.position.set(5, 7, 6);
+    this.keyLight.position.set(4, 6, 5);
     this.scene.add(this.keyLight);
 
-    // Cyber Rim accent light
-    this.rimLight = new THREE.DirectionalLight(0x38bdf8, 2.2);
-    this.rimLight.position.set(-6, 4, -4);
+    this.rimLight = new THREE.DirectionalLight(0x38bdf8, 2.0);
+    this.rimLight.position.set(-5, 4, -4);
     this.scene.add(this.rimLight);
 
-    // Underside bounce light
-    this.bounceLight = new THREE.DirectionalLight(0x6366f1, 0.8);
-    this.bounceLight.position.set(0, -4, 3);
-    this.scene.add(this.bounceLight);
-
-    // Core point light
-    this.coreLight = new THREE.PointLight(0x38bdf8, 2.5, 4);
-    this.coreLight.position.set(0, 0.15, 0.5);
+    this.coreLight = new THREE.PointLight(0x38bdf8, 2.0, 4);
+    this.coreLight.position.set(0, 0.1, 0.6);
     this.scene.add(this.coreLight);
-
-    // Thruster point light
-    this.thrusterLight = new THREE.PointLight(0x06b6d4, 3.0, 5);
-    this.thrusterLight.position.set(0, -0.7, 0);
-    this.scene.add(this.thrusterLight);
   }
 
   initMaterials() {
-    // Cyber Cyan Theme
-    this.themePresets = {
-      cyber_cyan: {
-        armorColor: 0xf8fafc,
-        frameColor: 0x0f172a,
-        accentColor: 0x38bdf8,
-        emissiveColor: 0x0284c7,
-        coreColor: 0x38bdf8,
-        lightColor: 0x38bdf8,
-        name: "Cyber Cyan"
-      },
-      amber_hazard: {
-        armorColor: 0x1e293b,
-        frameColor: 0x0a0f1d,
-        accentColor: 0xfbbf24,
-        emissiveColor: 0xd97706,
-        coreColor: 0xf59e0b,
-        lightColor: 0xf59e0b,
-        name: "Amber Industrial"
-      },
-      quantum_violet: {
-        armorColor: 0x18181b,
-        frameColor: 0x09090b,
-        accentColor: 0xc084fc,
-        emissiveColor: 0x9333ea,
-        coreColor: 0xa855f7,
-        lightColor: 0xa855f7,
-        name: "Quantum Void"
-      },
-      cleanroom_white: {
-        armorColor: 0xffffff,
-        frameColor: 0x334155,
-        accentColor: 0x2563eb,
-        emissiveColor: 0x1d4ed8,
-        coreColor: 0x60a5fa,
-        lightColor: 0x3b82f6,
-        name: "Cleanroom White"
-      }
-    };
+    const p = this.themes[this.currentTheme];
 
-    const preset = this.themePresets[this.currentTheme];
-
-    this.armorMaterial = new THREE.MeshStandardMaterial({
-      color: preset.armorColor,
+    this.matArmor = new THREE.MeshStandardMaterial({
+      color: p.armor,
       roughness: 0.18,
-      metalness: 0.25,
+      metalness: 0.2
     });
 
-    this.frameMaterial = new THREE.MeshStandardMaterial({
-      color: preset.frameColor,
-      roughness: 0.45,
-      metalness: 0.8,
+    this.matChassis = new THREE.MeshStandardMaterial({
+      color: p.chassis,
+      roughness: 0.4,
+      metalness: 0.8
     });
 
-    this.accentGlowMaterial = new THREE.MeshStandardMaterial({
-      color: preset.accentColor,
-      emissive: preset.emissiveColor,
-      emissiveIntensity: 1.0,
-      roughness: 0.1,
-      metalness: 0.4,
+    this.matAccent = new THREE.MeshStandardMaterial({
+      color: p.accent,
+      emissive: p.glow,
+      emissiveIntensity: 0.8,
+      roughness: 0.15,
+      metalness: 0.5
     });
 
-    this.glassMaterial = new THREE.MeshPhysicalMaterial({
-      color: 0x0a1128,
-      transmission: 0.6,
-      opacity: 0.9,
-      transparent: true,
-      roughness: 0.05,
-      ior: 1.5,
+    this.matEyeLens = new THREE.MeshBasicMaterial({
+      color: p.eyeColor
+    });
+
+    this.matPupil = new THREE.MeshBasicMaterial({
+      color: p.pupilColor
+    });
+
+    this.matJoint = new THREE.MeshStandardMaterial({
+      color: 0x475569,
+      roughness: 0.3,
+      metalness: 0.9
     });
   }
 
   setTheme(themeKey) {
-    if (!this.themePresets[themeKey]) return;
+    if (!this.themes[themeKey]) return;
     this.currentTheme = themeKey;
-    const p = this.themePresets[themeKey];
+    const p = this.themes[themeKey];
 
-    this.armorMaterial.color.setHex(p.armorColor);
-    this.frameMaterial.color.setHex(p.frameColor);
-    this.accentGlowMaterial.color.setHex(p.accentColor);
-    this.accentGlowMaterial.emissive.setHex(p.emissiveColor);
+    this.matArmor.color.setHex(p.armor);
+    this.matChassis.color.setHex(p.chassis);
+    this.matAccent.color.setHex(p.accent);
+    this.matAccent.emissive.setHex(p.glow);
+    this.matEyeLens.color.setHex(p.eyeColor);
+    this.matPupil.color.setHex(p.pupilColor);
 
-    if (this.coreLight) this.coreLight.color.setHex(p.coreColor);
-    if (this.thrusterLight) this.thrusterLight.color.setHex(p.lightColor);
-    if (this.rimLight) this.rimLight.color.setHex(p.lightColor);
-
-    this.updateVisorFace(this.visorExpression);
+    if (this.coreLight) this.coreLight.color.setHex(p.light);
+    if (this.rimLight) this.rimLight.color.setHex(p.light);
   }
 
-  initVisorCanvas() {
-    this.visorCanvas = document.createElement("canvas");
-    this.visorCanvas.width = 512;
-    this.visorCanvas.height = 256;
-    this.visorCtx = this.visorCanvas.getContext("2d");
-
-    this.visorTexture = new THREE.CanvasTexture(this.visorCanvas);
-    this.visorTexture.minFilter = THREE.LinearFilter;
-    this.visorTexture.magFilter = THREE.LinearFilter;
-    this.updateVisorFace("idle");
-  }
-
-  updateVisorFace(expression) {
-    const ctx = this.visorCtx;
-    const w = this.visorCanvas.width;
-    const h = this.visorCanvas.height;
-    const preset = this.themePresets[this.currentTheme];
-    const hexAccent = "#" + preset.accentColor.toString(16).padStart(6, "0");
-
-    // Clear background
-    ctx.fillStyle = "#050914";
-    ctx.fillRect(0, 0, w, h);
-
-    // Hexagonal / grid scan lines
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
-    ctx.lineWidth = 1;
-    for (let x = 0; x < w; x += 16) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, h);
-      ctx.stroke();
-    }
-    for (let y = 0; y < h; y += 8) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
-    }
-
-    ctx.save();
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = hexAccent;
-    ctx.fillStyle = "#ffffff";
-    ctx.strokeStyle = hexAccent;
-    ctx.lineWidth = 10;
-    ctx.lineCap = "round";
-
-    const t = this.visorFrame;
-    const eyeY = h * 0.48;
-    const leftX = w * 0.33;
-    const rightX = w * 0.67;
-
-    if (expression === "idle") {
-      // Natural blink
-      const blink = Math.sin(t * 0.04) > 0.95 ? 3 : 26;
-      this.drawPill(ctx, leftX - 22, eyeY - blink, 44, blink * 2, 18);
-      this.drawPill(ctx, rightX - 22, eyeY - blink, 44, blink * 2, 18);
-
-      // Cute robotic smile
-      ctx.beginPath();
-      ctx.arc(w / 2, eyeY + 44, 18, 0.15 * Math.PI, 0.85 * Math.PI, false);
-      ctx.stroke();
-
-    } else if (expression === "happy") {
-      ctx.lineWidth = 14;
-      ctx.beginPath();
-      ctx.arc(leftX, eyeY + 8, 30, 1.15 * Math.PI, 1.85 * Math.PI, false);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(rightX, eyeY + 8, 30, 1.15 * Math.PI, 1.85 * Math.PI, false);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(w / 2, eyeY + 34, 28, 0.1 * Math.PI, 0.9 * Math.PI, false);
-      ctx.stroke();
-
-    } else if (expression === "thinking" || this.isOverdrive) {
-      // Neural Matrix Scanner Rings
-      const angle = t * 0.15;
-      ctx.lineWidth = 7;
-      [leftX, rightX].forEach((cx) => {
-        ctx.beginPath();
-        ctx.arc(cx, eyeY, 28, angle, angle + 1.2 * Math.PI);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(cx, eyeY, 14, -angle * 1.5, -angle * 1.5 + Math.PI);
-        ctx.stroke();
-      });
-
-      // Computational wave mouth
-      ctx.beginPath();
-      for (let x = w * 0.4; x <= w * 0.6; x += 4) {
-        const my = eyeY + 46 + Math.sin(x * 0.25 + t * 0.3) * 6;
-        if (x === w * 0.4) ctx.moveTo(x, my);
-        else ctx.lineTo(x, my);
-      }
-      ctx.stroke();
-
-    } else if (expression === "speaking") {
-      // Audio spectrum visualizer
-      const wave = Math.abs(Math.sin(t * 0.35)) * 22 + 12;
-      this.drawPill(ctx, leftX - 20, eyeY - wave, 40, wave * 2, 16);
-      this.drawPill(ctx, rightX - 20, eyeY - wave, 40, wave * 2, 16);
-
-      const bars = 9;
-      const barW = 5;
-      const spacing = 8;
-      const startX = w / 2 - (bars * spacing) / 2;
-      ctx.fillStyle = hexAccent;
-
-      for (let i = 0; i < bars; i++) {
-        const barH = 6 + Math.abs(Math.sin(t * 0.45 + i * 0.7)) * 28;
-        ctx.fillRect(startX + i * spacing, eyeY + 46 - barH / 2, barW, barH);
-      }
-
-    } else if (expression === "surprised") {
-      ctx.beginPath();
-      ctx.arc(leftX, eyeY, 36, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(rightX, eyeY, 36, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(w / 2, eyeY + 46, 14, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-
-    if (this.visorTexture) {
-      this.visorTexture.needsUpdate = true;
-    }
-  }
-
-  drawPill(ctx, x, y, width, height, radius) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-    ctx.lineTo(x + radius, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  buildRobotSystem() {
+  buildRobot() {
     this.robotGroup = new THREE.Group();
     this.scene.add(this.robotGroup);
 
-    // 1. HEAD UNIT
+    // 1. HEAD UNIT WITH CLEAR 3D EYES
+    this.buildHead();
+
+    // 2. TORSO & CHASSIS
+    this.buildTorso();
+
+    // 3. ARTICULATED ARMS AND CLEAR 5-DIGIT MECHANICAL HANDS
+    this.buildArmsAndHands();
+
+    // 4. FLOATING THRUSTER
+    this.buildThruster();
+  }
+
+  buildHead() {
     this.headGroup = new THREE.Group();
-    this.headGroup.position.set(0, 0.78, 0);
+    this.headGroup.position.set(0, 0.72, 0);
 
-    // Helmet outer shell
-    const helmetGeo = new THREE.SphereGeometry(0.74, 36, 36);
-    helmetGeo.scale(1, 0.94, 0.94);
-    const helmetMesh = new THREE.Mesh(helmetGeo, this.armorMaterial);
-    helmetMesh.castShadow = true;
-    this.headGroup.add(helmetMesh);
+    // Main Helmet (Aerodynamic, sculpted)
+    const helmetGeo = new THREE.SphereGeometry(0.65, 36, 36);
+    helmetGeo.scale(1, 0.95, 0.92);
+    const helmet = new THREE.Mesh(helmetGeo, this.matArmor);
+    this.headGroup.add(helmet);
 
-    // Visor Glass Bezel (Carbon frame)
-    const visorBezelGeo = new THREE.CylinderGeometry(0.56, 0.56, 0.46, 32, 1, false, -Math.PI / 2.3, (Math.PI * 2) / 2.3);
-    const visorBezelMesh = new THREE.Mesh(visorBezelGeo, this.frameMaterial);
-    visorBezelMesh.rotation.y = Math.PI / 2;
-    visorBezelMesh.position.set(0, 0.05, 0.26);
-    this.headGroup.add(visorBezelMesh);
+    // Front Face Visor Plate (Recessed dark faceplate where eyes sit clearly)
+    const visorBezel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.52, 0.52, 0.38, 32, 1, false, -Math.PI / 2.4, (Math.PI * 2) / 2.4),
+      this.matChassis
+    );
+    visorBezel.rotation.y = Math.PI / 2;
+    visorBezel.position.set(0, 0.04, 0.22);
+    this.headGroup.add(visorBezel);
 
-    // Dynamic Visor Screen Mesh
-    const visorGeo = new THREE.PlaneGeometry(0.86, 0.5, 16, 16);
-    const vPos = visorGeo.attributes.position;
-    for (let i = 0; i < vPos.count; i++) {
-      const vx = vPos.getX(i);
-      vPos.setZ(i, -Math.pow(vx, 2) * 0.38);
-    }
-    visorGeo.computeVertexNormals();
+    // 3D CLEAR EYES (Left & Right)
+    this.leftEye = this.createEye(-0.22);
+    this.rightEye = this.createEye(0.22);
+    this.headGroup.add(this.leftEye);
+    this.headGroup.add(this.rightEye);
 
-    const visorMat = new THREE.MeshBasicMaterial({
-      map: this.visorTexture,
-      transparent: true,
-      side: THREE.DoubleSide
+    // Head Audio Scanner Antennas on sides
+    [-0.64, 0.64].forEach((x) => {
+      const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.1, 24), this.matChassis);
+      ear.rotation.z = Math.PI / 2;
+      ear.position.set(x, 0.04, 0);
+      this.headGroup.add(ear);
+
+      const earRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.025, 16, 24), this.matAccent);
+      earRing.rotation.y = Math.PI / 2;
+      earRing.position.set(x, 0.04, 0);
+      this.headGroup.add(earRing);
     });
-    this.visorMesh = new THREE.Mesh(visorGeo, visorMat);
-    this.visorMesh.position.set(0, 0.05, 0.6);
-    this.headGroup.add(this.visorMesh);
 
-    // Articulated Radar Antennas on Head
-    this.leftAntenna = this.createAntenna(-0.76);
-    this.rightAntenna = this.createAntenna(0.76);
-    this.headGroup.add(this.leftAntenna);
-    this.headGroup.add(this.rightAntenna);
+    // Neck Ball Joint
+    const neck = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), this.matJoint);
+    neck.position.set(0, -0.62, 0);
+    this.headGroup.add(neck);
 
     this.robotGroup.add(this.headGroup);
+  }
 
-    // 2. TORSO / MECHA CHASSIS
-    this.torsoGroup = new THREE.Group();
-    this.torsoGroup.position.set(0, 0, 0);
+  createEye(xPos) {
+    const eyeGroup = new THREE.Group();
+    eyeGroup.position.set(xPos, 0.05, 0.54);
 
-    // Inner Carbon Core
-    const innerFrame = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.3, 0.88, 24), this.frameMaterial);
-    this.torsoGroup.add(innerFrame);
+    // 1. Recessed Eye Socket Ring
+    const socketRing = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.025, 16, 32), this.matChassis);
+    eyeGroup.add(socketRing);
 
-    // Outer Armor Plates
-    const frontPlate = new THREE.Mesh(new THREE.BoxGeometry(0.64, 0.72, 0.16), this.armorMaterial);
-    frontPlate.position.set(0, 0.04, 0.26);
-    this.torsoGroup.add(frontPlate);
+    // 2. Glowing Iris Ring (Bright glowing circle)
+    const irisRing = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.02, 16, 32), this.matAccent);
+    eyeGroup.add(irisRing);
 
-    // Shoulder Armor Pods
-    [-0.56, 0.56].forEach((x) => {
-      const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), this.armorMaterial);
-      shoulder.position.set(x, 0.36, 0);
-      shoulder.scale.set(1.2, 0.8, 1);
-      this.torsoGroup.add(shoulder);
+    // 3. Clear Glowing Eye Lens / Pupil
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.075, 24, 24), this.matPupil);
+    pupil.position.set(0, 0, 0.01);
+    eyeGroup.add(pupil);
 
-      // Energy conduit tube
-      const curve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(x * 0.7, 0.28, 0.1),
-        new THREE.Vector3(x * 0.4, 0.18, 0.32),
-        new THREE.Vector3(x * 0.2, 0.12, 0.42)
-      ]);
-      const tubeGeo = new THREE.TubeGeometry(curve, 12, 0.024, 8, false);
-      const conduit = new THREE.Mesh(tubeGeo, this.accentGlowMaterial);
-      this.torsoGroup.add(conduit);
+    // 4. Specular Catchlight dot (creates vivid, alive look)
+    const catchlight = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    catchlight.position.set(0.03, 0.03, 0.07);
+    eyeGroup.add(catchlight);
+
+    // 5. Articulated Eyelid for Expressive Blinking and Emotions
+    const lidGeo = new THREE.SphereGeometry(0.12, 16, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
+    const eyelid = new THREE.Mesh(lidGeo, this.matChassis);
+    eyelid.position.set(0, 0, 0.02);
+    eyelid.rotation.x = -Math.PI / 2; // Open state
+    eyeGroup.add(eyelid);
+
+    eyeGroup.userData = { eyelid: eyelid, pupil: pupil };
+    return eyeGroup;
+  }
+
+  buildTorso() {
+    const torsoGroup = new THREE.Group();
+    torsoGroup.position.set(0, 0, 0);
+
+    // Inner mechanical spine
+    const spine = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.28, 0.8, 24), this.matChassis);
+    torsoGroup.add(spine);
+
+    // Sculpted Chest Armor Plate
+    const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.44, 0.2), this.matArmor);
+    chestPlate.position.set(0, 0.16, 0.24);
+    torsoGroup.add(chestPlate);
+
+    // Quantum Core Arc Reactor (Center glowing heart)
+    const coreRim = new THREE.Mesh(new THREE.TorusGeometry(0.14, 0.03, 16, 32), this.matChassis);
+    coreRim.position.set(0, 0.15, 0.35);
+    torsoGroup.add(coreRim);
+
+    this.coreMesh = new THREE.Mesh(new THREE.CircleGeometry(0.11, 32), this.matAccent);
+    this.coreMesh.position.set(0, 0.15, 0.36);
+    torsoGroup.add(this.coreMesh);
+
+    // Abdominal Mechanical Ribbing
+    [-0.1, -0.22].forEach((y) => {
+      const rib = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, 0.18), this.matChassis);
+      rib.position.set(0, y, 0.2);
+      torsoGroup.add(rib);
     });
 
-    // Quantum Core Reactor
-    const coreHousing = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.08, 32), this.frameMaterial);
-    coreHousing.rotation.x = Math.PI / 2;
-    coreHousing.position.set(0, 0.14, 0.36);
-    this.torsoGroup.add(coreHousing);
-
-    const coreGeo = new THREE.CircleGeometry(0.15, 32);
-    const coreMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-    this.coreMesh = new THREE.Mesh(coreGeo, coreMat);
-    this.coreMesh.position.set(0, 0.14, 0.41);
-    this.torsoGroup.add(this.coreMesh);
-
-    // Rotating Gyroscope Rings around Reactor
-    this.gyroGroup = new THREE.Group();
-    this.gyroGroup.position.set(0, 0.14, 0.42);
-
-    this.gyroRing1 = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.015, 12, 32), this.accentGlowMaterial);
-    this.gyroRing2 = new THREE.Mesh(new THREE.TorusGeometry(0.29, 0.012, 12, 32), this.frameMaterial);
-    this.gyroGroup.add(this.gyroRing1);
-    this.gyroGroup.add(this.gyroRing2);
-    this.torsoGroup.add(this.gyroGroup);
-
-    this.robotGroup.add(this.torsoGroup);
-
-    // 3. FLOATING MAGNETIC HANDS
-    this.leftHand = this.createHand(-1.0);
-    this.rightHand = this.createHand(1.0);
-    this.robotGroup.add(this.leftHand);
-    this.robotGroup.add(this.rightHand);
-
-    // 4. DUAL ION THRUSTER ENGINES
-    this.buildThrusters();
+    this.robotGroup.add(torsoGroup);
   }
 
-  createAntenna(x) {
-    const group = new THREE.Group();
-    group.position.set(x, 0.06, 0);
-
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.14, 24), this.frameMaterial);
-    base.rotation.z = Math.PI / 2;
-    group.add(base);
-
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.035, 16, 32), this.accentGlowMaterial);
-    ring.rotation.y = Math.PI / 2;
-    group.add(ring);
-
-    // Mini antenna prong
-    const prong = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.22, 12), this.frameMaterial);
-    prong.position.set(0, 0.18, 0);
-    prong.rotation.z = x > 0 ? -0.2 : 0.2;
-    group.add(prong);
-
-    return group;
+  buildArmsAndHands() {
+    this.leftArm = this.createArm(-0.62, "left");
+    this.rightArm = this.createArm(0.62, "right");
+    this.robotGroup.add(this.leftArm.group);
+    this.robotGroup.add(this.rightArm.group);
   }
 
-  createHand(xPos) {
+  createArm(shoulderX, side) {
+    const armGroup = new THREE.Group();
+    armGroup.position.set(shoulderX, 0.28, 0);
+
+    // Shoulder Ball Joint & Armor Guard
+    const shoulderBall = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), this.matJoint);
+    armGroup.add(shoulderBall);
+
+    const shoulderCap = new THREE.Mesh(new THREE.SphereGeometry(0.18, 16, 16), this.matArmor);
+    shoulderCap.scale.set(1.1, 0.8, 1);
+    shoulderCap.position.set(side === "left" ? -0.06 : 0.06, 0.04, 0);
+    armGroup.add(shoulderCap);
+
+    // Upper Arm (Bicep cylinder)
+    const bicep = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.35, 16), this.matChassis);
+    bicep.position.set(side === "left" ? -0.08 : 0.08, -0.22, 0);
+    armGroup.add(bicep);
+
+    // Elbow Joint
+    const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), this.matJoint);
+    elbow.position.set(side === "left" ? -0.08 : 0.08, -0.42, 0);
+    armGroup.add(elbow);
+
+    // Forearm
+    const forearm = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.32, 16), this.matArmor);
+    forearm.position.set(side === "left" ? -0.08 : 0.08, -0.6, 0.08);
+    forearm.rotation.x = 0.35; // natural forward angle
+    armGroup.add(forearm);
+
+    // Wrist Joint
+    const wrist = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), this.matJoint);
+    wrist.position.set(side === "left" ? -0.08 : 0.08, -0.78, 0.16);
+    armGroup.add(wrist);
+
+    // CLEAR 5-DIGIT ARTICULATED ROBOT HAND
+    const hand = this.createRobotHand(side);
+    hand.position.set(side === "left" ? -0.08 : 0.08, -0.84, 0.18);
+    armGroup.add(hand);
+
+    return {
+      group: armGroup,
+      hand: hand
+    };
+  }
+
+  createRobotHand(side) {
     const handGroup = new THREE.Group();
-    handGroup.position.set(xPos, 0.14, 0);
 
-    // Floating magnetic palm
-    const palm = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 24), this.armorMaterial);
-    palm.scale.set(1, 0.78, 1.25);
+    // 1. Palm Base (Beveled metal chassis)
+    const palm = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 0.05), this.matArmor);
     handGroup.add(palm);
 
-    // Glowing magnetic force-field cuff
-    const cuff = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.03, 16, 24), this.accentGlowMaterial);
-    cuff.position.set(0, 0.08, 0);
-    cuff.rotation.x = Math.PI / 2;
-    handGroup.add(cuff);
+    // Palm Core Glow Ring
+    const palmCore = new THREE.Mesh(new THREE.CircleGeometry(0.035, 16), this.matAccent);
+    palmCore.position.set(0, 0, 0.028);
+    handGroup.add(palmCore);
 
-    // Magnetic force-field aura sphere
-    const auraGeo = new THREE.SphereGeometry(0.24, 16, 16);
-    const auraMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.12,
-      wireframe: true
-    });
-    const aura = new THREE.Mesh(auraGeo, auraMat);
-    handGroup.add(aura);
+    const fingersList = [];
 
-    // Articulated fingers
-    [-0.07, 0.07].forEach((fOffset) => {
-      const finger = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.032, 0.09, 12), this.armorMaterial);
-      finger.position.set(fOffset, -0.06, 0.18);
-      finger.rotation.x = 0.45;
-      handGroup.add(finger);
-    });
+    // 2. 4 Articulated Fingers (Index, Middle, Ring, Pinky)
+    const fingerSpacing = 0.036;
+    const startX = -fingerSpacing * 1.5;
+
+    for (let i = 0; i < 4; i++) {
+      const fingerGroup = new THREE.Group();
+      const fx = startX + i * fingerSpacing;
+      fingerGroup.position.set(fx, -0.07, 0);
+
+      // Knuckle Joint
+      const knuckle = new THREE.Mesh(new THREE.SphereGeometry(0.016, 8, 8), this.matJoint);
+      fingerGroup.add(knuckle);
+
+      // Proximal Phalanx
+      const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.012, 0.06, 8), this.matArmor);
+      p1.position.set(0, -0.035, 0.01);
+      fingerGroup.add(p1);
+
+      // Interphalangeal Joint
+      const j2 = new THREE.Mesh(new THREE.SphereGeometry(0.013, 8, 8), this.matJoint);
+      j2.position.set(0, -0.068, 0.015);
+      fingerGroup.add(j2);
+
+      // Distal Phalanx (Fingertip)
+      const p2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.01, 0.05, 8), this.matChassis);
+      p2.position.set(0, -0.096, 0.022);
+      fingerGroup.add(p2);
+
+      // Glowing Cyber Sensor on Fingertip
+      const tipSensor = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 8), this.matAccent);
+      tipSensor.position.set(0, -0.122, 0.025);
+      fingerGroup.add(tipSensor);
+
+      handGroup.add(fingerGroup);
+      fingersList.push(fingerGroup);
+    }
+
+    // 3. Opposable Thumb
+    const thumbGroup = new THREE.Group();
+    const thumbX = side === "left" ? 0.08 : -0.08;
+    thumbGroup.position.set(thumbX, -0.02, 0.02);
+    thumbGroup.rotation.z = side === "left" ? -0.6 : 0.6;
+    thumbGroup.rotation.y = side === "left" ? -0.4 : 0.4;
+
+    const tKnuckle = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), this.matJoint);
+    thumbGroup.add(tKnuckle);
+
+    const tp1 = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.012, 0.05, 8), this.matArmor);
+    tp1.position.set(0, -0.03, 0);
+    thumbGroup.add(tp1);
+
+    const tp2 = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.009, 0.045, 8), this.matChassis);
+    tp2.position.set(0, -0.065, 0.01);
+    thumbGroup.add(tp2);
+
+    const thumbTip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 8), this.matAccent);
+    thumbTip.position.set(0, -0.09, 0.015);
+    thumbGroup.add(thumbTip);
+
+    handGroup.add(thumbGroup);
+    fingersList.push(thumbGroup);
+
+    if (side === "left") this.leftFingers = fingersList;
+    else this.rightFingers = fingersList;
 
     return handGroup;
   }
 
-  buildThrusters() {
+  buildThruster() {
     const thrusterGroup = new THREE.Group();
     thrusterGroup.position.set(0, -0.52, 0);
 
-    // Main anti-grav ring
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.07, 16, 48), this.accentGlowMaterial);
+    // Glowing Anti-Gravity Ring
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.05, 16, 32), this.matAccent);
     ring.rotation.x = Math.PI / 2;
     thrusterGroup.add(ring);
 
-    // Dual exhaust nozzles
-    [-0.18, 0.18].forEach((x) => {
-      const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.13, 0.2, 20), this.frameMaterial);
-      nozzle.position.set(x, -0.08, 0);
-      thrusterGroup.add(nozzle);
-    });
-
-    this.robotGroup.add(thrusterGroup);
-
-    // Dynamic Plasma Particle System
-    const particleCount = 50;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const scales = new Float32Array(particleCount);
-
-    for (let i = 0; i < particleCount; i++) {
-      positions[i * 3 + 0] = (Math.random() - 0.5) * 0.45;
-      positions[i * 3 + 1] = -0.58 - Math.random() * 0.7;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 0.45;
-      scales[i] = Math.random();
-    }
-
-    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute("scale", new THREE.BufferAttribute(scales, 1));
-
-    const material = new THREE.PointsMaterial({
-      color: 0x38bdf8,
-      size: 0.09,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending
-    });
-
-    this.thrusterParticles = new THREE.Points(geometry, material);
-    this.robotGroup.add(this.thrusterParticles);
-  }
-
-  buildHoloHUD() {
-    this.holoHudGroup = new THREE.Group();
-
-    // Floating 3D holographic brackets & coordinate lines around robot
-    const lineMat = new THREE.LineBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.35 });
-
-    // Target reticle
-    const circleGeo = new THREE.BufferGeometry();
-    const pts = [];
-    for (let i = 0; i <= 32; i++) {
-      const theta = (i / 32) * Math.PI * 2;
-      pts.push(new THREE.Vector3(Math.cos(theta) * 1.5, Math.sin(theta) * 1.5, 0));
-    }
-    circleGeo.setFromPoints(pts);
-
-    const reticle = new THREE.Line(circleGeo, lineMat);
-    reticle.position.set(0, 0.3, -0.4);
-    this.holoHudGroup.add(reticle);
-
-    this.scene.add(this.holoHudGroup);
-  }
-
-  buildAmbientNodes() {
-    const count = 100;
+    // Thruster Particle Exhaust
+    const count = 30;
     const geo = new THREE.BufferGeometry();
     const pos = new Float32Array(count * 3);
-
     for (let i = 0; i < count; i++) {
-      pos[i * 3 + 0] = (Math.random() - 0.5) * 16;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 12 + 1;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 12 - 2;
+      pos[i * 3 + 0] = (Math.random() - 0.5) * 0.35;
+      pos[i * 3 + 1] = -0.1 - Math.random() * 0.5;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 0.35;
     }
-
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    const mat = new THREE.PointsMaterial({
-      size: 0.05,
-      color: 0x60a5fa,
-      transparent: true,
-      opacity: 0.55,
-      blending: THREE.AdditiveBlending
-    });
+    this.thrusterParticles = new THREE.Points(
+      geo,
+      new THREE.PointsMaterial({ color: 0x38bdf8, size: 0.08, transparent: true, opacity: 0.85 })
+    );
+    thrusterGroup.add(this.thrusterParticles);
 
-    this.ambientNodes = new THREE.Points(geo, mat);
-    this.scene.add(this.ambientNodes);
+    this.robotGroup.add(thrusterGroup);
   }
 
   onMouseMove(e) {
@@ -662,51 +501,53 @@ class Robot3D {
   pokeRobot() {
     this.isPoked = true;
     this.setExpression("happy");
-    if (window.AudioEngine) {
-      window.AudioEngine.playRobotChirp();
-    }
+    if (window.AudioEngine) window.AudioEngine.playRobotChirp();
+
     setTimeout(() => {
       this.isPoked = false;
       this.setExpression("idle");
-    }, 1300);
+    }, 1200);
   }
 
   setExpression(expr) {
-    this.visorExpression = expr;
-    this.updateVisorFace(expr);
+    this.expression = expr;
+    const p = this.themes[this.currentTheme];
+
+    if (expr === "happy") {
+      this.matEyeLens.color.setHex(0x22c55e); // Green happy eyes
+    } else if (expr === "thinking") {
+      this.matEyeLens.color.setHex(0xf59e0b); // Amber thinking
+    } else if (expr === "speaking") {
+      this.matEyeLens.color.setHex(p.eyeColor);
+    } else {
+      this.matEyeLens.color.setHex(p.eyeColor);
+    }
   }
 
-  triggerOverdrive(durationMs = 2500) {
+  triggerOverdrive(duration = 2500) {
     this.isOverdrive = true;
     this.setExpression("thinking");
-    if (window.AudioEngine) {
-      window.AudioEngine.playServoHum();
-    }
     setTimeout(() => {
       this.isOverdrive = false;
       this.setExpression("idle");
-    }, durationMs);
+    }, duration);
   }
 
-  setCameraView(viewMode) {
-    this.cameraMode = viewMode;
-    if (viewMode === "command") {
-      this.camera.position.set(0, 0.8, 5.4);
-    } else if (viewMode === "core") {
-      this.camera.position.set(0, 0.6, 3.2);
-    } else if (viewMode === "orbit") {
-      this.camera.position.set(2.4, 1.4, 4.6);
-      this.camera.lookAt(0, 0.4, 0);
+  setCameraView(mode) {
+    if (mode === "command") {
+      this.camera.position.set(0, 0.4, 4.6);
+    } else if (mode === "core") {
+      this.camera.position.set(0, 0.3, 2.8);
     }
   }
 
   onResize() {
     if (!this.container || !this.renderer || !this.camera) return;
-    const width = this.container.clientWidth;
-    const height = this.container.clientHeight;
-    this.camera.aspect = width / height;
+    const w = this.container.clientWidth;
+    const h = this.container.clientHeight;
+    this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
+    this.renderer.setSize(w, h);
   }
 
   animate() {
@@ -714,111 +555,97 @@ class Robot3D {
 
     const delta = this.clock.getDelta();
     const time = this.clock.getElapsedTime();
-    this.visorFrame++;
 
-    if (this.visorFrame % 3 === 0) {
-      this.updateVisorFace(this.visorExpression);
-    }
-
-    // Smooth Cursor Following
+    // 1. Mouse Damping
     this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.08;
     this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.08;
 
-    // Inverse Kinematics / Head tracking
+    // 2. Head Tracking (Inverse Kinematics)
     if (this.headGroup) {
-      this.headGroup.rotation.y = this.mouse.x * 0.7;
+      this.headGroup.rotation.y = this.mouse.x * 0.65;
       this.headGroup.rotation.x = -this.mouse.y * 0.45;
     }
 
-    // Body Hovering Motion
+    // 3. Clear Eyes Physical Gaze Tracking
+    if (this.leftEye && this.rightEye) {
+      const gazeX = this.mouse.x * 0.04;
+      const gazeY = this.mouse.y * 0.03;
+
+      if (this.leftEye.userData.pupil) {
+        this.leftEye.userData.pupil.position.x = gazeX;
+        this.leftEye.userData.pupil.position.y = gazeY;
+      }
+      if (this.rightEye.userData.pupil) {
+        this.rightEye.userData.pupil.position.x = gazeX;
+        this.rightEye.userData.pupil.position.y = gazeY;
+      }
+
+      // Natural Eye Blinking Animation
+      const blinkCycle = Math.sin(time * 1.8);
+      if (blinkCycle > 0.96) {
+        this.leftEye.userData.eyelid.rotation.x = 0; // closed
+        this.rightEye.userData.eyelid.rotation.x = 0;
+      } else {
+        this.leftEye.userData.eyelid.rotation.x = -Math.PI / 2; // open
+        this.rightEye.userData.eyelid.rotation.x = -Math.PI / 2;
+      }
+    }
+
+    // 4. Floating Sinusoidal Idle Body Motion
     if (this.robotGroup) {
-      const hoverSpeed = this.isOverdrive ? 4.5 : 2.2;
-      const hoverY = Math.sin(time * hoverSpeed) * (this.isOverdrive ? 0.14 : 0.08);
+      const hoverSpeed = this.isOverdrive ? 4.0 : 2.0;
+      const hoverY = Math.sin(time * hoverSpeed) * (this.isOverdrive ? 0.12 : 0.06);
       this.robotGroup.position.y = hoverY;
 
       if (this.isPoked) {
-        this.spinAngle += delta * 12;
-        this.robotGroup.rotation.y = this.spinAngle;
+        this.robotGroup.rotation.y += delta * 10;
       } else {
-        this.robotGroup.rotation.y += (this.mouse.x * 0.28 - this.robotGroup.rotation.y) * 0.06;
-        this.robotGroup.rotation.z = -this.mouse.x * 0.06;
+        this.robotGroup.rotation.y += (this.mouse.x * 0.22 - this.robotGroup.rotation.y) * 0.06;
       }
     }
 
-    // Rotating Gyroscope Rings around Core
-    if (this.gyroRing1 && this.gyroRing2) {
-      const gyroSpeed = this.isOverdrive ? 6.0 : 1.8;
-      this.gyroRing1.rotation.z += delta * gyroSpeed;
-      this.gyroRing2.rotation.x += delta * (gyroSpeed * 0.7);
-    }
-
-    // Swivel Antennas
-    if (this.leftAntenna && this.rightAntenna) {
-      const antennaSwivel = Math.sin(time * 3) * 0.15;
-      this.leftAntenna.rotation.x = antennaSwivel;
-      this.rightAntenna.rotation.x = -antennaSwivel;
-    }
-
-    // Floating Magnetic Hands
-    if (this.leftHand && this.rightHand) {
-      if (this.visorExpression === "speaking") {
-        this.leftHand.position.y = 0.14 + Math.sin(time * 5.2) * 0.14;
-        this.rightHand.position.y = 0.14 + Math.cos(time * 5.2) * 0.14;
-        this.leftHand.position.z = 0.18 + Math.sin(time * 3.2) * 0.12;
-        this.rightHand.position.z = 0.18 + Math.cos(time * 3.2) * 0.12;
-      } else if (this.isOverdrive || this.visorExpression === "thinking") {
-        this.leftHand.position.x = -0.7 + Math.sin(time * 4) * 0.05;
-        this.rightHand.position.x = 0.7 - Math.sin(time * 4) * 0.05;
-        this.leftHand.position.y = 0.26;
-        this.rightHand.position.y = 0.26;
+    // 5. Articulated Mechanical Hands Animation
+    if (this.leftArm && this.rightArm) {
+      if (this.expression === "speaking") {
+        // Natural Gesturing hands
+        this.leftArm.group.rotation.x = Math.sin(time * 4) * 0.2;
+        this.rightArm.group.rotation.x = Math.cos(time * 4) * 0.2;
+      } else if (this.isPoked) {
+        // Wave Hello Hand
+        this.rightArm.group.rotation.z = -1.2 + Math.sin(time * 10) * 0.3;
+        this.rightArm.group.rotation.x = 0.5;
       } else {
-        this.leftHand.position.y = 0.14 + Math.sin(time * 2.2) * 0.07;
-        this.rightHand.position.y = 0.14 + Math.sin(time * 2.2 + 1.2) * 0.07;
-        this.leftHand.position.x = -1.0;
-        this.rightHand.position.x = 1.0;
-        this.leftHand.position.z = 0;
-        this.rightHand.position.z = 0;
+        // Gentle breathing motion
+        this.leftArm.group.rotation.x = Math.sin(time * 1.5) * 0.06;
+        this.rightArm.group.rotation.x = Math.sin(time * 1.5) * 0.06;
+        this.leftArm.group.rotation.z = -0.05;
+        this.rightArm.group.rotation.z = 0.05;
       }
     }
 
-    // Core Pulse & Lighting
+    // 6. Natural Finger Curls (Idle Breathing)
+    const fingerCurl = Math.sin(time * 2.5) * 0.15 + 0.2;
+    this.leftFingers.forEach((f, i) => {
+      f.rotation.x = fingerCurl + i * 0.04;
+    });
+    this.rightFingers.forEach((f, i) => {
+      f.rotation.x = fingerCurl + i * 0.04;
+    });
+
+    // 7. Core Pulse & Thruster Particles
     if (this.coreMesh) {
-      const coreScale = this.isOverdrive
-        ? 1.2 + Math.abs(Math.sin(time * 16)) * 0.6
-        : 1.0 + Math.sin(time * 3.5) * 0.18;
-      this.coreMesh.scale.set(coreScale, coreScale, 1);
-    }
-    if (this.coreLight) {
-      this.coreLight.intensity = this.isOverdrive ? 4.5 : 2.5 + Math.sin(time * 8) * 0.8;
-    }
-    if (this.thrusterLight) {
-      this.thrusterLight.intensity = this.isOverdrive ? 5.0 : 2.8 + Math.sin(time * 14) * 0.8;
+      const scale = 1.0 + Math.sin(time * 4) * 0.12;
+      this.coreMesh.scale.set(scale, scale, 1);
     }
 
-    // Thruster Particle Dynamics
     if (this.thrusterParticles) {
       const pos = this.thrusterParticles.geometry.attributes.position;
-      const speed = this.isOverdrive ? 3.5 : 1.9;
       for (let i = 0; i < pos.count; i++) {
-        let py = pos.getY(i);
-        py -= delta * speed;
-        if (py < -1.5) {
-          py = -0.58;
-          pos.setX(i, (Math.random() - 0.5) * 0.4);
-          pos.setZ(i, (Math.random() - 0.5) * 0.4);
-        }
+        let py = pos.getY(i) - delta * 1.5;
+        if (py < -0.6) py = -0.1;
         pos.setY(i, py);
       }
       this.thrusterParticles.geometry.attributes.position.needsUpdate = true;
-    }
-
-    // Holographic Reticle rotation
-    if (this.holoHudGroup) {
-      this.holoHudGroup.rotation.z = time * 0.1;
-    }
-
-    if (this.ambientNodes) {
-      this.ambientNodes.rotation.y = time * 0.025;
     }
 
     this.renderer.render(this.scene, this.camera);

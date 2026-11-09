@@ -56,7 +56,7 @@
 
       <!-- Controls -->
       <div style="display: flex; align-items: center; gap: 8px;">
-        <button id="settings-btn" class="btn-sm" title="Configure Cloud AI API Key">⚙️ API KEY</button>
+        <button id="settings-btn" class="btn-sm" title="Configure AI Engine & API Key">⚙️ API KEY <span id="api-status-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748b; margin-left:4px; vertical-align:middle;"></span></button>
         <button id="sound-toggle-btn" class="btn-sm active" title="Robot Servo & Audio SFX: ON">🔊 SFX</button>
         <button id="voice-toggle-btn" class="btn-sm" title="Speech Synthesis (TTS): OFF">🗣️ VOICE</button>
         <button id="notes-toggle-btn" class="btn-sm">🎒 NOTES</button>
@@ -209,14 +209,40 @@
           <button id="close-settings-btn" class="close-btn">&times;</button>
         </div>
         <div style="font-size: 13px; line-height: 1.6; color: #cbd5e1;">
-          <p style="margin-bottom: 12px;">By default, Chatbot Abhi runs on the <strong>Sub-10ms Offline Academic &amp; Math Engine</strong>. You can optionally connect your own OpenAI API key for live unrestricted answers.</p>
-          <div style="margin-bottom: 16px;">
-            <label style="display: block; font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); margin-bottom: 6px;">OPENAI API KEY (Optional):</label>
+          <!-- Status Banner -->
+          <div id="engine-status-box" style="margin-bottom: 14px; padding: 10px 14px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); color: #38bdf8;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="engine-status-icon">⚡</span>
+              <strong id="engine-status-title">Sub-10ms Offline Academic &amp; Math Engine Active</strong>
+            </div>
+            <p id="engine-status-desc" style="margin-top: 4px; font-size: 11px; color: var(--text-dim);">Instant curriculum solver with zero latency. Add an OpenAI key below to enable live unrestricted AI generation.</p>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); margin-bottom: 6px;">OPENAI API KEY:</label>
             <input type="password" id="custom-api-key-input" placeholder="sk-..." style="width: 100%; background: rgba(15, 23, 42, 0.8); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; color: var(--text-main); font-family: var(--font-mono); font-size: 13px; outline: none;">
           </div>
-          <div style="display: flex; justify-content: flex-end; gap: 8px;">
+
+          <!-- Feedback message from Test Key -->
+          <div id="key-test-feedback" style="display: none; margin-bottom: 12px; padding: 8px 12px; border-radius: 6px; font-size: 11.5px; font-family: var(--font-mono);"></div>
+
+          <div style="margin-bottom: 14px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; color: #e2e8f0;">
+              <input type="checkbox" id="prefer-live-ai-checkbox" checked style="accent-color: var(--accent); cursor: pointer;">
+              <span>Route all conceptual questions to Live OpenAI (when key is present)</span>
+            </label>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
             <button id="clear-api-key-btn" class="btn-sm" style="border-color: #ef4444; color: #f87171;">Clear Key</button>
-            <button id="save-api-key-btn" class="btn-sm" style="background: var(--accent); color: var(--bg-primary);">Save Key</button>
+            <div style="display: flex; gap: 8px;">
+              <button id="test-api-key-btn" class="btn-sm" style="border-color: #38bdf8; color: #38bdf8;">🔍 Test Key</button>
+              <button id="save-api-key-btn" class="btn-sm" style="background: var(--accent); color: var(--bg-primary);">Save Key</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-dim); line-height: 1.5;">
+            💡 <strong>Note:</strong> Need an API key? Generate one at <a href="https://platform.openai.com/api-keys" target="_blank" style="color: var(--accent); text-decoration: underline;">platform.openai.com</a> (requires active billing balance). Chatbot Abhi will work offline indefinitely with zero keys required!
           </div>
         </div>
       </div>

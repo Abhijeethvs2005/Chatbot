@@ -68,6 +68,208 @@ document.addEventListener("DOMContentLoaded", () => {
   const makerBtn = document.getElementById("maker-notes-btn");
   const closeMakerBtn = document.getElementById("close-maker-btn");
 
+  // Settings Modal & API Key
+  const settingsModal = document.getElementById("settings-modal");
+  const settingsBtn = document.getElementById("settings-btn");
+  const closeSettingsBtn = document.getElementById("close-settings-btn");
+  const customApiKeyInput = document.getElementById("custom-api-key-input");
+  const saveApiKeyBtn = document.getElementById("save-api-key-btn");
+  const clearApiKeyBtn = document.getElementById("clear-api-key-btn");
+  const testApiKeyBtn = document.getElementById("test-api-key-btn");
+  const keyTestFeedback = document.getElementById("key-test-feedback");
+  const apiStatusDot = document.getElementById("api-status-dot");
+  const engineStatusBox = document.getElementById("engine-status-box");
+  const engineStatusIcon = document.getElementById("engine-status-icon");
+  const engineStatusTitle = document.getElementById("engine-status-title");
+  const engineStatusDesc = document.getElementById("engine-status-desc");
+  const preferLiveAiCheckbox = document.getElementById("prefer-live-ai-checkbox");
+
+  let customApiKey = localStorage.getItem("abhi_api_key") || "";
+  let preferLiveAI = localStorage.getItem("abhi_prefer_live") !== "false";
+  let serverHasOpenAI = false;
+
+  if (customApiKeyInput && customApiKey) {
+    customApiKeyInput.value = customApiKey;
+  }
+  if (preferLiveAiCheckbox) {
+    preferLiveAiCheckbox.checked = preferLiveAI;
+    preferLiveAiCheckbox.addEventListener("change", () => {
+      preferLiveAI = preferLiveAiCheckbox.checked;
+      localStorage.setItem("abhi_prefer_live", preferLiveAI ? "true" : "false");
+    });
+  }
+
+  function updateEngineUI() {
+    const activeKey = customApiKey || (serverHasOpenAI ? "server-key" : "");
+    if (activeKey) {
+      if (apiStatusDot) {
+        apiStatusDot.style.background = "#22c55e";
+        apiStatusDot.style.boxShadow = "0 0 6px #22c55e";
+      }
+      if (engineStatusBox) {
+        engineStatusIcon.textContent = "🟢";
+        engineStatusTitle.textContent = "Live OpenAI AI Engine Active (GPT-4o Mini)";
+        engineStatusDesc.textContent = customApiKey 
+          ? "Connected via custom browser key. Live unrestricted reasoning active."
+          : "Connected via backend environment key. Live unrestricted reasoning active.";
+        engineStatusBox.style.background = "rgba(34, 197, 94, 0.08)";
+        engineStatusBox.style.borderColor = "rgba(34, 197, 94, 0.25)";
+        engineStatusBox.style.color = "#4ade80";
+      }
+    } else {
+      if (apiStatusDot) {
+        apiStatusDot.style.background = "#64748b";
+        apiStatusDot.style.boxShadow = "none";
+      }
+      if (engineStatusBox) {
+        engineStatusIcon.textContent = "⚡";
+        engineStatusTitle.textContent = "Sub-10ms Offline Academic & Math Engine Active";
+        engineStatusDesc.textContent = "Instant curriculum solver with zero latency. Add an OpenAI key below to enable live unrestricted AI generation.";
+        engineStatusBox.style.background = "rgba(56, 189, 248, 0.08)";
+        engineStatusBox.style.borderColor = "rgba(56, 189, 248, 0.25)";
+        engineStatusBox.style.color = "#38bdf8";
+      }
+    }
+  }
+
+  // Check backend server status
+  fetch("/api/health")
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.openai_configured) {
+        serverHasOpenAI = true;
+      }
+      updateEngineUI();
+    })
+    .catch(() => {
+      updateEngineUI();
+    });
+
+  if (settingsBtn) {
+    settingsBtn.addEventListener("click", () => {
+      settingsModal.classList.add("open");
+      if (keyTestFeedback) keyTestFeedback.style.display = "none";
+      updateEngineUI();
+      window.AudioEngine.playClick();
+    });
+  }
+
+  if (closeSettingsBtn) {
+    closeSettingsBtn.addEventListener("click", () => {
+      settingsModal.classList.remove("open");
+    });
+  }
+
+  if (saveApiKeyBtn) {
+    saveApiKeyBtn.addEventListener("click", () => {
+      const val = customApiKeyInput.value.trim();
+      customApiKey = val;
+      localStorage.setItem("abhi_api_key", val);
+      updateEngineUI();
+      alert(val ? "✓ OpenAI API Key saved! Live AI Mode is now active." : "API Key cleared. Reverted to Sub-10ms Offline Engine.");
+      settingsModal.classList.remove("open");
+      window.AudioEngine.playClick();
+    });
+  }
+
+  if (clearApiKeyBtn) {
+    clearApiKeyBtn.addEventListener("click", () => {
+      customApiKey = "";
+      customApiKeyInput.value = "";
+      localStorage.removeItem("abhi_api_key");
+      updateEngineUI();
+      if (keyTestFeedback) {
+        keyTestFeedback.style.display = "block";
+        keyTestFeedback.style.background = "rgba(100, 116, 139, 0.15)";
+        keyTestFeedback.style.border = "1px solid rgba(100, 116, 139, 0.3)";
+        keyTestFeedback.style.color = "#94a3b8";
+        keyTestFeedback.textContent = "Key removed. System returned to Sub-10ms Offline Academic Engine.";
+      }
+      alert("API Key removed. Reverted to Sub-10ms Offline Engine.");
+      window.AudioEngine.playClick();
+    });
+  }
+
+  if (testApiKeyBtn) {
+    testApiKeyBtn.addEventListener("click", async () => {
+      const val = customApiKeyInput.value.trim();
+      if (!val) {
+        if (keyTestFeedback) {
+          keyTestFeedback.style.display = "block";
+          keyTestFeedback.style.background = "rgba(239, 68, 68, 0.15)";
+          keyTestFeedback.style.border = "1px solid rgba(239, 68, 68, 0.3)";
+          keyTestFeedback.style.color = "#f87171";
+          keyTestFeedback.textContent = "Please enter an OpenAI API key (starts with 'sk-') to test.";
+        }
+        return;
+      }
+
+      if (keyTestFeedback) {
+        keyTestFeedback.style.display = "block";
+        keyTestFeedback.style.background = "rgba(56, 189, 248, 0.1)";
+        keyTestFeedback.style.border = "1px solid rgba(56, 189, 248, 0.3)";
+        keyTestFeedback.style.color = "#38bdf8";
+        keyTestFeedback.textContent = "⏳ Testing API key with OpenAI servers...";
+      }
+
+      try {
+        const res = await fetch("/api/test-key", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ api_key: val })
+        });
+
+        const data = await res.json();
+        if (data.valid) {
+          keyTestFeedback.style.background = "rgba(34, 197, 94, 0.15)";
+          keyTestFeedback.style.border = "1px solid rgba(34, 197, 94, 0.3)";
+          keyTestFeedback.style.color = "#4ade80";
+          keyTestFeedback.textContent = data.message || "✓ Key is valid and active!";
+        } else {
+          keyTestFeedback.style.background = "rgba(239, 68, 68, 0.15)";
+          keyTestFeedback.style.border = "1px solid rgba(239, 68, 68, 0.3)";
+          keyTestFeedback.style.color = "#f87171";
+          keyTestFeedback.textContent = "❌ " + (data.error || "Failed to validate key.");
+        }
+      } catch (err) {
+        // Fallback: test directly via browser CORS
+        try {
+          const directRes = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${val}`
+            },
+            body: JSON.stringify({
+              model: "gpt-4o-mini",
+              messages: [{ role: "user", content: "ping" }],
+              max_tokens: 2
+            })
+          });
+
+          if (directRes.ok) {
+            keyTestFeedback.style.background = "rgba(34, 197, 94, 0.15)";
+            keyTestFeedback.style.border = "1px solid rgba(34, 197, 94, 0.3)";
+            keyTestFeedback.style.color = "#4ade80";
+            keyTestFeedback.textContent = "✓ Key is valid and active! Live OpenAI direct answers ready.";
+          } else {
+            const errJson = await directRes.json().catch(() => ({}));
+            const msg = errJson?.error?.message || `HTTP ${directRes.status}`;
+            keyTestFeedback.style.background = "rgba(239, 68, 68, 0.15)";
+            keyTestFeedback.style.border = "1px solid rgba(239, 68, 68, 0.3)";
+            keyTestFeedback.style.color = "#f87171";
+            keyTestFeedback.textContent = "❌ OpenAI Error: " + msg;
+          }
+        } catch (directErr) {
+          keyTestFeedback.style.background = "rgba(239, 68, 68, 0.15)";
+          keyTestFeedback.style.border = "1px solid rgba(239, 68, 68, 0.3)";
+          keyTestFeedback.style.color = "#f87171";
+          keyTestFeedback.textContent = "❌ Network error testing key: " + directErr.message;
+        }
+      }
+    });
+  }
+
   // Theme Switching
   const themePills = document.querySelectorAll(".theme-pill");
   themePills.forEach((pill) => {
@@ -233,8 +435,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const startTime = performance.now();
 
-    // STEP A: Check Sub-millisecond Client Academic Knowledge Base first
-    const localMatch = window.findAcademicTopic ? window.findAcademicTopic(text) : null;
+    // Check if live AI is configured & preferred
+    const hasLiveKey = !!customApiKey || serverHasOpenAI;
+    const shouldBypassLocal = hasLiveKey && preferLiveAI;
+
+    // STEP A: Check Sub-millisecond Client Academic Knowledge Base first (unless Live AI is preferred)
+    const localMatch = !shouldBypassLocal && window.findAcademicTopic ? window.findAcademicTopic(text) : null;
 
     if (localMatch) {
       const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
@@ -258,15 +464,6 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         } else {
           setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
-        }
-        if (window.AudioEngine.voiceEnabled) {
-          window.AudioEngine.speak(localMatch.core, () => {
-            robot.setExpression("speaking");
-          }, () => {
-            robot.setExpression("idle");
-          });
-        } else {
-          setTimeout(() => robot.setExpression("idle"), 1200);
         }
 
         // Render any math equations with KaTeX
@@ -297,6 +494,7 @@ document.addEventListener("DOMContentLoaded", () => {
           message: text,
           subject: state.subject,
           mode: state.mode,
+          api_key: customApiKey,
           stream: true
         })
       });
@@ -348,30 +546,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
       addXP(10);
     } catch (err) {
-      console.warn("Backend API not reachable, using autonomous local student fallback:", err);
-      // Autonomous Fallback when running standalone without python backend
+      console.warn("Backend API not reachable, evaluating standalone fallback options:", err);
+
+      // If user configured their custom OpenAI API key, stream directly from OpenAI via CORS!
+      if (customApiKey && customApiKey.startsWith("sk-")) {
+        try {
+          const directSuccess = await streamDirectFromOpenAI(text, customApiKey, state.subject, state.mode, startTime);
+          if (directSuccess) {
+            addXP(10);
+            return;
+          }
+        } catch (openaiErr) {
+          console.warn("Direct OpenAI call failed:", openaiErr);
+        }
+      }
+
+      // Autonomous Fallback when running standalone without python backend or when offline
       const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
       updateLatencyBadge(elapsed, "Autonomous Local Engine");
 
-      const fallbackMsg = `### 🎓 Concept Breakdown: ${escapeHtml(text)}
+      let noticeHeader = "";
+      if (customApiKey) {
+        noticeHeader = `> ⚠️ **Notice**: Local Python server is offline and direct OpenAI request encountered a quota/network issue. Falling back to the Sub-10ms Autonomous Local Engine.\n\n`;
+      }
 
-#### 📌 Overview & Core Principle
-In ${state.subject}, mastering **${escapeHtml(text)}** begins with first-principles decomposition. Every complex theorem is built upon elementary foundations and boundary constraints.
+      const fallbackMsg = `${noticeHeader}### 📚 Concept Overview: ${escapeHtml(text)}
 
-#### 📐 Analytical Formulation
-$$\\lim_{x \\to a} f(x) = L \\quad \\text{or fundamental equilibrium relations}$$
+#### 📌 Academic Summary
+In **${state.subject}**, analyzing **${escapeHtml(text)}** involves examining its core theoretical rules, foundational definitions, and practical problem-solving methods.
 
-#### 🔬 Step-by-Step Problem Solving Framework
-1. **Identify Given Variables**: Separate known constants from target unknowns.
-2. **Select Governing Laws**: State conservation principles or algorithmic invariants.
-3. **Dimensional Consistency**: Verify that units balance on both sides of the equality.
-4. **Edge Case Analysis**: Test boundary conditions ($t=0$, $x \\to \\infty$).
+#### 🔬 Step-by-Step Analytical Breakdown
+1. **Identify First Principles**: Determine the underlying physical, mathematical, or algorithmic laws governing the question.
+2. **Apply Domain Rules**: Evaluate governing formulas or logical steps specific to this concept.
+3. **Validate Units & Boundary Conditions**: Verify that the solution is physically and logically consistent under edge conditions.
 
-#### 💡 Student Intuition
-Think of this like troubleshooting code or solving a puzzle: if your base case is unproven, the entire recursive stack falls apart.
+#### 💡 Student Mental Model
+Build your understanding like an architectural blueprint: master the foundational premise first, and the higher-level applications follow naturally.
 
 #### ⚠️ High-Frequency Exam Trap
-Avoid skipping steps! Most lost marks occur during elementary algebraic manipulation rather than conceptual misunderstanding.`;
+Always double check your starting assumptions and avoid skipping algebraic or logical verification steps!`;
 
       const botMsgElement = appendMessage("bot", "");
       streamTextToElement(botMsgElement, markedParse(fallbackMsg), () => {
@@ -380,6 +593,74 @@ Avoid skipping steps! Most lost marks occur during elementary algebraic manipula
       });
       addXP(10);
     }
+  }
+
+  // Direct client-side streaming from OpenAI API (CORS supported)
+  async function streamDirectFromOpenAI(userMsg, key, subject, mode, startTime) {
+    const sysPrompt = `You are Chatbot Abhi, an ultra-fast, friendly, accurate educational AI study companion created by Abhijeeth. Subject: ${subject}. Mode: ${mode}. Format answers with: 1. Core summary, 2. Step-by-step breakdown with KaTeX math ($...$), 3. Intuitive analogy, 4. Exam pitfall.`;
+
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${key}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          { role: "system", content: sysPrompt },
+          { role: "user", content: userMsg }
+        ],
+        stream: true,
+        max_tokens: 900,
+        temperature: 0.2
+      })
+    });
+
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => ({}));
+      const errMsg = errJson?.error?.message || `HTTP ${res.status}`;
+      throw new Error(errMsg);
+    }
+
+    const botMsgElement = appendMessage("bot", "");
+    const contentDiv = botMsgElement.querySelector(".message-content");
+    let fullText = "";
+    let firstChunkReceived = false;
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunkStr = decoder.decode(value);
+      const lines = chunkStr.split("\n");
+
+      for (const line of lines) {
+        if (line.startsWith("data: ") && line.trim() !== "data: [DONE]") {
+          try {
+            const data = JSON.parse(line.slice(6));
+            const delta = data.choices[0]?.delta?.content || "";
+            if (delta) {
+              if (!firstChunkReceived) {
+                firstChunkReceived = true;
+                const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
+                updateLatencyBadge(elapsed, "OpenAI Direct (GPT-4o Mini)");
+              }
+              fullText += delta;
+              contentDiv.innerHTML = markedParse(fullText);
+              MathGrapher.renderMath(contentDiv);
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    if (robot) robot.setExpression("idle");
+    return true;
   }
 
   // 11. Format Academic Topic to Rich Student Markdown/HTML
