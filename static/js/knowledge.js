@@ -285,11 +285,46 @@ const ACADEMIC_TOPICS = [
 ];
 
 /**
- * High-speed topic finder (< 2ms lookup)
+ * High-speed topic finder (< 2ms lookup) with Deterministic Math Calculator
  */
 function findAcademicTopic(query) {
   if (!query || typeof query !== "string") return null;
   const q = query.toLowerCase().trim();
+
+  // A. Safe Arithmetic & Math Evaluator
+  const cleanMath = q.replace(/^(what is|calculate|evaluate|solve|compute)\s+/, "").replace(/[?=]/g, "").trim();
+  if (/^[\d\s\+\-\*\/\^\(\)\.\%xX]+$/.test(cleanMath) && /[\+\-\*\/\^xX\%]/.test(cleanMath)) {
+    try {
+      const sanitized = cleanMath.replace(/\^/g, "**").replace(/x/gi, "*");
+      // Safe math evaluate using Function with limited scope
+      const val = new Function(`return (${sanitized});`)();
+      if (typeof val === "number" && !isNaN(val) && isFinite(val)) {
+        const rounded = Number.isInteger(val) ? val : Math.round(val * 10000) / 10000;
+        return {
+          id: "math_calc",
+          title: `Mathematical Calculation: ${cleanMath}`,
+          subject: "Mathematics",
+          core: `The exact numerical result of $${cleanMath}$ is **${rounded}**.`,
+          formulas: [`${cleanMath} = ${rounded}`],
+          steps: [
+            "1. **Analyze Expression**: Deconstruct operators following standard operator precedence (PEMDAS/BODMAS).",
+            `2. **Compute**: Systematically evaluate operations.`,
+            `3. **Exact Solution**: $$\\mathbf{${cleanMath} = ${rounded}}$$`
+          ],
+          analogy: "Arithmetic is the universal language of counting and scaling physical quantities with zero uncertainty.",
+          pitfalls: "Always follow order of operations: Parentheses -> Exponents -> Multiplication/Division -> Addition/Subtraction.",
+          quiz: {
+            question: `What is the result of ${cleanMath}?`,
+            options: [`${rounded}`, `${rounded + 1}`, `${rounded - 2}`, `${rounded * 2}`],
+            correct: 0,
+            explanation: `Direct arithmetic evaluation yields ${rounded}.`
+          }
+        };
+      }
+    } catch (e) {
+      // Not a valid math expression, proceed to knowledge search
+    }
+  }
 
   // 1. Direct ID or title match
   for (const topic of ACADEMIC_TOPICS) {
