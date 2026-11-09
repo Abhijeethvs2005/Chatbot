@@ -5,23 +5,28 @@
  *   - Humanoid Head with Sculpted 3D Nose, Expressive Clear Glowing Eyes, Lips/Mouth, Eyebrows & Ears
  *   - Humanoid Torso with Quantum Core Arc Reactor & Abdominal Ribbing
  *   - Two Articulated Arms with Clear 5-Digit Hands (Palm, Knuckles, 3-Segment Phalanges, Opposable Thumb, Glowing Tips)
- *   - Real Humanoid Legs (Pelvis, Thighs, Knee Caps, Calves/Shins, Ankles, Feet/Boots planted on ground)
- *   - Holographic Ground Platform with Grid Projections
+ *   - TWO REAL HUMANOID ARTICULATED LEGS (Pelvis, Dual Thighs/Femurs, Patellar Chrome Knee Caps with Glowing Halos, Dual Calves/Shins with Cooling Vents & Hydraulic Shocks, Dual-Axis Ankle Gimbals, Grounded Cyber Combat Boots)
+ *   - Ground Holographic Projector Stage with Grid Projections & Concentric Light Rings
  * - Wardrobe & Outfits Engine:
- *   - "cyber": High-Tech Titanium Mecha Armor
- *   - "student": School Uniform Blazer, Shirt Collar, Red Necktie & Trousers
- *   - "scientist": White Research Lab Coat, Stethoscope, Smart Glasses & ID Badge
- *   - "hoodie": Urban Streetwear Hoodie, Kangaroo Pocket, Tech Denim & Sneakers
- *   - "astronaut": Pressurized Cosmic EVA Space Suit with Gold Insignia & Thrusters
+ *   - "cyber": High-Tech Titanium Exoskeleton Armor with Chrome Hydraulics & Neon Conduits
+ *   - "student": School Uniform Blazer, Shirt Collar, Red Necktie, Trousers & Dress Shoes
+ *   - "scientist": White Research Lab Coat, Stethoscope, Smart Glasses, ID Badge & Tailored Slacks
+ *   - "hoodie": Urban Streetwear Hoodie, Kangaroo Pocket, Tech Denim Jeans & High-Top Sneakers
+ *   - "astronaut": Pressurized Cosmic EVA Space Suit with Gold Oxygen Valves, Knee Ribs & Moon Boots
  * - Interactive Gestures & Actions:
  *   - "hello": Cheerful hand wave greeting
  *   - "bye": Gentle farewell wave
  *   - "hifi": High-Five interactive stance & clap
  *   - "kiss": Blows a sweet flying kiss with floating glowing 3D heart particles!
  *   - "salute": Crisp military/mecha salute standing at attention
- * - Cursor Zoom & 360-Degree Orbit Controls:
+ * - Camera Controls:
+ *   - 🎥 FULL View: Perfectly frames entire humanoid robot from head down to two legs & boots
+ *   - 🦵 LEGS View: Zooms in directly on the dual articulated mechanical legs & cyber boots
+ *   - 👁️ EYES View: Close-up on clear glowing expressive eyes and facial structure
+ *   - ✋ HANDS View: Close-up on 5-digit articulated mechanical hands
+ *   - 🔄 ORBIT Mode: Continuous 360-degree rotation around the humanoid model
  *   - Mouse Wheel: Smooth cursor-centered zoom in / out
- *   - Mouse Drag: 360-degree rotation & orbit around the humanoid model
+ *   - Mouse Drag: 360-degree manual orbit around the robot
  */
 
 class Robot3D {
@@ -63,14 +68,14 @@ class Robot3D {
     this.currentOutfit = "cyber"; // 'cyber', 'student', 'scientist', 'hoodie', 'astronaut'
     this.outfitMeshes = {};
 
-    // Camera Orbit & Cursor Zoom Parameters
-    this.cameraDistance = 4.2;
-    this.targetCameraDistance = 4.2;
-    this.cameraRotationX = 0.05;
+    // Camera Orbit & Cursor Zoom Parameters (Framed to show head, torso, arms AND two full legs)
+    this.cameraDistance = 4.85;
+    this.targetCameraDistance = 4.85;
+    this.cameraRotationX = 0.08;
     this.cameraRotationY = 0;
-    this.targetRotationX = 0.05;
+    this.targetRotationX = 0.08;
     this.targetRotationY = 0;
-    this.cameraLookTarget = new THREE.Vector3(0, 0.1, 0);
+    this.cameraLookTarget = new THREE.Vector3(0, -0.05, 0);
 
     // Mouse Drag State
     this.isDragging = false;
@@ -83,6 +88,10 @@ class Robot3D {
     this.currentAction = null;
     this.actionTimer = 0;
     this.isHifiReady = false;
+
+    // Orbit & Stage Toggles
+    this.isOrbiting = false;
+    this.holoStageVisible = true;
 
     // Color Palettes
     this.currentTheme = "cyber_cyan";
@@ -134,6 +143,18 @@ class Robot3D {
         light: 0x60a5fa,
         joint: 0x475569,
         skin: 0xffffff
+      },
+      matrix_emerald: {
+        armor: 0x052e16,
+        chassis: 0x021609,
+        visor: 0x011206,
+        accent: 0x22c55e,
+        glow: 0x4ade80,
+        eyeColor: 0x22c55e,
+        pupilColor: 0xdcfce7,
+        light: 0x22c55e,
+        joint: 0x14532d,
+        skin: 0x064e3b
       }
     };
 
@@ -155,7 +176,7 @@ class Robot3D {
     // 1. Scene
     this.scene = new THREE.Scene();
 
-    // 2. Camera
+    // 2. Camera (Framed with vertical FOV to display full humanoid body & two legs)
     this.camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 1000);
     this.updateCameraPosition();
 
@@ -174,7 +195,7 @@ class Robot3D {
     // 5. Materials
     this.initMaterials();
 
-    // 6. Build the Complete Humanoid Robot System
+    // 6. Build the Complete Humanoid Robot System with Head, Torso, Arms, and TWO LEGS
     this.buildHumanoidRobot();
 
     // 7. Setup Cursor Orbit & Zoom Event Listeners
@@ -199,6 +220,11 @@ class Robot3D {
     this.coreLight = new THREE.PointLight(0x38bdf8, 2.2, 4);
     this.coreLight.position.set(0, 0.1, 0.6);
     this.scene.add(this.coreLight);
+
+    // Dedicated lower ground light to illuminate the two legs and feet
+    this.groundLight = new THREE.PointLight(0x38bdf8, 1.2, 3);
+    this.groundLight.position.set(0, -1.1, 0.8);
+    this.scene.add(this.groundLight);
   }
 
   initMaterials() {
@@ -206,7 +232,7 @@ class Robot3D {
 
     this.matArmor = new THREE.MeshStandardMaterial({
       color: p.armor,
-      roughness: 0.18,
+      roughness: 0.25,
       metalness: 0.35
     });
 
@@ -280,6 +306,7 @@ class Robot3D {
 
     if (this.coreLight) this.coreLight.color.setHex(p.light);
     if (this.rimLight) this.rimLight.color.setHex(p.light);
+    if (this.groundLight) this.groundLight.color.setHex(p.light);
     if (this.leftEyeLight) this.leftEyeLight.color.setHex(p.light);
     if (this.rightEyeLight) this.rightEyeLight.color.setHex(p.light);
   }
@@ -297,7 +324,7 @@ class Robot3D {
     // 3. Two Articulated Arms with 5-Digit Hands
     this.buildHumanoidArmsAndHands();
 
-    // 4. Humanoid Legs (Thighs, Knees, Calves, Ankles, Shoes/Boots)
+    // 4. TWO REAL ARTICULATED HUMANOID LEGS (Thighs, Knee Caps, Calves, Ankles, Boots)
     this.buildHumanoidLegs();
 
     // 5. Modular Wardrobe Outfits (Student, Scientist, Hoodie, Astronaut, Cyber)
@@ -504,10 +531,18 @@ class Robot3D {
       this.torsoGroup.add(rib);
     });
 
-    // Pelvis / Hip Chassis
+    // Pelvis / Hip Chassis Connecting to Legs
     const pelvis = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.18, 0.24), this.matArmor);
     pelvis.position.set(0, -0.38, 0.06);
     this.torsoGroup.add(pelvis);
+
+    // Dual Pelvic Hip Sockets
+    [-0.22, 0.22].forEach((px) => {
+      const hipSocket = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.08, 16), this.matJoint);
+      hipSocket.rotation.z = Math.PI / 2;
+      hipSocket.position.set(px, -0.38, 0.06);
+      this.torsoGroup.add(hipSocket);
+    });
 
     this.robotGroup.add(this.torsoGroup);
   }
@@ -682,10 +717,11 @@ class Robot3D {
     return handGroup;
   }
 
+  // --- TWO REAL ARTICULATED HUMANOID LEGS ---
   buildHumanoidLegs() {
     this.legsGroup = new THREE.Group();
-    this.leftLeg = this.createHumanoidLeg(-0.20, "left");
-    this.rightLeg = this.createHumanoidLeg(0.20, "right");
+    this.leftLeg = this.createHumanoidLeg(-0.22, "left");
+    this.rightLeg = this.createHumanoidLeg(0.22, "right");
     this.legsGroup.add(this.leftLeg.group);
     this.legsGroup.add(this.rightLeg.group);
     this.robotGroup.add(this.legsGroup);
@@ -696,68 +732,161 @@ class Robot3D {
     const legGroup = new THREE.Group();
     legGroup.position.set(hipX, -0.22, 0);
 
-    // 1. Hip Joint
-    const hip = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), this.matJoint);
-    legGroup.add(hip);
+    // 1. Hip Joint Assembly & Pelvic Socket
+    const hipSocket = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.12, 16), this.matJoint);
+    hipSocket.rotation.z = Math.PI / 2;
+    legGroup.add(hipSocket);
 
-    // 2. Thigh (Femur with Quadricep Armor)
+    const hipBall = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 16), this.matChrome);
+    legGroup.add(hipBall);
+
+    const hipRing = new THREE.Mesh(new THREE.TorusGeometry(0.10, 0.016, 12, 24), this.matAccent);
+    hipRing.rotation.y = Math.PI / 2;
+    legGroup.add(hipRing);
+
+    // Outer Hip Armor Shield
+    const hipArmor = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.16, 0.18), this.matArmor);
+    hipArmor.position.set(isLeft ? -0.06 : 0.06, -0.02, 0);
+    legGroup.add(hipArmor);
+
+    // 2. Thigh Group (Femur with Armor & Actuators)
     const thighGroup = new THREE.Group();
     legGroup.add(thighGroup);
 
-    const femur = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.075, 0.44, 16), this.matArmor);
+    // Structural Femur Cylinder
+    const femur = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.08, 0.44, 16), this.matChassis);
     femur.position.set(0, -0.24, 0);
     thighGroup.add(femur);
 
-    // 3. Knee Joint (Patellar Chrome Cap)
+    // Front Quadricep Armor Shield
+    const quadShield = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.38, 0.06), this.matArmor);
+    quadShield.position.set(0, -0.24, 0.075);
+    thighGroup.add(quadShield);
+
+    // Glowing Neon Energy Conduit Strip on Quadricep
+    const quadConduit = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.30, 0.015), this.matAccent);
+    quadConduit.position.set(0, -0.24, 0.108);
+    thighGroup.add(quadConduit);
+
+    // Lateral Outer Thigh Armor
+    const latThighArmor = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.32, 0.12), this.matArmor);
+    latThighArmor.position.set(isLeft ? -0.09 : 0.09, -0.24, 0);
+    thighGroup.add(latThighArmor);
+
+    // Rear Hamstring Hydraulic Cylinder
+    const hamstringCylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.30, 12), this.matJoint);
+    hamstringCylinder.position.set(0, -0.24, -0.075);
+    thighGroup.add(hamstringCylinder);
+
+    const hamstringPiston = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.32, 12), this.matChrome);
+    hamstringPiston.position.set(0, -0.24, -0.075);
+    thighGroup.add(hamstringPiston);
+
+    // 3. Knee Joint Assembly (Knee Cap & Hinge)
     const kneeGroup = new THREE.Group();
     kneeGroup.position.set(0, -0.48, 0);
     thighGroup.add(kneeGroup);
 
-    const kneeCap = new THREE.Mesh(new THREE.SphereGeometry(0.085, 16, 16), this.matChrome);
-    kneeCap.scale.set(1, 1.1, 1.2);
+    // Knee Hinge Core
+    const kneeHinge = new THREE.Mesh(new THREE.SphereGeometry(0.082, 16, 16), this.matJoint);
+    kneeGroup.add(kneeHinge);
+
+    // Lateral Chrome Pivot Studs
+    const kneePins = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.19, 16), this.matChrome);
+    kneePins.rotation.z = Math.PI / 2;
+    kneeGroup.add(kneePins);
+
+    // Heavy Chrome Patellar Knee Cap
+    const kneeCapGeo = new THREE.SphereGeometry(0.088, 16, 16);
+    kneeCapGeo.scale(1.0, 1.15, 1.3);
+    const kneeCap = new THREE.Mesh(kneeCapGeo, this.matChrome);
+    kneeCap.position.set(0, 0, 0.025);
     kneeGroup.add(kneeCap);
 
-    // 4. Shin / Calf (Tibia with Sleek Calf Muscle Contour)
+    // Glowing Neon Energy Halo Ring on Knee Cap
+    const kneeHalo = new THREE.Mesh(new THREE.TorusGeometry(0.068, 0.012, 12, 24), this.matAccent);
+    kneeHalo.position.set(0, 0, 0.095);
+    kneeGroup.add(kneeHalo);
+
+    // 4. Shin & Calf Group (Tibia with Armor, Cooling Vents & Shocks)
     const calfGroup = new THREE.Group();
     kneeGroup.add(calfGroup);
 
-    const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.06, 0.46, 16), this.matChassis);
-    shin.position.set(0, -0.25, 0);
-    calfGroup.add(shin);
+    // Structural Tibia Cylinder
+    const shinCore = new THREE.Mesh(new THREE.CylinderGeometry(0.078, 0.062, 0.46, 16), this.matChassis);
+    shinCore.position.set(0, -0.25, 0);
+    calfGroup.add(shinCore);
 
-    // Front Shin Guard Plate
-    const shinGuard = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 0.06), this.matArmor);
-    shinGuard.position.set(0, -0.25, 0.06);
+    // Sculpted Front Shin Armor Plate
+    const shinGuard = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.40, 0.06), this.matArmor);
+    shinGuard.position.set(0, -0.25, 0.07);
     calfGroup.add(shinGuard);
 
-    // 5. Ankle Joint
+    // Glowing Shin Energy Conduit
+    const shinConduit = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.34, 0.015), this.matAccent);
+    shinConduit.position.set(0, -0.25, 0.102);
+    calfGroup.add(shinConduit);
+
+    // Rear Calf Mechanical Thruster Vents / Cooling Fins
+    const calfVents = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.24, 0.08), this.matArmor);
+    calfVents.position.set(0, -0.22, -0.065);
+    calfGroup.add(calfVents);
+
+    // Twin Posterior Chrome Suspension Struts
+    [-0.035, 0.035].forEach((sx) => {
+      const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.38, 12), this.matChrome);
+      strut.position.set(sx, -0.25, -0.04);
+      calfGroup.add(strut);
+    });
+
+    // 5. Dual-Axis Ankle Gimbal Joint
     const ankleGroup = new THREE.Group();
     ankleGroup.position.set(0, -0.50, 0);
     calfGroup.add(ankleGroup);
 
-    const ankleMesh = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), this.matJoint);
-    ankleGroup.add(ankleMesh);
+    const ankleBall = new THREE.Mesh(new THREE.SphereGeometry(0.062, 14, 14), this.matJoint);
+    ankleGroup.add(ankleBall);
 
-    // 6. Humanoid Foot / Cyber Boot planted on ground
+    const ankleRings = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.15, 16), this.matChrome);
+    ankleRings.rotation.z = Math.PI / 2;
+    ankleGroup.add(ankleRings);
+
+    // 6. Articulated Cyber Combat Boot Planted Firmly on Ground
     const footGroup = new THREE.Group();
-    footGroup.position.set(0, -0.06, 0.04);
+    footGroup.position.set(0, -0.06, 0.05);
+    // Slight heroic outward stance rotation
+    footGroup.rotation.y = isLeft ? 0.07 : -0.07;
     ankleGroup.add(footGroup);
 
-    // Boot Sole & Upper
-    const bootUpper = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.26), this.matArmor);
+    // Boot Upper Armor
+    const bootUpper = new THREE.Mesh(new THREE.BoxGeometry(0.155, 0.085, 0.28), this.matArmor);
     bootUpper.position.set(0, 0, 0.03);
     footGroup.add(bootUpper);
 
-    // Toe Cap
-    const toeCap = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.068, 0.14, 16), this.matChrome);
-    toeCap.rotation.z = Math.PI / 2;
-    toeCap.position.set(0, -0.01, 0.14);
-    footGroup.add(toeCap);
+    // Reinforced Chrome Toe Guard
+    const toeGuard = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.072, 0.145, 16), this.matChrome);
+    toeGuard.rotation.z = Math.PI / 2;
+    toeGuard.position.set(0, -0.01, 0.15);
+    footGroup.add(toeGuard);
 
-    // Glowing Cyber Tread on Sole
-    const sole = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.025, 0.28), this.matAccent);
-    sole.position.set(0, -0.045, 0.03);
+    // Rear Heel Chassis & Chrome Stabilizer Spur
+    const heelChassis = new THREE.Mesh(new THREE.BoxGeometry(0.135, 0.08, 0.10), this.matChassis);
+    heelChassis.position.set(0, 0, -0.08);
+    footGroup.add(heelChassis);
+
+    const heelSpur = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.04), this.matChrome);
+    heelSpur.position.set(0, -0.02, -0.13);
+    footGroup.add(heelSpur);
+
+    // Heavy Traction Ground Contact Sole Plate
+    const sole = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.03, 0.31), this.matChassis);
+    sole.position.set(0, -0.046, 0.04);
     footGroup.add(sole);
+
+    // Dual Glowing Neon Cyber Energy Treads on Sole
+    const soleTread = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.014, 0.32), this.matAccent);
+    soleTread.position.set(0, -0.054, 0.04);
+    footGroup.add(soleTread);
 
     return {
       group: legGroup,
@@ -798,15 +927,20 @@ class Robot3D {
     crest.position.set(-0.20, 0.28, 0.28);
     studentGroup.add(crest);
 
-    // Dark Uniform Pants Overlays
-    [-0.20, 0.20].forEach((px) => {
-      const pantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.48, 16), this.matSuitNavy);
+    // Dark Uniform Pants Overlays for Both Legs
+    [-0.22, 0.22].forEach((px) => {
+      const pantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.095, 0.46, 16), this.matSuitNavy);
       pantsThigh.position.set(px, -0.46, 0);
       studentGroup.add(pantsThigh);
 
-      const pantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.075, 0.48, 16), this.matSuitNavy);
-      pantsCalf.position.set(px, -0.95, 0);
+      const pantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.08, 0.48, 16), this.matSuitNavy);
+      pantsCalf.position.set(px, -0.96, 0);
       studentGroup.add(pantsCalf);
+
+      // Polished Black Formal Oxford Shoes
+      const dressShoe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.30), this.matChassis);
+      dressShoe.position.set(px, -1.26, 0.05);
+      studentGroup.add(dressShoe);
     });
 
     studentGroup.visible = false;
@@ -826,9 +960,9 @@ class Robot3D {
     badge.position.set(0.18, 0.28, 0.28);
     scientistGroup.add(badge);
 
-    // Smart Research Spectacles / Glasses on Face (attached to headGroup so they turn with gaze)
+    // Smart Research Spectacles / Glasses on Face
     const glassesGroup = new THREE.Group();
-    glassesGroup.position.set(0, 0.06, 0.50);
+    glassesGroup.position.set(0, 0.84, 0.54);
     [-0.18, 0.18].forEach((gx) => {
       const frame = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.012, 12, 24), this.matSpaceGold);
       frame.position.set(gx, 0, 0);
@@ -837,10 +971,23 @@ class Robot3D {
     const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.014, 0.02), this.matSpaceGold);
     bridge.position.set(0, 0, 0);
     glassesGroup.add(bridge);
+    scientistGroup.add(glassesGroup);
 
-    glassesGroup.visible = false;
-    if (this.headGroup) this.headGroup.add(glassesGroup);
-    this.scientistGlasses = glassesGroup;
+    // Formal Slate Tailored Trousers for Both Legs
+    [-0.22, 0.22].forEach((sx) => {
+      const labPantsThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.108, 0.092, 0.46, 16), this.matJoint);
+      labPantsThigh.position.set(sx, -0.46, 0);
+      scientistGroup.add(labPantsThigh);
+
+      const labPantsCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.092, 0.078, 0.48, 16), this.matJoint);
+      labPantsCalf.position.set(sx, -0.96, 0);
+      scientistGroup.add(labPantsCalf);
+
+      // Cleanroom White Anti-Static Lab Shoes
+      const cleanShoe = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.30), this.matLabCoat);
+      cleanShoe.position.set(sx, -1.26, 0.05);
+      scientistGroup.add(cleanShoe);
+    });
 
     scientistGroup.visible = false;
     this.wardrobeGroup.add(scientistGroup);
@@ -865,15 +1012,24 @@ class Robot3D {
     hoodCollar.rotation.x = Math.PI / 2.6;
     hoodieGroup.add(hoodCollar);
 
-    // Denim Tech Jeans Overlays
-    [-0.20, 0.20].forEach((jx) => {
-      const denim = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.095, 0.48, 16), this.matJeans);
-      denim.position.set(jx, -0.46, 0);
-      hoodieGroup.add(denim);
+    // Denim Tech Jeans Overlays for Both Legs
+    [-0.22, 0.22].forEach((jx) => {
+      const denimThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.115, 0.098, 0.46, 16), this.matJeans);
+      denimThigh.position.set(jx, -0.46, 0);
+      hoodieGroup.add(denimThigh);
 
-      const denimCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.095, 0.08, 0.48, 16), this.matJeans);
-      denimCalf.position.set(jx, -0.95, 0);
+      const denimCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.084, 0.48, 16), this.matJeans);
+      denimCalf.position.set(jx, -0.96, 0);
       hoodieGroup.add(denimCalf);
+
+      // Streetwear High-Top Sneaker
+      const sneaker = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.085, 0.31), this.matShirtWhite);
+      sneaker.position.set(jx, -1.26, 0.05);
+      hoodieGroup.add(sneaker);
+
+      const sneakerSole = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.02, 0.32), this.matAccent);
+      sneakerSole.position.set(jx, -1.30, 0.05);
+      hoodieGroup.add(sneakerSole);
     });
 
     hoodieGroup.visible = false;
@@ -906,6 +1062,28 @@ class Robot3D {
     backpack.position.set(0, 0.22, -0.23);
     astroGroup.add(backpack);
 
+    // Pressurized Space Suit Legs for Both Legs
+    [-0.22, 0.22].forEach((ax) => {
+      const astroThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.105, 0.46, 16), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }));
+      astroThigh.position.set(ax, -0.46, 0);
+      astroGroup.add(astroThigh);
+
+      // Gold Knee Compression Joint Ring
+      const kneeRing = new THREE.Mesh(new THREE.TorusGeometry(0.105, 0.016, 12, 24), this.matSpaceGold);
+      kneeRing.rotation.x = Math.PI / 2;
+      kneeRing.position.set(ax, -0.70, 0);
+      astroGroup.add(kneeRing);
+
+      const astroCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.09, 0.48, 16), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.3 }));
+      astroCalf.position.set(ax, -0.96, 0);
+      astroGroup.add(astroCalf);
+
+      // Heavy Cosmic Moon Boots
+      const moonBoot = new THREE.Mesh(new THREE.BoxGeometry(0.175, 0.09, 0.32), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.2 }));
+      moonBoot.position.set(ax, -1.26, 0.05);
+      astroGroup.add(moonBoot);
+    });
+
     astroGroup.visible = false;
     this.wardrobeGroup.add(astroGroup);
     this.outfitMeshes["astronaut"] = astroGroup;
@@ -930,10 +1108,6 @@ class Robot3D {
       this.outfitMeshes[outfitKey].visible = true;
     }
 
-    if (this.scientistGlasses) {
-      this.scientistGlasses.visible = (outfitKey === "scientist");
-    }
-
     // Play transformation SFX
     if (window.AudioEngine) {
       if (window.AudioEngine.playChime) window.AudioEngine.playChime();
@@ -943,7 +1117,7 @@ class Robot3D {
 
   buildHoloPlatform() {
     this.holoStage = new THREE.Group();
-    this.holoStage.position.set(0, -1.24, 0);
+    this.holoStage.position.set(0, -1.33, 0);
 
     // Main Hologram Projector Ring
     const baseDisk = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.05, 0.06, 36), this.matChassis);
@@ -958,6 +1132,14 @@ class Robot3D {
     innerGlowRing.rotation.x = Math.PI / 2;
     innerGlowRing.position.set(0, 0.036, 0);
     this.holoStage.add(innerGlowRing);
+
+    // Dual Foot Contact Target Rings directly beneath each foot
+    [-0.22, 0.22].forEach((fx) => {
+      const footTarget = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.012, 12, 24), this.matAccent);
+      footTarget.rotation.x = Math.PI / 2;
+      footTarget.position.set(fx, 0.037, 0.05);
+      this.holoStage.add(footTarget);
+    });
 
     this.scene.add(this.holoStage);
   }
@@ -997,55 +1179,38 @@ class Robot3D {
     } else if (actionName === "salute") {
       this.setExpression("idle");
       if (window.AudioEngine) {
-        window.AudioEngine.playHydraulicClick();
-        window.AudioEngine.speak("Reporting for duty! System operational and ready!");
+        window.AudioEngine.playServoHum();
+        window.AudioEngine.speak("Standing at attention! System fully operational!");
       }
     }
   }
 
   spawnHeartParticles() {
-    // Generate floating 3D hearts that float outward toward camera
-    for (let i = 0; i < 6; i++) {
-      const heartShape = new THREE.Shape();
-      const x = 0, y = 0;
-      heartShape.moveTo(x + 0.05, y + 0.05);
-      heartShape.bezierCurveTo(x + 0.05, y + 0.05, x + 0.04, y, x, y);
-      heartShape.bezierCurveTo(x - 0.06, y, x - 0.06, y + 0.07, x - 0.06, y + 0.07);
-      heartShape.bezierCurveTo(x - 0.06, y + 0.11, x - 0.03, y + 0.154, x + 0.05, y + 0.19);
-      heartShape.bezierCurveTo(x + 0.12, y + 0.154, x + 0.16, y + 0.11, x + 0.16, y + 0.07);
-      heartShape.bezierCurveTo(x + 0.16, y + 0.07, x + 0.16, y, x + 0.10, y);
-      heartShape.bezierCurveTo(x + 0.07, y, x + 0.05, y + 0.05, x + 0.05, y + 0.05);
-
-      const geom = new THREE.ShapeGeometry(heartShape);
-      const heart = new THREE.Mesh(geom, this.matHeart);
-      heart.rotation.z = Math.PI;
-      heart.scale.set(0.6, 0.6, 0.6);
-      heart.position.set(
-        (Math.random() - 0.5) * 0.25,
-        0.58 + (Math.random() - 0.5) * 0.2,
-        0.5 + Math.random() * 0.2
-      );
+    for (let i = 0; i < 7; i++) {
+      const heartGeo = new THREE.SphereGeometry(0.045, 12, 12);
+      heartGeo.scale(1.1, 1.2, 0.6);
+      const heart = new THREE.Mesh(heartGeo, this.matHeart);
+      heart.position.set(0.1 + (Math.random() - 0.5) * 0.15, 0.6 + Math.random() * 0.2, 0.5);
       heart.userData = {
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: 0.3 + Math.random() * 0.3,
-        vz: 0.6 + Math.random() * 0.6,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: 0.35 + Math.random() * 0.45,
+        vz: 0.6 + Math.random() * 0.5,
         life: 1.0
       };
-
-      this.scene.add(heart);
       this.heartParticles.push(heart);
+      this.scene.add(heart);
     }
   }
 
-  // --- CURSOR ZOOM & 360-DEGREE DRAG ORBIT ---
+  // --- CURSOR ORBIT, DRAG & ZOOM CONTROLS ---
 
   setupInteractions() {
-    // 1. Mouse Drag to Orbit (360 Degrees)
+    // 1. Mouse Drag to Orbit 360-Degrees Around Humanoid Model
     this.container.addEventListener("mousedown", (e) => {
       this.isDragging = true;
       this.previousMousePosition = { x: e.clientX, y: e.clientY };
 
-      // Check if user clicked during high-five
+      // High-five clap interaction if in hifi action mode
       if (this.isHifiReady) {
         this.triggerHighFiveClap();
       }
@@ -1060,9 +1225,11 @@ class Robot3D {
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
+      // Normalized coordinates (-1 to +1) for Head Inverse Kinematics
       this.mouse.targetX = (x / rect.width) * 2 - 1;
       this.mouse.targetY = -(y / rect.height) * 2 + 1;
 
+      // Orbit Dragging
       if (this.isDragging) {
         const deltaX = e.clientX - this.previousMousePosition.x;
         const deltaY = e.clientY - this.previousMousePosition.y;
@@ -1082,8 +1249,8 @@ class Robot3D {
       e.preventDefault();
       const zoomDelta = e.deltaY * 0.0025;
       this.targetCameraDistance += zoomDelta;
-      // Clamp zoom limits: close macro inspection (1.6) to wide full view (6.2)
-      this.targetCameraDistance = Math.max(1.6, Math.min(6.2, this.targetCameraDistance));
+      // Clamp zoom limits: close macro inspection (1.6) to wide full view (6.5)
+      this.targetCameraDistance = Math.max(1.6, Math.min(6.5, this.targetCameraDistance));
     }, { passive: false });
 
     // Double-click to reset view
@@ -1108,18 +1275,23 @@ class Robot3D {
   }
 
   resetCameraView() {
-    this.targetCameraDistance = 4.2;
-    this.targetRotationX = 0.05;
+    this.targetCameraDistance = 4.85;
+    this.targetRotationX = 0.08;
     this.targetRotationY = 0;
-    this.cameraLookTarget.set(0, 0.1, 0);
+    this.cameraLookTarget.set(0, -0.05, 0);
   }
 
   setCameraView(mode) {
     if (mode === "command" || mode === "full") {
-      this.targetCameraDistance = 4.2;
-      this.targetRotationX = 0.05;
+      this.targetCameraDistance = 4.85;
+      this.targetRotationX = 0.08;
       this.targetRotationY = 0;
-      this.cameraLookTarget.set(0, 0.1, 0);
+      this.cameraLookTarget.set(0, -0.05, 0);
+    } else if (mode === "legs") {
+      this.targetCameraDistance = 2.4;
+      this.targetRotationX = -0.05;
+      this.targetRotationY = 0;
+      this.cameraLookTarget.set(0, -0.72, 0);
     } else if (mode === "eyes") {
       this.targetCameraDistance = 1.9;
       this.targetRotationX = 0.0;
@@ -1131,6 +1303,20 @@ class Robot3D {
       this.targetRotationY = 0;
       this.cameraLookTarget.set(0, 0.05, 0);
     }
+  }
+
+  toggleOrbit() {
+    this.isOrbiting = !this.isOrbiting;
+    if (!this.isOrbiting) {
+      this.resetCameraView();
+    }
+    return this.isOrbiting;
+  }
+
+  toggleHoloStage() {
+    this.holoStageVisible = !this.holoStageVisible;
+    if (this.holoStage) this.holoStage.visible = this.holoStageVisible;
+    return this.holoStageVisible;
   }
 
   pokeRobot() {
@@ -1146,30 +1332,35 @@ class Robot3D {
 
   setExpression(expr) {
     this.expression = expr;
-    const p = this.themes[this.currentTheme];
+    if (!this.leftBrow || !this.rightBrow) return;
 
     if (expr === "happy") {
-      this.matPupil.color.setHex(0x22c55e); // Bright emerald
-      if (this.leftBrow) this.leftBrow.rotation.z = -0.25;
-      if (this.rightBrow) this.rightBrow.rotation.z = 0.25;
+      this.leftBrow.rotation.z = -0.22;
+      this.rightBrow.rotation.z = 0.22;
+      this.leftBrow.position.y = 0.24;
+      this.rightBrow.position.y = 0.24;
+    } else if (expr === "surprised") {
+      this.leftBrow.rotation.z = 0.0;
+      this.rightBrow.rotation.z = 0.0;
+      this.leftBrow.position.y = 0.28;
+      this.rightBrow.position.y = 0.28;
     } else if (expr === "thinking") {
-      this.matPupil.color.setHex(0xf59e0b); // Amber
-      if (this.leftBrow) this.leftBrow.rotation.z = 0.20;
-      if (this.rightBrow) this.rightBrow.rotation.z = -0.20;
-    } else if (expr === "speaking") {
-      this.matPupil.color.setHex(p.pupilColor);
-      if (this.speechLED) this.speechLED.material.emissiveIntensity = 1.8;
+      this.leftBrow.rotation.z = -0.32;
+      this.rightBrow.rotation.z = 0.08;
+      this.leftBrow.position.y = 0.22;
+      this.rightBrow.position.y = 0.26;
     } else {
-      this.matPupil.color.setHex(p.pupilColor);
-      if (this.leftBrow) { this.leftBrow.rotation.z = -0.10; }
-      if (this.rightBrow) { this.rightBrow.rotation.z = 0.10; }
-      if (this.speechLED) this.speechLED.material.emissiveIntensity = 0.9;
+      // Idle
+      this.leftBrow.rotation.z = -0.1;
+      this.rightBrow.rotation.z = 0.1;
+      this.leftBrow.position.y = 0.20;
+      this.rightBrow.position.y = 0.20;
     }
   }
 
-  triggerOverdrive(duration = 2500) {
+  triggerOverdrive(duration = 3500) {
     this.isOverdrive = true;
-    this.setExpression("thinking");
+    this.setExpression("surprised");
     setTimeout(() => {
       this.isOverdrive = false;
       this.setExpression("idle");
@@ -1206,6 +1397,9 @@ class Robot3D {
     const time = this.clock.getElapsedTime();
 
     // 1. Camera Orbit & Zoom Update
+    if (this.isOrbiting) {
+      this.targetRotationY += delta * 0.45;
+    }
     this.updateCameraPosition();
 
     // 2. Mouse Damping for head IK
@@ -1242,16 +1436,50 @@ class Robot3D {
       }
     }
 
-    // 4. Subtle Humanoid Breathing & Idle Weight Shifting
+    // 4. Subtle Humanoid Breathing & Idle Weight Shifting on Two Legs
     if (this.robotGroup) {
       const breath = Math.sin(time * 2.0) * 0.015;
       if (this.torsoGroup) this.torsoGroup.position.y = 0.15 + breath;
       if (this.headGroup) this.headGroup.position.y = 0.78 + breath;
 
-      // Subtle weight shift between left and right foot
-      if (this.leftLeg && this.rightLeg) {
-        this.leftLeg.thigh.rotation.z = Math.sin(time * 1.2) * 0.02;
-        this.rightLeg.thigh.rotation.z = -Math.sin(time * 1.2) * 0.02;
+      if (this.isPoked) {
+        // Joyful bounce on legs
+        const pokeBounce = Math.abs(Math.sin(time * 10)) * 0.08;
+        this.robotGroup.position.y = pokeBounce;
+        if (this.leftLeg && this.rightLeg) {
+          this.leftLeg.knee.rotation.x = pokeBounce * 1.8;
+          this.rightLeg.knee.rotation.x = pokeBounce * 1.8;
+        }
+      } else {
+        this.robotGroup.position.y = 0;
+
+        // Subtle realistic weight shift between left and right leg
+        if (this.leftLeg && this.rightLeg) {
+          if (this.currentAction === "salute") {
+            // Standing rigid at attention
+            this.leftLeg.thigh.rotation.z = 0;
+            this.rightLeg.thigh.rotation.z = 0;
+            this.leftLeg.thigh.rotation.x = 0;
+            this.rightLeg.thigh.rotation.x = 0;
+            this.leftLeg.knee.rotation.x = 0;
+            this.rightLeg.knee.rotation.x = 0;
+          } else if (this.currentAction === "hifi") {
+            // Braced athletic stance
+            this.leftLeg.thigh.rotation.x = 0.10;
+            this.leftLeg.knee.rotation.x = -0.12;
+            this.rightLeg.thigh.rotation.x = -0.06;
+            this.rightLeg.knee.rotation.x = 0.06;
+          } else {
+            // Natural idle breathing weight shift
+            const shift = Math.sin(time * 1.5);
+            this.leftLeg.thigh.rotation.z = shift * 0.022;
+            this.rightLeg.thigh.rotation.z = -shift * 0.022;
+            this.leftLeg.thigh.rotation.x = shift * 0.018;
+            this.rightLeg.thigh.rotation.x = -shift * 0.018;
+            this.leftLeg.knee.rotation.x = Math.max(0, -shift * 0.025);
+            this.rightLeg.knee.rotation.x = Math.max(0, shift * 0.025);
+          }
+        }
       }
     }
 
@@ -1265,25 +1493,27 @@ class Robot3D {
     if (this.leftArm && this.rightArm) {
       if (this.currentAction === "hello") {
         this.actionTimer += delta;
-        // Right hand waves high
-        this.rightArm.upperArm.rotation.z = -1.15;
-        this.rightArm.upperArm.rotation.x = 0.35;
+        // Warm waving gesture
+        this.rightArm.upperArm.rotation.z = -1.1;
+        this.rightArm.upperArm.rotation.x = 0.3;
         this.rightArm.forearm.rotation.x = -1.8;
         this.rightArm.hand.rotation.x = 0.5;
-        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 10) * 0.45;
+        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 9) * 0.45;
 
-        if (this.actionTimer > 3.0) {
+        if (this.actionTimer > 2.5) {
           this.currentAction = null;
           this.setExpression("idle");
         }
       } else if (this.currentAction === "bye") {
         this.actionTimer += delta;
-        // Gentle farewell sway
-        this.rightArm.upperArm.rotation.z = -1.0;
-        this.rightArm.forearm.rotation.x = -1.5;
-        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 4) * 0.3;
+        // Gentle farewell wave
+        this.rightArm.upperArm.rotation.z = -0.9;
+        this.rightArm.upperArm.rotation.x = 0.2;
+        this.rightArm.forearm.rotation.x = -1.6;
+        this.rightArm.hand.rotation.x = 0.4;
+        this.rightArm.hand.rotation.y = Math.sin(this.actionTimer * 5) * 0.35;
 
-        if (this.actionTimer > 3.0) {
+        if (this.actionTimer > 2.5) {
           this.currentAction = null;
           this.setExpression("idle");
         }
