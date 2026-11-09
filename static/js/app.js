@@ -353,25 +353,21 @@ document.addEventListener("DOMContentLoaded", () => {
       const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
       updateLatencyBadge(elapsed, "Autonomous Local Engine");
 
-      const fallbackMsg = `### 🎓 Concept Breakdown: ${escapeHtml(text)}
+      const fallbackMsg = `### 📚 Concept Overview: ${escapeHtml(text)}
 
-#### 📌 Overview & Core Principle
-In ${state.subject}, mastering **${escapeHtml(text)}** begins with first-principles decomposition. Every complex theorem is built upon elementary foundations and boundary constraints.
+#### 📌 Academic Summary
+In **${state.subject}**, analyzing **${escapeHtml(text)}** involves examining its core theoretical rules, foundational definitions, and practical problem-solving methods.
 
-#### 📐 Analytical Formulation
-$$\\lim_{x \\to a} f(x) = L \\quad \\text{or fundamental equilibrium relations}$$
+#### 🔬 Step-by-Step Analytical Breakdown
+1. **Identify First Principles**: Determine the underlying physical, mathematical, or algorithmic laws governing the question.
+2. **Apply Domain Rules**: Evaluate governing formulas or logical steps specific to this concept.
+3. **Validate Units & Boundary Conditions**: Verify that the solution is physically and logically consistent under edge conditions.
 
-#### 🔬 Step-by-Step Problem Solving Framework
-1. **Identify Given Variables**: Separate known constants from target unknowns.
-2. **Select Governing Laws**: State conservation principles or algorithmic invariants.
-3. **Dimensional Consistency**: Verify that units balance on both sides of the equality.
-4. **Edge Case Analysis**: Test boundary conditions ($t=0$, $x \\to \\infty$).
-
-#### 💡 Student Intuition
-Think of this like troubleshooting code or solving a puzzle: if your base case is unproven, the entire recursive stack falls apart.
+#### 💡 Student Mental Model
+Build your understanding like an architectural blueprint: master the foundational premise first, and the higher-level applications follow naturally.
 
 #### ⚠️ High-Frequency Exam Trap
-Avoid skipping steps! Most lost marks occur during elementary algebraic manipulation rather than conceptual misunderstanding.`;
+Always double check your starting assumptions and avoid skipping algebraic or logical verification steps!`;
 
       const botMsgElement = appendMessage("bot", "");
       streamTextToElement(botMsgElement, markedParse(fallbackMsg), () => {
