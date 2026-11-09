@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Abhi • 3D Robot System & Educational AI Companion</title>
+  
+  <!-- KaTeX for Rigorous Mathematical Equations -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Three.js 3D WebGL Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Robot System Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="theme-cyber">
+  <div class="app-shell">
+    <!-- Top Mecha Navigation Bar -->
+    <header class="robot-header">
+      <div class="brand-badge">
+        <span class="brand-title">Chatbot Abhi</span>
+        <span class="system-tag">Student Project by Abhi</span>
+      </div>
+
+      <!-- Theme Switcher -->
+      <div class="theme-selector" title="Switch 3D Robot System Theme">
+        <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); margin-right: 4px;">THEME:</span>
+        <div class="theme-pill active" data-theme="cyber_cyan" title="Cyber Cyan Mecha"></div>
+        <div class="theme-pill" data-theme="amber_hazard" title="Amber Industrial"></div>
+        <div class="theme-pill" data-theme="quantum_violet" title="Quantum Void"></div>
+        <div class="theme-pill" data-theme="cleanroom_white" title="Cleanroom White"></div>
+      </div>
+
+      <!-- Center Telemetry & Pomodoro Widget -->
+      <div class="header-telemetry">
+        <div class="pomo-widget">
+          <span>⏱️ FOCUS:</span>
+          <span id="pomo-display" class="pomo-time">25:00</span>
+          <button id="pomo-toggle" class="pomo-btn">▶ START</button>
+          <button id="pomo-reset" class="pomo-btn">↺</button>
+        </div>
+
+        <div style="font-size: 12px; font-family: var(--font-mono); display: flex; gap: 10px;">
+          <span>🔥 <strong id="streak-counter" style="color: var(--accent);">4 Days</strong></span>
+          <span>⚡ <strong id="xp-counter" style="color: var(--accent);">120 XP</strong></span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="sound-toggle-btn" class="btn-sm active" title="Robot Servo & Audio SFX: ON">🔊 SFX</button>
+        <button id="voice-toggle-btn" class="btn-sm" title="Speech Synthesis (TTS): OFF">🗣️ VOICE</button>
+        <button id="notes-toggle-btn" class="btn-sm">🎒 NOTES</button>
+        <button id="maker-notes-btn" class="btn-sm">🛠️ SYSTEM</button>
+      </div>
+    </header>
+
+    <!-- Main Viewport: 3D Robot HUD + Study Terminal -->
+    <main class="main-stage-split">
+      <!-- Left: 3D Robot System Stage -->
+      <section class="robot-hud-stage">
+        <!-- Telemetry Badges (Top Left) -->
+        <div class="hud-top-telemetry">
+          <div class="hud-telemetry-badge">
+            <span class="hud-pulse"></span>
+            <span>SYSTEM STATUS: OPERATIONAL</span>
+          </div>
+          <div class="hud-telemetry-badge" style="font-size: 10px;">
+            <span>IK TRACKING: ACTIVE // GYRO: SYNCED</span>
+          </div>
+        </div>
+
+        <!-- Subsystem Diagnostics (Top Right) -->
+        <div class="hud-subsystems">
+          <div class="subsystem-node">CORE REACTOR: <span>98.4%</span></div>
+          <div class="subsystem-node">VISION SENSORS: <span>ONLINE</span></div>
+          <div class="subsystem-node">KINEMATICS: <span>CALIBRATED</span></div>
+          <div class="subsystem-node">ION THRUSTER: <span>NOMINAL</span></div>
+        </div>
+
+        <!-- Three.js 3D Canvas -->
+        <div id="robot-viewport"></div>
+
+        <!-- Robot HUD Interactive Controls -->
+        <div class="hud-bottom-bar">
+          <button class="hud-btn overdrive-btn" id="overdrive-btn" title="Trigger high-speed thinking mode">⚡ OVERDRIVE</button>
+          <button class="hud-btn" id="cam-command-btn">🎥 COMMAND</button>
+          <button class="hud-btn" id="cam-core-btn">🔍 CORE VIEW</button>
+          <button class="hud-btn" onclick="window.robotInstance.pokeRobot()">👋 HIGH FIVE</button>
+          <button class="hud-btn" onclick="window.robotInstance.pokeRobot()">🔄 SPIN</button>
+        </div>
+      </section>
+
+      <!-- Right: AI Study & Tutoring Terminal -->
+      <section class="study-terminal">
+        <!-- Terminal Header: Subjects & ELI5 Switch -->
+        <div class="terminal-nav">
+          <div class="subject-tabs">
+            <button class="subject-pill active" data-subject="General">🌐 ALL DISCIPLINES</button>
+            <button class="subject-pill" data-subject="Mathematics">📐 MATHEMATICS</button>
+            <button class="subject-pill" data-subject="Physics">⚛️ PHYSICS</button>
+            <button class="subject-pill" data-subject="Computer Science">💻 COMP SCI</button>
+            <button class="subject-pill" data-subject="Biology">🧬 BIOLOGY</button>
+            <button class="subject-pill" data-subject="Chemistry">🧪 CHEMISTRY</button>
+            <button class="subject-pill" data-subject="Study Strategy">📝 STRATEGY</button>
+          </div>
+
+          <div class="eli5-control" title="Explain Like I'm 5 (Intuitive Student Analogies)">
+            <span>ELI5</span>
+            <label class="switch">
+              <input type="checkbox" id="eli5-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Chat Log Stream -->
+        <div id="chat-messages" class="terminal-chat">
+          <div class="message bot-message">
+            <div class="avatar bot-avatar">🤖</div>
+            <div class="message-bubble">
+              <div class="sender-tag">
+                <span class="sender-name">Chatbot Abhi // AI System</span>
+                <span style="color: var(--text-dim); font-size: 10px;">[AUTONOMOUS CORE ONLINE]</span>
+              </div>
+              <div class="message-content">
+                <div class="topic-header">
+                  <span class="badge accuracy-badge">✓ Sub-10ms Verified</span>
+                  <h3>System Initialized: Greetings from Chatbot Abhi! 👋</h3>
+                </div>
+                <p>I am <strong>Chatbot Abhi</strong>, an interactive 3D robot system engineered by Abhijeeth for deep learning and high-accuracy academic problem solving.</p>
+                <br>
+                <div class="analogy-box">
+                  <div class="box-title">⚡ Robotic System Capabilities:</div>
+                  <ul style="padding-left: 20px; margin-top: 6px;">
+                    <li><strong>3D Robot System:</strong> Procedural mecha geometry, dual gyroscope rings, dynamic canvas visor, and inverse kinematics cursor tracking.</li>
+                    <li><strong>Sub-10ms Solving Engine:</strong> Step-by-step mathematical proofs with KaTeX and zero API lag.</li>
+                    <li><strong>Multi-Palette Theming:</strong> Switch between Cyber Cyan, Amber Industrial, Quantum Void, and Cleanroom White.</li>
+                    <li><strong>Active Recall Testing:</strong> Built-in quizzes to test your exam readiness on any STEM concept.</li>
+                  </ul>
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-dim); margin-top: 8px;">Select a subject module or click a quick prompt below to begin!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Prompts Bar -->
+        <div class="quick-prompts-row">
+          <button class="quick-prompt" data-prompt="Explain Derivatives and the Chain Rule in Calculus">📐 Chain Rule</button>
+          <button class="quick-prompt" data-prompt="How does Newton's Third Law work? Give me an analogy">⚛️ Newton's 3rd Law</button>
+          <button class="quick-prompt" data-prompt="Why is QuickSort average O(n log n) but worst-case O(n^2)?">💻 QuickSort Proof</button>
+          <button class="quick-prompt" data-prompt="How does DNA Polymerase replicate DNA?">🧬 DNA Replication</button>
+          <button class="quick-prompt" data-prompt="What is Gibbs Free Energy and spontaneity?">🧪 Gibbs Free Energy</button>
+          <button class="quick-prompt" data-prompt="Explain the Feynman Technique for exam revision">🧠 Feynman Technique</button>
+        </div>
+
+        <!-- Input Console -->
+        <div class="terminal-input-bar">
+          <div class="input-box">
+            <button id="mic-btn" class="input-icon-btn" title="Speak via microphone">🎤</button>
+            <input type="text" id="chat-input" placeholder="Query the academic core... (e.g. 'Derive Chain Rule' or 'Newton's laws')" autocomplete="off">
+            <button id="send-btn" class="send-action-btn" title="Send Query">➔</button>
+          </div>
+
+          <div class="telemetry-footer">
+            <div id="latency-badge">⚡ <strong>1.8 ms</strong> • Robot Core Synchronized</div>
+            <div>Engineering Student Project • Sub-10ms Verified</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Study Notes Drawer -->
+    <div id="notes-drawer" class="drawer">
+      <div class="drawer-header">
+        <h3 style="font-family: var(--font-mono); color: var(--accent);">🎒 SAVED REVISION NOTES</h3>
+        <button id="close-notes-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="drawer-content">
+        <div id="notes-list"></div>
+      </div>
+    </div>
+
+    <!-- Active Recall Quiz Modal -->
+    <div id="quiz-modal" class="modal-backdrop">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <h3 style="font-family: var(--font-mono); color: var(--accent);">🎯 KNOWLEDGE CHECK</h3>
+          <button id="close-quiz-btn" class="close-btn">&times;</button>
+        </div>
+        <div id="quiz-container"></div>
+      </div>
+    </div>
+
+    <!-- Maker Notes Modal -->
+    <div id="maker-modal" class="modal-backdrop">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <h3 style="font-family: var(--font-mono); color: var(--accent);">🛠️ ROBOT SYSTEM ARCHITECTURE</h3>
+          <button id="close-maker-btn" class="close-btn">&times;</button>
+        </div>
+        <div style="font-size: 13px; line-height: 1.6; color: #cbd5e1; font-family: var(--font-mono);">
+          <p><strong>System Identification:</strong> Chatbot Abhi (3D Robot System)</p>
+          <p><strong>Creator &amp; Lead Engineer:</strong> Abhijeeth V S</p>
+          <br>
+          <p><strong>Architecture Highlights:</strong></p>
+          <ul style="padding-left: 20px; margin-top: 6px;">
+            <li><strong>Procedural Mecha Assembly:</strong> 3D meshes generated purely via Three.js primitives and custom shaders with zero external downloads.</li>
+            <li><strong>Inverse Kinematics Tracking:</strong> Spring-damped vector projection following cursor coordinates in real-time.</li>
+            <li><strong>Dynamic Canvas Visor:</strong> High-resolution 2D canvas texture with scanline rasterization mapped onto 3D curved visor mesh.</li>
+            <li><strong>Sub-10ms Inference Core:</strong> High-precision STEM academic knowledge graph delivering answers under 10ms.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/knowledge.js"></script>
+  <script src="/static/js/audio.js"></script>
+  <script src="/static/js/mathgraph.js"></script>
+  <script src="/static/js/robot3d.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

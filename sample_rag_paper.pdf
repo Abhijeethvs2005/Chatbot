@@ -1,0 +1,53 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page
+   /Parent 2 0 R
+   /MediaBox [0 0 612 792]
+   /Contents 5 0 R
+   /Resources << /Font << /F1 4 0 R >> >>
+>>
+endobj
+4 0 obj
+<< /Type /Font
+   /Subtype /Type1
+   /BaseFont /Helvetica
+>>
+endobj
+5 0 obj
+<< /Length 524 >>
+stream
+BT
+/F1 14 Tf
+50 720 Td
+(Artificial Intelligence and Retrieval-Augmented Generation) Tj
+0 -30 Td
+/F1 11 Tf
+(Retrieval-Augmented Generation RAG combines information retrieval with language models.) Tj
+0 -20 Td
+(Vector databases like PostgreSQL with pgvector store embeddings of document chunks.) Tj
+0 -20 Td
+(HNSW indexes allow rapid approximate nearest neighbor search across high-dimensional vectors.) Tj
+0 -20 Td
+(When a user poses a question, semantic search identifies relevant excerpts and passes them to the LLM.) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000010 00000 n 
+0000000060 00000 n 
+0000000117 00000 n 
+0000000247 00000 n 
+0000000325 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+954
+%%EOF

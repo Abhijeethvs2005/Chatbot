@@ -1,0 +1,110 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    name: Backend Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rag_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Byte-compile & Syntax Check
+        run: |
+          python -m py_compile backend/main.py main.py test_all.py test_pipeline.py test_run.py evaluate_rag.py benchmark_search.py
+
+      - name: Start FastAPI Test Server in Background
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/rag_db
+          OPENAI_API_KEY: sk-mock-ci-test-key-for-automated-pipeline
+          MOCK_MODE: "true"
+        run: |
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 4
+          curl --retry 5 --retry-connrefused --retry-delay 1 http://localhost:8000/health
+
+      - name: Run End-to-End Integration Tests
+        run: |
+          python test_all.py
+
+      - name: Run RAG Quality & Citation Evaluation Benchmark
+        run: |
+          python evaluate_rag.py
+
+  docker-build:
+    name: Docker Compose Build Verification
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validate Compose Specification
+        run: |
+          docker compose config
+
+      - name: Build Multi-Container Images
+        env:
+          OPENAI_API_KEY: sk-mock-ci-build-key
+        run: |
+          docker compose build
+
+  deploy:
+    name: Continuous Deployment to Cloud Server
+    runs-on: ubuntu-latest
+    needs: [test, docker-build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy via SSH to Production Server
+        if: ${{ env.HAS_SECRETS == 'true' }}
+        env:
+          HAS_SECRETS: ${{ secrets.SERVER_HOST != '' && secrets.SSH_PRIVATE_KEY != '' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER || 'root' }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd /opt/rag-chatbot || cd ~/Chatbot || cd /root/Chatbot
+            git pull origin main
+            docker compose up --build -d
+
+

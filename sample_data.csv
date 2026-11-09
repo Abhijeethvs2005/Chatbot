@@ -1,0 +1,6 @@
+tool,category,performance
+pgvector,vector_db,sub-millisecond
+PostgreSQL,relational_db,high-throughput
+FastAPI,api_framework,asynchronous
+OpenAI,llm_provider,frontier-model
+
