@@ -2658,26 +2658,26 @@ class Robot3D {
 
       if (this.currentAction === "hello") {
         this.actionTimer += delta;
-        // Step-by-Step Action:
-        // Step 1 (0.0s - 0.6s): Right hand comes up over the right arm
-        // Step 2 (0.6s - 2.6s): Raised hand waves side-to-side over the right arm
+        // Step-by-Step Action (OUTSIDE the body):
+        // Step 1 (0.0s - 0.6s): Right hand comes up over the right arm outside the body
+        // Step 2 (0.6s - 2.6s): Raised hand waves side-to-side over the right arm outside the body
         // Step 3 (2.6s - 3.2s): Smoothly lowers arm back to idle ready stance
         if (this.actionTimer < 0.6) {
-          // Phase 1: Bringing right hand up over right arm
-          targetRight.upper = { x: 0.21, y: 0.05, z: -2.07 };
-          targetRight.fore = { x: 0.11, y: 0.15, z: -1.93 };
-          targetRight.hand = { x: 0.28, y: 0.14, z: 0.85 };
+          // Phase 1: Bringing right hand up over right arm OUTSIDE the body
+          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 };
+          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 };
+          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 };
           rightFingersTarget = -0.02;
           targetHead.z = 0.08;
           targetHead.x = -0.04;
         } else if (this.actionTimer < 2.6) {
-          // Phase 2: Hand is over right arm — WAVE IT side-to-side!
-          const wave = Math.sin((this.actionTimer - 0.6) * 7.0) * 0.38;
-          targetRight.upper = { x: 0.21, y: 0.05, z: -2.07 };
-          targetRight.fore = { x: 0.11, y: 0.15, z: -1.93 + wave * 0.18 };
-          targetRight.hand = { x: 0.28, y: 0.14, z: 0.85 + wave };
+          // Phase 2: Hand is over right arm OUTSIDE the body — WAVE IT side-to-side!
+          const wave = Math.sin((this.actionTimer - 0.6) * 7.0) * 0.35;
+          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 };
+          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 + wave * 0.15 };
+          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 + wave };
           rightFingersTarget = -0.02; // Open flat waving hand
-          targetHead.z = 0.10 + wave * 0.05;
+          targetHead.z = 0.10 + wave * 0.04;
           targetHead.x = -0.04;
         } else {
           // Phase 3: Lowering arm smoothly back to idle
@@ -2686,29 +2686,29 @@ class Robot3D {
           }
         }
 
-        // Left arm relaxed supportive posture
-        targetLeft.upper = { x: 0.15, y: 0.0, z: 0.16 };
-        targetLeft.fore = { x: -0.90, y: 0.35, z: 0.0 };
-        targetLeft.hand = { x: -0.15, y: 0.25, z: 0.0 };
+        // Left arm relaxed supportive posture outside body
+        targetLeft.upper = { x: 0.15, y: 0.0, z: -0.16 };
+        targetLeft.fore = { x: -0.90, y: -0.35, z: 0.0 };
+        targetLeft.hand = { x: -0.15, y: -0.25, z: 0.0 };
       } else if (this.currentAction === "bye") {
         this.actionTimer += delta;
-        // Step-by-Step Action (same as hello):
-        // Step 1 (0.0s - 0.6s): Right hand comes up over the right arm
-        // Step 2 (0.6s - 2.6s): Raised hand waves farewell over the right arm
+        // Step-by-Step Action (OUTSIDE the body):
+        // Step 1 (0.0s - 0.6s): Right hand comes up over the right arm outside the body
+        // Step 2 (0.6s - 2.6s): Raised hand waves farewell over the right arm outside the body
         // Step 3 (2.6s - 3.2s): Smoothly lowers arm back to idle ready stance
         if (this.actionTimer < 0.6) {
-          // Phase 1: Hand comes up over right arm
-          targetRight.upper = { x: 0.21, y: 0.05, z: -2.07 };
-          targetRight.fore = { x: 0.11, y: 0.15, z: -1.93 };
-          targetRight.hand = { x: 0.28, y: 0.14, z: 0.85 };
+          // Phase 1: Hand comes up over right arm outside the body
+          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 };
+          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 };
+          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 };
           rightFingersTarget = -0.02;
           targetHead.z = -0.08;
         } else if (this.actionTimer < 2.6) {
-          // Phase 2: Wave it farewell over right arm!
-          const byeWave = Math.sin((this.actionTimer - 0.6) * 5.0) * 0.35;
-          targetRight.upper = { x: 0.21, y: 0.05, z: -2.07 };
-          targetRight.fore = { x: 0.11, y: 0.15, z: -1.93 + byeWave * 0.18 };
-          targetRight.hand = { x: 0.28, y: 0.14, z: 0.85 + byeWave };
+          // Phase 2: Wave it farewell over right arm outside the body!
+          const byeWave = Math.sin((this.actionTimer - 0.6) * 5.0) * 0.32;
+          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 };
+          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 + byeWave * 0.15 };
+          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 + byeWave };
           rightFingersTarget = -0.02;
           targetHead.z = -0.10 + byeWave * 0.04;
         } else {
@@ -2718,39 +2718,39 @@ class Robot3D {
           }
         }
 
-        // Left arm in supportive posture
-        targetLeft.upper = { x: 0.12, y: 0.0, z: 0.15 };
-        targetLeft.fore = { x: -0.85, y: 0.35, z: 0.0 };
-        targetLeft.hand = { x: -0.10, y: 0.20, z: 0.0 };
+        // Left arm in supportive posture outside body
+        targetLeft.upper = { x: 0.12, y: 0.0, z: -0.15 };
+        targetLeft.fore = { x: -0.85, y: -0.35, z: 0.0 };
+        targetLeft.hand = { x: -0.10, y: -0.20, z: 0.0 };
       } else if (this.currentAction === "hifi") {
         this.actionTimer += delta;
         // Step-by-Step High-Five:
-        // Right hand positioned high on the UPPER OF RIGHT ARM (elevated straight up)
+        // Right hand positioned high on the UPPER OF RIGHT ARM OUTSIDE THE BODY (elevated straight up)
         if (this.hifiSlapped) {
           this.hifiSlapTimer += delta;
           // Kinetic physical recoil from slap with damped harmonic recovery
           const recoil = Math.sin(Math.min(Math.PI, this.hifiSlapTimer * 7.0)) * Math.exp(-this.hifiSlapTimer * 2.2) * 0.40;
-          targetRight.upper = { x: 0.22, y: 0.08, z: -2.04 + recoil * 0.30 };
-          targetRight.fore = { x: 0.16 + recoil * 0.40, y: 0.18, z: -1.98 };
-          targetRight.hand = { x: 0.31 + recoil * 0.50, y: 0.15, z: 0.87 };
+          targetRight.upper = { x: 0.41 - recoil * 0.30, y: -0.22, z: 1.89 };
+          targetRight.fore = { x: -0.37 - recoil * 0.40, y: 0.09, z: 1.79 };
+          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 - recoil * 0.30 };
           rightFingersTarget = 0.02;
 
-          targetLeft.upper = { x: -0.18, y: 0.0, z: 0.22 };
+          targetLeft.upper = { x: -0.18, y: 0.0, z: -0.22 };
           targetHead.x = -recoil * 0.18;
 
           if (this.hifiSlapTimer > 1.4) {
             this.endAction();
           }
         } else {
-          // Right hand held high on the UPPER OF RIGHT ARM, palm facing forward
-          targetRight.upper = { x: 0.22, y: 0.08, z: -2.04 }; // Elevated upper arm
-          targetRight.fore = { x: 0.16, y: 0.18, z: -1.98 };  // Forearm reaches straight up
-          targetRight.hand = { x: 0.31, y: 0.15, z: 0.87 };   // Hand upright on top of arm
+          // Right hand held high on the UPPER OF RIGHT ARM OUTSIDE THE BODY, palm facing forward
+          targetRight.upper = { x: 0.41, y: -0.22, z: 1.89 }; // Elevated upper arm laterally outside
+          targetRight.fore = { x: -0.37, y: 0.09, z: 1.79 };  // Forearm reaches straight up outside
+          targetRight.hand = { x: 0.15, y: -0.72, z: -0.34 }; // Hand upright on top of arm
           rightFingersTarget = -0.05; // Flat open high-five palm
 
-          targetLeft.upper = { x: -0.15, y: 0.0, z: 0.20 };    // Braced athletic stance
-          targetLeft.fore = { x: -0.65, y: 0.35, z: 0.0 };
-          targetLeft.hand = { x: 0.0, y: 0.30, z: 0.0 };
+          targetLeft.upper = { x: -0.15, y: 0.0, z: -0.20 };   // Braced athletic stance outside body
+          targetLeft.fore = { x: -0.65, y: -0.35, z: 0.0 };
+          targetLeft.hand = { x: 0.0, y: -0.30, z: 0.0 };
           leftFingersTarget = 0.20;
 
           targetHead.x = 0.05;
@@ -2762,22 +2762,22 @@ class Robot3D {
       } else if (this.currentAction === "kiss") {
         this.actionTimer += delta;
         // Step-by-Step Flying Kiss:
-        // Step 1: Right hand goes to lips
-        // Step 2: Flew it (extends arm forward and releases flying hearts)
+        // Step 1: Right hand goes to lips with elbow outside body
+        // Step 2: "Flew it" (extends arm forward & sweeps OUTWARD from body, releasing flying hearts)
         // Step 3: Smooth return to idle
         if (this.actionTimer < 1.2) {
-          // Step 1: Right hand goes directly to lips with gentle head bow
-          targetRight.upper = { x: 0.18, y: 0.86, z: -1.88 };
-          targetRight.fore = { x: -0.84, y: -1.57, z: -0.84 };
-          targetRight.hand = { x: -0.70, y: 0.70, z: -1.23 };
+          // Step 1: Right hand goes directly to lips with gentle head bow, elbow flared outside
+          targetRight.upper = { x: 0.89, y: -0.16, z: 2.87 };
+          targetRight.fore = { x: -1.52, y: 0.0, z: 1.41 };
+          targetRight.hand = { x: 0.0, y: 1.41, z: 0.0 };
           rightFingersTarget = 0.25; // Gently cupped at lips
           targetHead.x = -0.12; // Bow head gently toward fingertips
         } else if (this.actionTimer < 2.8) {
-          // Step 2: "Flew it" — arm extends forward into the air, blowing kiss!
+          // Step 2: "Flew it" — arm sweeps OUTWARD from body into the air, blowing kiss!
           const sway = Math.sin((this.actionTimer - 1.2) * 3.5) * 0.08;
-          targetRight.upper = { x: -1.35, y: 0.42, z: -0.59 };
-          targetRight.fore = { x: -0.57, y: -0.31, z: -0.26 };
-          targetRight.hand = { x: 1.26, y: 0.35 + sway, z: -0.19 }; // palm up pushing kiss into air
+          targetRight.upper = { x: -1.16, y: -1.24, z: 0.64 };
+          targetRight.fore = { x: -1.06, y: 0.80, z: 0.35 };
+          targetRight.hand = { x: 1.69, y: 0.69 + sway, z: 0.09 }; // palm up pushing kiss outward into air
           rightFingersTarget = -0.05; // Open fingers releasing the kiss
           targetHead.x = 0.08;
           targetHead.z = 0.05;
@@ -2787,23 +2787,23 @@ class Robot3D {
             this.endAction();
           }
         }
-        targetLeft.upper = { x: 0.10, y: 0.0, z: 0.16 };
-        targetLeft.fore = { x: -0.75, y: 0.35, z: 0.0 };
-        targetLeft.hand = { x: -0.10, y: 0.30, z: 0.0 };
+        targetLeft.upper = { x: 0.10, y: 0.0, z: -0.16 };
+        targetLeft.fore = { x: -0.75, y: -0.35, z: 0.0 };
+        targetLeft.hand = { x: -0.10, y: -0.30, z: 0.0 };
       } else if (this.currentAction === "salute") {
         this.actionTimer += delta;
         // Step-by-Step Salute:
-        // Step 1 (0.0s - 0.5s): Right hand goes directly to right ear, left arm at attention
-        // Step 2 (0.5s - 2.4s): Holds crisp rigid salute at the right ear
+        // Step 1 (0.0s - 0.5s): Right hand goes directly to right ear with elbow flared OUTSIDE body
+        // Step 2 (0.5s - 2.4s): Holds crisp rigid salute at the right ear outside the body
         // Step 3 (2.4s - 3.0s): Smartly snaps hand down to side and returns to ready stance
         if (this.actionTimer < 2.4) {
-          // Steps 1 & 2: Right hand goes directly to right ear and holds
-          targetRight.upper = { x: 0.29, y: -1.83, z: -1.63 };
-          targetRight.fore = { x: -1.12, y: 0.15, z: -1.90 };
-          targetRight.hand = { x: -2.10, y: 0.71, z: 1.50 }; // fingertips touch right ear
+          // Steps 1 & 2: Right hand goes directly to right ear with elbow flared OUTSIDE body (X=0.75)
+          targetRight.upper = { x: -0.18, y: 0.60, z: 1.88 };
+          targetRight.fore = { x: -0.45, y: -0.25, z: 1.74 };
+          targetRight.hand = { x: -0.15, y: 0.27, z: 0.48 }; // fingertips touch right ear from outside
           rightFingersTarget = 0.0; // Pinned flat fingers at ear
 
-          targetLeft.upper = { x: 0.0, y: 0.0, z: 0.05 }; // Left arm pinned flush to side
+          targetLeft.upper = { x: 0.0, y: 0.0, z: -0.05 }; // Left arm pinned flush to side
           targetLeft.fore = { x: 0.0, y: 0.0, z: 0.0 };
           targetLeft.hand = { x: 0.0, y: 0.0, z: 0.0 };
           leftFingersTarget = 0.0;
@@ -2813,7 +2813,7 @@ class Robot3D {
           targetHead.z = 0.0;
         } else {
           // Step 3: Snap cleanly down to attention
-          targetRight.upper = { x: 0.0, y: 0.0, z: -0.05 };
+          targetRight.upper = { x: 0.0, y: 0.0, z: 0.05 };
           targetRight.fore = { x: 0.0, y: 0.0, z: 0.0 };
           targetRight.hand = { x: 0.0, y: 0.0, z: 0.0 };
           rightFingersTarget = 0.0;
@@ -2826,14 +2826,14 @@ class Robot3D {
         this.actionTimer += delta;
         const dur = this.actionDuration || 2.5;
         // Pondering pose: right hand under chin, left arm crossed supporting elbow
-        targetRight.upper = { x: 0.65, y: -0.10, z: -0.25 };
+        targetRight.upper = { x: 0.65, y: -0.10, z: 0.25 };
         targetRight.fore = { x: -2.15, y: -0.15, z: 0.0 };
         targetRight.hand = { x: 0.45, y: 0.10, z: -0.10 };
         rightFingersTarget = 0.25;
 
-        targetLeft.upper = { x: 0.35, y: 0.0, z: 0.25 };
-        targetLeft.fore = { x: -1.35, y: 0.55, z: 0.0 };
-        targetLeft.hand = { x: -0.10, y: 0.50, z: 0.0 };
+        targetLeft.upper = { x: 0.35, y: 0.0, z: -0.25 };
+        targetLeft.fore = { x: -1.35, y: -0.55, z: 0.0 };
+        targetLeft.hand = { x: -0.10, y: -0.50, z: 0.0 };
 
         targetHead.z = -0.14;
         targetHead.x = -0.06;
@@ -2857,9 +2857,9 @@ class Robot3D {
         }
       } else if (this.currentAction === "celebrate") {
         this.actionTimer += delta;
-        // Double victory arm raise with fists
-        targetLeft.upper = { x: 0.20, y: 0.0, z: 1.35 };
-        targetRight.upper = { x: 0.20, y: 0.0, z: -1.35 };
+        // Double victory arm raise with fists OUTWARD from body
+        targetLeft.upper = { x: 0.20, y: 0.0, z: -1.35 };
+        targetRight.upper = { x: 0.20, y: 0.0, z: 1.35 };
         targetLeft.fore = { x: -1.15, y: 0.0, z: 0.0 };
         targetRight.fore = { x: -1.15, y: 0.0, z: 0.0 };
         targetLeft.hand = { x: 0.30, y: 0.0, z: 0.0 };
@@ -2872,14 +2872,14 @@ class Robot3D {
           this.endAction();
         }
       } else if (this.expression === "speaking") {
-        // Conversational Gesturing: Both hands articulate with natural speech rhythm
+        // Conversational Gesturing: Both hands articulate with natural speech rhythm outside body
         const wave1 = Math.sin(time * 3.8) * 0.16;
         const wave2 = Math.cos(time * 3.2) * 0.14;
-        targetRight.upper = { x: 0.32 + wave1 * 0.4, y: -0.12, z: -0.25 };
+        targetRight.upper = { x: 0.32 + wave1 * 0.4, y: -0.12, z: 0.25 };
         targetRight.fore = { x: -1.25 + wave1, y: -0.25, z: 0.0 };
         targetRight.hand = { x: 0.10, y: -0.30 + wave1 * 0.6, z: 0.0 };
 
-        targetLeft.upper = { x: 0.30 + wave2 * 0.4, y: 0.12, z: 0.25 };
+        targetLeft.upper = { x: 0.30 + wave2 * 0.4, y: 0.12, z: -0.25 };
         targetLeft.fore = { x: -1.20 + wave2, y: 0.25, z: 0.0 };
         targetLeft.hand = { x: 0.10, y: 0.30 + wave2 * 0.6, z: 0.0 };
 
