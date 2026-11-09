@@ -1244,7 +1244,7 @@ class Robot3D {
 
     // Tongue Apex (Rounded Tip pointing toward front teeth)
     const tongueApexGeo = new THREE.SphereGeometry(0.018, 14, 12);
-    tongApexGeo.scale(1.30, 0.42, 1.10);
+    tongueApexGeo.scale(1.30, 0.42, 1.10);
     const tongueApex = new THREE.Mesh(tongueApexGeo, this.matTongue);
     tongueApex.position.set(0, 0.006, 0.022);
     tongueGroup.add(tongueApex);
