@@ -385,6 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const camCommandBtn = document.getElementById("cam-command-btn");
+  const camLegsBtn = document.getElementById("cam-legs-btn");
   const camCoreBtn = document.getElementById("cam-core-btn");
   const camHandsBtn = document.getElementById("cam-hands-btn");
   const camOrbitBtn = document.getElementById("cam-orbit-btn");
@@ -396,6 +397,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (robot) {
         if (robot.isOrbiting) robot.toggleOrbit();
         robot.setCameraView("command");
+      }
+      if (camOrbitBtn) {
+        camOrbitBtn.classList.remove("active");
+        camOrbitBtn.innerHTML = "🔄 ORBIT";
+      }
+      window.AudioEngine.playHydraulicClick();
+    });
+  }
+
+  if (camLegsBtn) {
+    camLegsBtn.addEventListener("click", () => {
+      if (robot) {
+        if (robot.isOrbiting) robot.toggleOrbit();
+        robot.setCameraView("legs");
       }
       if (camOrbitBtn) {
         camOrbitBtn.classList.remove("active");
