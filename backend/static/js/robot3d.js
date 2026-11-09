@@ -550,6 +550,7 @@ class Robot3D {
   buildHumanoidHead() {
     this.headGroup = new THREE.Group();
     this.headGroup.position.set(0, 0.78, 0);
+    this.headGroup.scale.set(0.68, 0.68, 0.68); // 8-head canonical athletic human male proportion
 
     // ==========================================
     // 1. MASCULINE CRANIUM & FOREHEAD (FRONTAL BONE)
@@ -1068,8 +1069,8 @@ class Robot3D {
     // 1. ATHLETIC HUMAN TORSO FOUNDATION (RIBCAGE & SPINE)
     // ==========================================
     // Inner thoracic ribcage foundation with athletic human V-taper
-    const ribcageGeo = new THREE.SphereGeometry(0.33, 24, 24);
-    ribcageGeo.scale(1.08, 1.05, 0.72);
+    const ribcageGeo = new THREE.SphereGeometry(0.34, 24, 24);
+    ribcageGeo.scale(1.16, 1.12, 0.76);
     const ribcage = new THREE.Mesh(ribcageGeo, this.matSkin);
     ribcage.position.set(0, 0.08, 0.02);
     this.torsoGroup.add(ribcage);
@@ -1136,6 +1137,15 @@ class Robot3D {
       trap.position.set(tx, 0.25, -0.02);
       trap.rotation.z = isLeft ? -0.32 : 0.32;
       this.torsoGroup.add(trap);
+    });
+
+    // Acromion process & lateral shoulder contour connecting to deltoid
+    [-0.32, 0.32].forEach((ax) => {
+      const isLeft = ax < 0;
+      const acromion = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.10, 0.18), this.matSkin);
+      acromion.position.set(ax, 0.26, 0.01);
+      acromion.rotation.z = isLeft ? -0.15 : 0.15;
+      this.torsoGroup.add(acromion);
     });
 
     // ==========================================
@@ -2832,7 +2842,7 @@ class Robot3D {
       this.targetCameraDistance = 1.35;
       this.targetRotationX = 0.02;
       this.targetRotationY = 0;
-      this.cameraLookTarget.set(0, 0.84, 0.12);
+      this.cameraLookTarget.set(0, 0.82, 0.10);
     } else if (mode === "hands") {
       this.targetCameraDistance = 2.1;
       this.targetRotationX = 0.15;

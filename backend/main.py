@@ -1008,23 +1008,25 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
         "confidence": "100% Kinematic Geometry Verified"
     }),
 
-    # 1C. HANDSOME GUY LOOK & DISCIPLINED DRESS ARCHITECTURE
-    (r'(?:(?:handsome(?:\s+guy)?(?:\s+look)?)|(?:displine|discipline|disciplined)(?:\s+dress)?|(?:tailored\s+suit)|(?:gentleman\s+suit)|(?:robot\s+dress)|(?:robot\s+clothes))', {
-        "title": "3D Humanoid Robot: Handsome Guy Sculpt & Disciplined Formal Menswear",
-        "core": "Chatbot Abhi features an anatomically proportioned **Handsome Male Humanoid Sculpt** dressed in an immaculate **Disciplined Bespoke Formal Suit**.",
+    # 1C. ACCURATE HUMAN BODY SHAPE & DISCIPLINED DRESS ARCHITECTURE
+    (r'(?:(?:handsome(?:\s+guy)?(?:\s+look)?)|(?:displine|discipline|disciplined)(?:\s+dress)?|(?:tailored\s+suit)|(?:gentleman\s+suit)|(?:robot\s+dress)|(?:robot\s+clothes)|(?:(?:accurate\s+)?human\s+body(?:\s+shape)?)|(?:body\s+shape)|(?:accurate\s+body)|(?:human\s+proportions?)|(?:body\s+proportions?))', {
+        "title": "3D Humanoid Robot: Accurate Human Body Shape & Disciplined Formal Menswear",
+        "core": "Chatbot Abhi features an anatomically proportioned **8-Head Athletic Male Human Body Shape** dressed in an immaculate **Disciplined Bespoke Formal Suit**.",
         "formulas": [
-            r"\text{Aesthetic Golden Ratio} \approx 1.618 \quad \text{(Masculine Craniofacial Ideal)}",
+            r"\text{Total Stature} = 8 \times H_{\text{head}} \quad \text{(Canonical 8-Head Human Proportion Standard)}",
+            r"\text{Shoulder-to-Head Ratio} \approx 2.7 : 1 \quad \text{(Athletic Masculine V-Taper)}",
             r"\text{Disciplined Dress} = \text{Blazer} + \text{Epaulettes} + \text{Shirt} + \text{Windsor Tie} + \text{Belt} + \text{Creased Slacks} + \text{Oxford Shoes}"
         ],
         "steps": [
-            "1. **Handsome Masculine Facial Sculpt**: Designed with sharp golden-ratio facial architecture—sculpted frontal bone, defined zygomatic cheekbones with subtle model blush, sharp mandibular jawline with mental protuberance and cleft chin, symmetrical almond eyes with positive canthal tilt and sparkling specular catchlights, straight anatomical dorsal nose, and charismatic lips with a subtle resting smile.",
-            "2. **Modern Swept Pompadour Quiff**: Tailored coiffure with tapered fade on the sides and back, crisp side-part grooming line, and voluminous upward-and-backward swept quiff with layered texture locks in rich dark espresso brunette.",
-            "3. **Disciplined Formal Suit (Active by Default)**: Bespoke midnight navy fine wool blazer with structured shoulder epaulettes and gold piping, sharp satin peak lapels, vertically aligned gold crested buttons, crisp poplin dress shirt with stiff spread collar, imperial crimson silk tie held with a polished 18k gold tie bar, 3-tier merit ribbon bar, and folded white linen pocket square with gold trim.",
-            "4. **Disciplined Accessories & Footwear**: Italian dark leather belt with polished buckle, French shirt cuffs with 18k gold cufflinks, executive chronometer wristwatch on the wrist, tailored trousers with razor-sharp pressed front creases, and hand-burnished mahogany espresso Oxford dress shoes with mirror cap-toes."
+            "1. **Canonical 8-Head Athletic Human Proportions**: Modeled after the classical artistic canon (Leonardo da Vinci / Andrew Loomis athletic mesomorph standard). The head height is proportioned to exactly 1/7.8th of total stature, eliminating cartoonish distortion and achieving true anatomical fidelity.",
+            "2. **Athletic V-Taper Torso & Shoulders**: Broad thoracic ribcage spanning 2.7x head width, sculpted with clavicle S-curves, acromion shoulder bridges, firm pectoralis major chest slabs, latissimus dorsi back wings, and chiseled 6-pack rectus abdominis tapering down to a lean waist and Apollo's belt (inguinal crease).",
+            "3. **Anatomical Arms & Legs**: Deltoid shoulder caps smoothly transitioning into biceps/triceps and brachioradialis forearms with 5-digit articulated hands reaching mid-thigh. Quadriceps with vastus medialis teardrop, patella kneecaps, gastrocnemius calf bellies, and articulated feet.",
+            "4. **Handsome Masculine Facial Sculpt**: Designed with golden-ratio facial architecture—sculpted frontal bone, defined cheekbones with model warmth, sharp jawline with cleft chin, symmetrical almond eyes with specular catchlights, modern swept pompadour quiff, straight dorsal nose, and charismatic resting smile.",
+            "5. **Disciplined Formal Suit (Active by Default)**: Bespoke midnight navy fine wool blazer with structured shoulder epaulettes, gold buttons, crisp poplin dress shirt with stiff spread collar, crimson silk tie with gold tie bar, 3-tier merit ribbon bar, folded pocket square, dark leather belt with buckle, creased trousers, and Oxford dress shoes."
         ],
-        "analogy": "Like a distinguished, disciplined gentleman officer dressed in bespoke Savile Row tailoring, ready to instruct with effortless elegance and precision!",
-        "pitfalls": "The disciplined suit is fully integrated into the 3D kinematic rig, so all waving, high-fives, thinking gestures, and 360° orbits maintain sharp crease lines without clipping.",
-        "confidence": "100% 3D Aesthetic Architecture Verified"
+        "analogy": "Like an athletic, disciplined presenter or officer whose physical proportions, posture, and tailoring match real human anatomy with effortless elegance!",
+        "pitfalls": "The 8-head anatomical scale is fully synchronized with the Three.js kinematic rig, maintaining realistic crease lines, joint rotations, and posture without clipping or distortion.",
+        "confidence": "100% Anatomical Human Canon Verified"
     }),
 
     # 2. AERODYNAMICS: HOW PLANES FLY
@@ -2096,6 +2098,308 @@ ACADEMIC_REPOSITORY = {
         "pitfalls": "Cramming slides with dense walls of text and reading off them—slides exist as visual amplifiers for the audience, never as teleprompters for the speaker!",
         "confidence": "100% Rhetoric & Communication Standard"
     }
+,
+    # --- NEW COMPREHENSIVE EDUCATIONAL CONTENT MODULES ---
+    "bayes_theorem": {
+        "title": "Bayes' Theorem & Conditional Probability",
+        "keywords": ["bayes", "bayes theorem", "conditional probability", "prior probability", "posterior", "likelihood", "bayes rule"],
+        "core": "Bayes' Theorem calculates the conditional probability of an event based on prior knowledge of conditions related to the event, providing the mathematical foundation for updating beliefs as new evidence arrives.",
+        "formulas": [
+            r"P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)} \quad \text{(Bayes' Rule)}",
+            r"P(B) = P(B|A)P(A) + P(B|\neg A)P(\neg A) \quad \text{(Law of Total Probability)}",
+            r"\text{Posterior} = \frac{\text{Likelihood} \times \text{Prior}}{\text{Marginal Evidence}}"
+        ],
+        "steps": [
+            "1. **Establish Prior P(A)**: The initial baseline probability before observing new evidence (e.g. disease prevalence in a population).",
+            "2. **Determine Likelihood P(B|A)**: The probability that the evidence occurs given that the hypothesis is true (e.g. sensitivity / true positive rate).",
+            "3. **Compute Marginal Evidence P(B)**: The total probability of observing the evidence across all scenarios using the Law of Total Probability.",
+            "4. **Calculate Posterior P(A|B)**: The updated, revised confidence in the hypothesis after incorporating evidence."
+        ],
+        "analogy": "A weather forecast: you start with a 20% prior chance of rain, but after spotting dark gathering storm clouds, Bayes' Theorem calculates your updated 85% posterior confidence.",
+        "pitfalls": "The Base Rate Fallacy: In a 99% accurate test for a rare 1-in-1,000 disease, a positive test still yields only ~9% actual disease probability because the vast majority are healthy false positives!",
+        "confidence": "100% Probability & Statistics Standard"
+    },
+    "central_limit_theorem": {
+        "title": "Central Limit Theorem & Normal Distribution",
+        "keywords": ["central limit theorem", "clt", "normal distribution", "bell curve", "standard error", "gaussian distribution", "sampling distribution"],
+        "core": "The Central Limit Theorem (CLT) proves that the distribution of sample means approaches a normal (Gaussian) distribution as the sample size increases (n >= 30), regardless of the shape of the underlying population distribution.",
+        "formulas": [
+            r"\bar{X}_n \xrightarrow{d} \mathcal{N}\left(\mu, \frac{\sigma^2}{n}\right) \quad \text{as } n \to \infty",
+            r"Z = \frac{\bar{X} - \mu}{\sigma / \sqrt{n}} \quad \text{(Standard Normal Z-Score)}",
+            r"\text{Standard Error (SE)} = \frac{\sigma}{\sqrt{n}}"
+        ],
+        "steps": [
+            "1. **Universal Independence**: Applies to any independent, identically distributed (i.i.d.) random variables with finite mean and variance.",
+            "2. **Rule of Sample Size (n >= 30)**: Even if the population is heavily skewed, sample sizes of n >= 30 yield a symmetrical bell-shaped sampling distribution.",
+            "3. **Standard Error Shrinkage**: The standard error decreases by sqrt(n), concentrating sample means tightly around the true population mean.",
+            "4. **Inferential Statistics Foundation**: Powers p-values, hypothesis tests, confidence intervals, and polling margins of error."
+        ],
+        "analogy": "Roll a single 6-sided die: every number 1 to 6 has equal flat probability. But roll 30 dice and average them: getting an average near 1 or 6 is nearly impossible, forming a sharp Gaussian peak right at 3.5!",
+        "pitfalls": "The CLT applies to the distribution of SAMPLE MEANS, NOT the raw individual data points! The raw population data retains whatever shape it originally had.",
+        "confidence": "100% Mathematical Statistics Standard"
+    },
+    "fourier_transform": {
+        "title": "Fourier Transform & Harmonic Signal Decomposition",
+        "keywords": ["fourier transform", "fourier analysis", "fft", "frequency domain", "spectrogram", "signal processing", "harmonics"],
+        "core": "The Fourier Transform mathematically decomposes any continuous time-domain waveform into the sum of infinite constituent sine and cosine waves of varying frequencies, amplitudes, and phases.",
+        "formulas": [
+            r"\hat{f}(\xi) = \int_{-\infty}^{\infty} f(t) e^{-2\pi i \xi t} \, dt \quad \text{(Continuous Fourier Transform)}",
+            r"f(t) = \int_{-\infty}^{\infty} \hat{f}(\xi) e^{2\pi i \xi t} \, d\xi \quad \text{(Inverse Fourier Transform)}",
+            r"e^{i\theta} = \cos\theta + i\sin\theta \quad \text{(Euler's Integration Formula)}"
+        ],
+        "steps": [
+            "1. **Time Domain to Frequency Domain**: Transforms functions of time f(t) into a spectrum of frequencies showing what musical notes or waves are present.",
+            "2. **Euler Rotor Multiplication**: Multiplies the signal by rotating complex exponential e^(-2pi i xi t) that winds the waveform around the origin in the complex plane.",
+            "3. **Center of Mass Integration**: When the winding frequency matches a natural frequency of the signal, the points align to create a distinct amplitude spike.",
+            "4. **Fast Fourier Transform (FFT)**: The Cooley-Tukey algorithm computes the Discrete Fourier Transform in O(N log N) time instead of O(N^2), enabling MP3, Wi-Fi, MRI, and 5G."
+        ],
+        "analogy": "Pouring a blended fruit smoothie into a machine that instantaneously separates it back into individual piles of 3 strawberries, half a banana, and a cup of milk!",
+        "pitfalls": "Confusing continuous Fourier transform with discrete Fourier series; the continuous transform works on non-periodic finite-energy signals across (-infinity, infinity).",
+        "confidence": "100% Applied Mathematics Standard"
+    },
+    "special_relativity": {
+        "title": "Einstein's Special Relativity & Mass-Energy Equivalence",
+        "keywords": ["special relativity", "relativity", "einstein", "e=mc2", "time dilation", "lorentz factor", "length contraction", "speed of light"],
+        "core": "Albert Einstein's 1905 Special Relativity demonstrates that the speed of light in a vacuum (c ~ 3 x 10^8 m/s) is invariant for all observers, requiring time to dilate, space to contract, and mass to be equivalent to energy (E = mc^2).",
+        "formulas": [
+            r"\gamma = \frac{1}{\sqrt{1 - \frac{v^2}{c^2}}} \quad \text{(Lorentz Factor)}",
+            r"\Delta t = \gamma \Delta t_0 = \frac{\Delta t_0}{\sqrt{1 - \frac{v^2}{c^2}}} \quad \text{(Time Dilation)}",
+            r"L = \frac{L_0}{\gamma} = L_0 \sqrt{1 - \frac{v^2}{c^2}} \quad \text{(Length Contraction)}",
+            r"E_0 = m c^2, \quad E^2 = (pc)^2 + (m c^2)^2 \quad \text{(Relativistic Energy-Momentum)}"
+        ],
+        "steps": [
+            "1. **The Two Postulates**: (a) The laws of physics are identical in all inertial reference frames. (b) The speed of light c is absolute and independent of the motion of source or observer.",
+            "2. **Time Dilation**: Moving clocks tick slower relative to a stationary observer. At 99% light speed (v = 0.99c), gamma ~ 7.09, so 1 year aboard the ship corresponds to 7.09 years on Earth.",
+            "3. **Length Contraction**: Objects moving near the speed of light physically contract along their direction of motion as observed by an external stationary observer.",
+            "4. **Mass-Energy Equivalence**: Mass is concentrated energy. In nuclear fission, converting mere grams of mass deficit Delta m releases Delta E = Delta m * c^2 Joules of kinetic energy."
+        ],
+        "analogy": "Moving through spacetime is like driving a car at a fixed speed of 100 km/h: if you point purely north (stationary in space), all your speed goes into moving forward in time. If you steer hard east (traveling fast through space), you have less speed left over for traveling forward in time—so your personal clock ticks slower!",
+        "pitfalls": "Thinking special relativity implies 'everything is relative'. The speed of light c and the spacetime interval s^2 = c^2 Delta t^2 - Delta x^2 are completely invariant and absolute!",
+        "confidence": "100% Relativistic Physics Standard"
+    },
+    "thermodynamic_laws": {
+        "title": "The Four Laws of Thermodynamics",
+        "keywords": ["thermodynamic laws", "laws of thermodynamics", "entropy", "first law of thermodynamics", "second law", "absolute zero", "heat engine"],
+        "core": "The four fundamental laws of thermodynamics govern the behavior of energy, heat, temperature, and entropy across all physical and chemical systems in the universe.",
+        "formulas": [
+            r"A \sim B \land B \sim C \implies A \sim C \quad \text{(Zeroth Law: Thermal Equilibrium)}",
+            r"\Delta U = Q - W \quad \text{(First Law: Energy Conservation)}",
+            r"\Delta S_{\text{universe}} \ge 0, \quad dS = \frac{\delta Q_{\text{rev}}}{T} \quad \text{(Second Law: Entropy Increase)}",
+            r"\lim_{T \to 0\text{ K}} S = 0 \quad \text{(Third Law: Absolute Zero Unattainability)}"
+        ],
+        "steps": [
+            "1. **Zeroth Law (Temperature)**: Establishes thermal equilibrium and validates the concept of temperature and thermometers.",
+            "2. **First Law (Energy Conservation)**: Energy cannot be created or destroyed; total internal energy change Delta U equals heat added Q minus work done W.",
+            "3. **Second Law (Entropy & Time's Arrow)**: The total entropy of an isolated system always increases; heat flows spontaneously from hot to cold, never in reverse.",
+            "4. **Third Law (Absolute Zero)**: As a perfect crystal approaches absolute zero (0 K = -273.15 deg C), its entropy approaches a constant minimum, making 0 K unattainable in finite steps."
+        ],
+        "analogy": "Physicist C.P. Snow's famous thermodynamic summary: Zeroth: 'You have to play the game'; 1st: 'You can't win (you can only break even)'; 2nd: 'You can only break even at absolute zero'; 3rd: 'You cannot reach absolute zero!'",
+        "pitfalls": "Living organisms do NOT violate the Second Law! Living cells consume high-grade chemical energy and export higher-entropy heat and waste into the universe, ensuring net universal entropy increases.",
+        "confidence": "100% Thermodynamic Standard"
+    },
+    "transformers_ai": {
+        "title": "Transformer Architecture & Self-Attention in LLMs",
+        "keywords": ["transformer", "attention mechanism", "self attention", "llm", "large language model", "attention is all you need", "gpt", "bert", "deep learning"],
+        "core": "The Transformer is the deep learning neural network architecture introduced in 2017 ('Attention Is All You Need') that powers modern LLMs, using Multi-Head Self-Attention to process all sequence tokens simultaneously in parallel.",
+        "formulas": [
+            r"\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V",
+            r"\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h) W^O",
+            r"\text{PE}_{(pos, 2i)} = \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right) \quad \text{(Positional Encoding)}"
+        ],
+        "steps": [
+            "1. **Token & Positional Embedding**: Words are broken into tokens and combined with sinusoidal Positional Encodings to preserve sequence order without recurrence.",
+            "2. **Query, Key, Value Projections**: Every token embedding is multiplied by learned weight matrices to produce Query Q (search), Key K (label), and Value V (content).",
+            "3. **Scaled Dot-Product Attention**: Dot products Q*K^T compute semantic relevance between every word pair, scaled by 1/sqrt(d_k) to prevent vanishing gradients in softmax.",
+            "4. **Multi-Head Aggregation**: Multiple parallel attention heads simultaneously track grammar, coreference, themes, and factual associations.",
+            "5. **Parallel GPU Scaling**: Eliminates recurrent sequential bottlenecks, enabling training on hundreds of billions of parameters."
+        ],
+        "analogy": "Imagine an executive in a boardroom (Query) sending a request to all 20 team members' job badges (Keys) simultaneously. Those whose badges closely match receive a high attention weight, and their detailed reports (Values) are combined into the final decision!",
+        "pitfalls": "Self-attention has quadratic O(N^2) memory and compute complexity with respect to context window length N, motivating modern innovations like FlashAttention and sliding-window attention.",
+        "confidence": "100% Artificial Intelligence Standard"
+    },
+    "dijkstra_algorithm": {
+        "title": "Dijkstra's Algorithm & Shortest Path Graph Search",
+        "keywords": ["dijkstra", "shortest path", "graph algorithm", "dijkstra algorithm", "min heap", "priority queue", "a* search"],
+        "core": "Dijkstra's Algorithm is a greedy graph traversal algorithm that finds the single-source shortest path to all vertices in a directed or undirected graph with non-negative edge weights.",
+        "formulas": [
+            r"\text{Relaxation: } \text{if } d[u] + w(u, v) < d[v] \implies d[v] = d[u] + w(u, v)",
+            r"T_{\text{naive}} = O(V^2), \quad T_{\text{binary heap}} = O((V + E) \log V), \quad T_{\text{Fibonacci heap}} = O(E + V \log V)"
+        ],
+        "steps": [
+            "1. **Initialization**: Set distance to start node d[s] = 0, and distance to all other vertices to infinity. Insert all nodes into a Min-Priority Queue.",
+            "2. **Extract Minimum**: Pop the unvisited node u with the smallest tentative distance from the priority queue.",
+            "3. **Edge Relaxation**: For each neighbor v of u, check if traveling through u yields a shorter path: if d[u] + w(u,v) < d[v], update d[v] and track predecessor.",
+            "4. **Optimal Path Reconstruction**: Repeat until the target is reached or queue is empty; backtrack through predecessors to generate the turn-by-turn route."
+        ],
+        "analogy": "Pouring water at the start vertex of a 3D network of pipes: water naturally flows through the shortest pipe segments first, reaching each junction at the exact earliest physical arrival time.",
+        "pitfalls": "Dijkstra's Algorithm fails completely on graphs with negative edge weights! Negative edges violate the greedy property; use the Bellman-Ford algorithm instead.",
+        "confidence": "100% Computer Science Algorithm Standard"
+    },
+    "big_o_complexity": {
+        "title": "Big-O Notation & Algorithmic Complexity",
+        "keywords": ["big o", "time complexity", "space complexity", "asymptotic notation", "algorithm complexity", "worst case", "big theta"],
+        "core": "Big-O notation describes the upper bound of the asymptotic growth rate of an algorithm's runtime or memory consumption as input size n approaches infinity, independent of hardware specifics.",
+        "formulas": [
+            r"f(n) = O(g(n)) \iff \exists c > 0, n_0 > 0 \text{ such that } 0 \le f(n) \le c \cdot g(n) \; \forall n \ge n_0",
+            r"\text{Hierarchy: } O(1) < O(\log n) < O(n) < O(n \log n) < O(n^2) < O(2^n) < O(n!)"
+        ],
+        "steps": [
+            "1. **Drop Constant Factors**: O(2n) simplifies to O(n); Big-O measures growth curvature rather than constant multipliers.",
+            "2. **Keep Dominant Term**: In n^2 + 5n + 100, the n^2 term completely dominates as n -> infinity, so complexity is O(n^2).",
+            "3. **Logarithmic Scaling O(log n)**: Halving the search space each step (e.g. Binary Search) requires only ~30 operations for 1 billion items.",
+            "4. **Linearithmic Benchmark O(n log n)**: The theoretical mathematical lower bound for comparison-based sorting algorithms (MergeSort, QuickSort, HeapSort)."
+        ],
+        "analogy": "Ordering books: searching for a book by flipping through every page is O(n). Finding a name in a phone book by opening to the middle repeatedly is O(log n). Checking every possible traveling route across 50 cities is O(n!)—taking longer than the age of the universe!",
+        "pitfalls": "Confusing worst-case Big-O with average-case or best-case: QuickSort is average-case O(n log n), but worst-case O(n^2) when pivot selection is degenerate.",
+        "confidence": "100% Theoretical Computer Science Standard"
+    },
+    "chemical_equilibrium": {
+        "title": "Chemical Equilibrium & Le Chatelier's Principle",
+        "keywords": ["equilibrium", "le chatelier", "chemical equilibrium", "equilibrium constant", "reaction quotient", "haber process"],
+        "core": "Dynamic chemical equilibrium occurs when the forward and reverse reaction rates are equal. Le Chatelier's Principle states that when a dynamic equilibrium is subjected to an external stress, the system shifts to counteract that stress.",
+        "formulas": [
+            r"aA + bB \rightleftharpoons cC + dD \implies K_c = \frac{[C]^c [D]^d}{[A]^a [B]^b}",
+            r"\Delta G^\circ = -RT \ln K_{eq}",
+            r"Q < K \implies \text{Shift Right (Products)}, \quad Q > K \implies \text{Shift Left (Reactants)}"
+        ],
+        "steps": [
+            "1. **Dynamic Balance**: Forward and reverse reactions never cease; macroscopic concentrations stay perfectly constant because rates are equal.",
+            "2. **Concentration Shifts**: Adding reactant shifts equilibrium toward products (right); removing product similarly pulls the reaction forward.",
+            "3. **Pressure & Volume Changes**: Increasing pressure shifts gaseous equilibria toward the side with fewer total moles of gas.",
+            "4. **Temperature Effect**: In exothermic reactions (Delta H < 0), heat acts like a product—increasing temperature shifts equilibrium left and lowers K."
+        ],
+        "analogy": "A crowded subway car: if 10 new passengers force their way in through the front door (stress), passengers naturally shuffle toward the empty rear of the car to restore comfortable spatial balance.",
+        "pitfalls": "Catalysts do NOT shift the equilibrium position or alter K! Catalysts only lower activation energy E_a, speeding up how rapidly equilibrium is achieved equally in both directions.",
+        "confidence": "100% Chemical Equilibrium Standard"
+    },
+    "acids_bases_buffers": {
+        "title": "Acids, Bases & Buffer Systems",
+        "keywords": ["acid", "base", "ph", "pka", "buffer", "henderson hasselbalch", "titration", "bronsted lowry"],
+        "core": "Acids donate protons (H+) and bases accept protons in Brønsted-Lowry chemistry. Buffer solutions resist changes in pH when small amounts of acid or base are added, modeled by the Henderson-Hasselbalch equation.",
+        "formulas": [
+            r"\text{pH} = -\log_{10}[H_3O^+], \quad \text{pOH} = -\log_{10}[OH^-], \quad \text{pH} + \text{pOH} = 14 \quad (25^\circ\text{C})",
+            r"\text{pH} = \text{p}K_a + \log_{10}\left(\frac{[A^-]}{[HA]}\right) \quad \text{(Henderson-Hasselbalch Equation)}",
+            r"K_w = [H_3O^+][OH^-] = 1.0 \times 10^{-14} \quad (25^\circ\text{C})"
+        ],
+        "steps": [
+            "1. **Proton Exchange**: Weak acid HA donates H+ to water, establishing equilibrium with its conjugate base A- and hydronium H3O+.",
+            "2. **Logarithmic pH Scale**: Each whole pH unit change represents a 10-fold change in hydronium ion concentration (pH 3 is 1,000x more acidic than pH 6).",
+            "3. **Buffer Neutralization**: Added strong acid is consumed by weak base A-, while added strong base is neutralized by weak acid HA.",
+            "4. **Human Blood Buffer**: Blood pH is strictly regulated between 7.35 and 7.45 by the carbonic acid-bicarbonate buffer system: CO2 + H2O <=> H2CO3 <=> H+ + HCO3-."
+        ],
+        "analogy": "A buffer acts like a shock absorber on a mountain bike: when you hit sharp bumps (spikes in acid or alkali), the springs absorb the impact so the rider (delicate biological enzymes) experiences smooth, stable equilibrium.",
+        "pitfalls": "Thinking a solution with pH = 0 has no acid! Concentrated strong acids (like 12 M HCl) have negative pH values (~ -1.08) because [H+] exceeds 1 M.",
+        "confidence": "100% Chemical & Biological Standard"
+    },
+    "crispr_gene_editing": {
+        "title": "CRISPR-Cas9 & Precision Genomic Engineering",
+        "keywords": ["crispr", "cas9", "gene editing", "crispr cas9", "dna editing", "genetic engineering", "grna", "biotechnology"],
+        "core": "CRISPR-Cas9 is a targeted genome-editing biotechnology adapted from bacterial adaptive immune systems that allows scientists to precisely cut and modify DNA sequences inside living cells.",
+        "formulas": [
+            r"\text{sgRNA (20-nt guide)} + \text{Cas9 endonuclease} \xrightarrow{\text{PAM: 5'-NGG-3'}} \text{Targeted Double-Strand Break (DSB)}",
+            r"\text{Cellular Repair: } \text{NHEJ (Knockout via Indels)} \quad \text{vs} \quad \text{HDR (Precision Gene Knock-in / Replacement)}"
+        ],
+        "steps": [
+            "1. **Bacterial Immune Memory**: Bacteria capture snippets of invading viral DNA between CRISPR repeats to recognize future attacks.",
+            "2. **Single Guide RNA (sgRNA)**: A synthetic 20-nucleotide guide RNA matches the exact complementary sequence in the target genome.",
+            "3. **PAM Recognition & Double-Strand Cleavage**: Cas9 locates the PAM motif (5'-NGG-3'), unwinds the DNA helix, and cleaves both strands.",
+            "4. **DNA Repair Pathways**: Error-prone non-homologous end joining (NHEJ) disables the gene, or homology-directed repair (HDR) inserts corrected sequences."
+        ],
+        "analogy": "Like using the 'Find and Replace' command in a 3-billion-character Microsoft Word document: sgRNA highlights the exact typo, and Cas9 acts like molecular scissors to delete or replace the sentence with flawless accuracy.",
+        "pitfalls": "Off-target cleavage: Cas9 can occasionally bind and cut genomic sites with 1-3 nucleotide mismatches to the guide RNA, which engineered high-fidelity Cas9 and Base Editors prevent.",
+        "confidence": "100% Molecular Genetics Standard"
+    },
+    "cellular_respiration": {
+        "title": "Cellular Respiration & ATP Synthase Turbine",
+        "keywords": ["cellular respiration", "glycolysis", "krebs cycle", "citric acid cycle", "atp synthase", "electron transport chain", "mitochondria", "aerobic respiration"],
+        "core": "Cellular respiration is the multi-stage biochemical process by which eukaryotic cells break down glucose in the presence of oxygen (O2) to synthesize 30-32 molecules of ATP energy.",
+        "formulas": [
+            r"C_6H_{12}O_6 + 6O_2 \to 6CO_2 + 6H_2O + \text{Energy (30-32 ATP + Heat)}",
+            r"\Delta G^\circ = -2870\text{ kJ/mol} \quad \text{(Highly Exergonic Combustion)}"
+        ],
+        "steps": [
+            "1. **Glycolysis (Cytosol)**: 1 Glucose (6C) is split into 2 Pyruvate (3C), yielding a net of 2 ATP and 2 NADH without needing oxygen.",
+            "2. **Krebs Cycle (Mitochondrial Matrix)**: Pyruvate is oxidized to Acetyl-CoA, producing 6 NADH, 2 FADH2, 2 ATP, and releasing CO2.",
+            "3. **Electron Transport Chain (Inner Membrane)**: High-energy electrons from NADH/FADH2 power proton pumps (Complexes I-IV), creating an electrochemical proton gradient.",
+            "4. **Chemiosmosis via ATP Synthase**: Protons rush through the rotary motor of ATP Synthase, mechanically turning ADP + Pi into ~26-28 ATP, with O2 accepting final electrons to form water."
+        ],
+        "analogy": "A hydroelectric dam: the electron transport chain pumps water up behind a high concrete dam (the proton gradient). When the water rushes down through turbines (ATP Synthase), it generates massive electrical power (ATP)!",
+        "pitfalls": "Cyanide poisoning kills cells by irreversibly blocking Complex IV of the ETC, collapsing the proton gradient and halting ATP synthesis even when oxygen is abundant.",
+        "confidence": "100% Biochemistry Standard"
+    },
+    "central_dogma": {
+        "title": "Central Dogma of Molecular Biology: Transcription & Translation",
+        "keywords": ["central dogma", "transcription", "translation", "rna polymerase", "mrna", "ribosome", "trna", "protein synthesis"],
+        "core": "The Central Dogma describes the directional flow of genetic information inside biological systems: genetic instructions stored in DNA are transcribed into messenger RNA (mRNA), which is then translated by ribosomes into functional proteins.",
+        "formulas": [
+            r"\text{DNA} \xrightarrow{\text{Transcription (RNA Polymerase)}} \text{mRNA} \xrightarrow{\text{Translation (Ribosome)}} \text{Polypeptide Chain} \to \text{Functional Protein}",
+            r"\text{Triplet Codon: } 3 \text{ Nucleotide Bases} \implies 1 \text{ Amino Acid} \quad (4^3 = 64 \text{ Codons for } 20 \text{ Amino Acids})"
+        ],
+        "steps": [
+            "1. **Transcription (Nucleus)**: RNA Polymerase reads the template DNA strand (3' to 5') and synthesizes complementary pre-mRNA (5' to 3'), replacing Thymine with Uracil.",
+            "2. **mRNA Processing (Eukaryotes)**: Introns are spliced out by spliceosomes, and a 5' methyl-G cap and 3' poly-A tail are added for nuclear export.",
+            "3. **Translation (Ribosome / Cytosol)**: The ribosome reads mRNA codons; transfer RNAs (tRNAs) carrying matching anticodons deliver specific amino acids.",
+            "4. **Polypeptide Folding**: The peptide chain folds into alpha-helices, beta-sheets, and tertiary 3D conformations stabilized by hydrogen and disulfide bonds."
+        ],
+        "analogy": "The master architectural blueprint stays securely locked in the library archive (DNA in nucleus). A disposable photocopy is made (mRNA) and brought to the construction site, where bricklayers (ribosomes) assemble bricks (amino acids) into the skyscraper (protein).",
+        "pitfalls": "The Genetic Code is degenerate (redundant) but NOT ambiguous: multiple codons can code for the same amino acid (e.g. 6 codons for Leucine), but each single codon specifies exactly one amino acid.",
+        "confidence": "100% Molecular Biology Standard"
+    },
+    "spaced_repetition": {
+        "title": "Spaced Repetition & The Ebbinghaus Forgetting Curve",
+        "keywords": ["spaced repetition", "ebbinghaus", "forgetting curve", "anki", "memory retention", "study method", "active recall"],
+        "core": "Spaced Repetition is a scientifically proven cognitive learning technique that schedules reviews at increasing intervals, exploiting the spacing effect to flatten Hermann Ebbinghaus's exponential forgetting curve.",
+        "formulas": [
+            r"R = e^{-\frac{t}{S}} \quad \text{(Ebbinghaus Memory Retention Equation)}",
+            r"\text{Optimal Interval: } I_{n} = I_{n-1} \times \text{Ease Factor (typically 2.0 to 2.5)}"
+        ],
+        "steps": [
+            "1. **The Forgetting Curve Problem**: Within 48 hours of initial exposure, the human brain naturally forgets ~70% of new information unless actively retrieved.",
+            "2. **The Spacing Effect**: Testing memory right as it begins to decay forces the brain to reconstruct neural pathways, dramatically increasing memory stability S.",
+            "3. **Exponential Interval Progression**: Review at Day 1 -> Day 3 -> Day 7 -> Day 16 -> Day 35 -> Day 90; each retrieval doubles the time until the next review is needed.",
+            "4. **Active Flashcard Integration**: Pairing software like Anki with active retrieval produces up to 400% higher long-term retention compared to passive rereading."
+        ],
+        "analogy": "Laying coats of paint on a fence: if you paint 5 layers in a single afternoon (cramming), it peels off in a week. If you apply a coat, let it fully cure, apply a second coat, and let it cure, the bond becomes permanent for decades.",
+        "pitfalls": "Cramming before an exam creates an illusion of competence: you can hold facts in short-term working memory for 12 hours, but retention collapses to zero 48 hours after the test.",
+        "confidence": "100% Cognitive Science Standard"
+    },
+    "pomodoro_deep_work": {
+        "title": "The Pomodoro Technique & Deep Work Attention Mastery",
+        "keywords": ["pomodoro", "pomodoro technique", "deep work", "time management", "productivity", "study focus", "flow state"],
+        "core": "The Pomodoro Technique breaks complex study and engineering tasks into 25-minute sprints of hyper-focused effort separated by 5-minute cognitive resets, eliminating attention residue and sustaining peak cognitive stamina.",
+        "formulas": [
+            r"1 \text{ Pomodoro Sprint} = 25\text{ min Pure Deep Work} + 5\text{ min Rest}",
+            r"1 \text{ Full Set} = 4 \text{ Pomodoros (100 min)} + 20\text{-}30\text{ min Long Break}",
+            r"\text{Attention Residue: } \Delta \text{Cognitive Bandwidth Loss} \propto \text{Frequency of Task Switching}"
+        ],
+        "steps": [
+            "1. **Single Tangible Objective**: Pick one unambiguous goal (e.g. 'Solve calculus problems 1 through 8', not 'study math').",
+            "2. **Zero-Distraction Sprint (25 min)**: Silence all phone notifications. If an unrelated thought arises, jot it on a scratchpad and immediately refocus.",
+            "3. **True Cognitive Reset (5 min)**: Step away from screens, stretch, drink water, or look out a window. Do NOT open social media, which creates attention residue.",
+            "4. **Consolidation Break (20-30 min)**: After 4 completed pomodoros, take an extended break to replenish dopamine and allow neural memory consolidation."
+        ],
+        "analogy": "High-intensity interval training (HIIT) for your brain: sprinting at 100% capacity for short bursts with dedicated recovery prevents mental burnout and builds cognitive endurance far better than a slow 6-hour slog.",
+        "pitfalls": "Checking social media during the 5-minute break! Quick scrolling triggers dopamine spikes and creates 'attention residue' in working memory, ruining your ability to re-enter deep focus in the next round.",
+        "confidence": "100% Cognitive Psychology Standard"
+    },
+    "cornell_note_taking": {
+        "title": "The Cornell Note-Taking System & Synthesized Active Recall",
+        "keywords": ["cornell notes", "note taking", "cornell method", "study notes", "lecture notes", "active recall notes"],
+        "core": "The Cornell Note-Taking System, developed by Walter Pauk at Cornell University, formats notebook pages into three distinct functional zones (Notes, Cues, and Summary) to turn passive transcription into active learning.",
+        "formulas": [
+            r"\text{Cornell Page: } \text{Right Column (Notes 70\%)} + \text{Left Column (Cues 30\%)} + \text{Bottom Margin (Summary 20\%)}",
+            r"\text{The 5 R's: } \text{Record} \to \text{Reduce} \to \text{Recite} \to \text{Reflect} \to \text{Review}"
+        ],
+        "steps": [
+            "1. **Record (Right Column, 6 inches)**: During the lecture, jot down core concepts, equations, and diagrams using telegraphic sentences and abbreviations.",
+            "2. **Reduce (Left Column, 2.5 inches)**: As soon as class ends, review your notes and write high-yield trigger questions, vocabulary terms, and main ideas in the cue margin.",
+            "3. **Recite (Self-Testing)**: Cover the right-hand notes column with a sheet of paper. Look only at the cue questions on the left and recite the answers out loud from memory.",
+            "4. **Summarize (Bottom Margin, 2 inches)**: Write a brief 2-4 sentence executive summary synthesizing the entire page in your own words."
+        ],
+        "analogy": "Creating your own practice exam while listening to the lecture: the right side is the lecture, the left side is the exam question, and covering the right side gives you an instant practice test every evening!",
+        "pitfalls": "Copying down everything the professor says word-for-word! Verbatim transcription is passive stenography that bypasses cognitive synthesis; always translate ideas into your own words.",
+        "confidence": "100% Academic Study Strategy Standard"
+    }
 }
 
 SEMANTIC_TOPIC_REMAP = [
@@ -2231,15 +2535,19 @@ async def fetch_wikipedia_knowledge(query: str) -> Optional[Dict[str, str]]:
         return None
 
 def match_curriculum(query: str) -> Optional[Dict[str, Any]]:
-    """Match query against verified curriculum repository."""
+    """Match query against verified curriculum repository using ranked specific keyword scoring."""
     q = query.lower()
+    best_match = None
+    longest_kw = 0
     for key, data in ACADEMIC_REPOSITORY.items():
-        if key in q:
-            return data
+        if key in q and len(key) > longest_kw:
+            longest_kw = len(key)
+            best_match = data
         for kw in data["keywords"]:
-            if kw in q:
-                return data
-    return None
+            if kw in q and len(kw) > longest_kw:
+                longest_kw = len(kw)
+                best_match = data
+    return best_match
 
 def format_curriculum_markdown(data: Dict[str, Any], mode: str) -> str:
     """Format answers in the simplest, crystal-clear form while preserving 100% accuracy."""

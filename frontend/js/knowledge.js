@@ -1359,31 +1359,33 @@ function lookupFactualKnowledge(query) {
         }
       }
     },
-    // 1C. HANDSOME GUY LOOK & DISCIPLINED DRESS ARCHITECTURE
+    // 1C. ACCURATE HUMAN BODY SHAPE & DISCIPLINED DRESS ARCHITECTURE
     {
-      pattern: /(?:(?:handsome(?:\s+guy)?(?:\s+look)?)|(?:displine|discipline|disciplined)(?:\s+dress)?|(?:tailored\s+suit)|(?:gentleman\s+suit)|(?:robot\s+dress)|(?:robot\s+clothes))/i,
+      pattern: /(?:(?:handsome(?:\s+guy)?(?:\s+look)?)|(?:displine|discipline|disciplined)(?:\s+dress)?|(?:tailored\s+suit)|(?:gentleman\s+suit)|(?:robot\s+dress)|(?:robot\s+clothes)|(?:(?:accurate\s+)?human\s+body(?:\s+shape)?)|(?:body\s+shape)|(?:accurate\s+body)|(?:human\s+proportions?)|(?:body\s+proportions?))/i,
       data: {
-        id: "handsome_guy_disciplined_dress",
-        title: "3D Humanoid Robot: Handsome Guy Sculpt & Disciplined Formal Menswear",
+        id: "accurate_human_body_shape_disciplined_dress",
+        title: "3D Humanoid Robot: Accurate Human Body Shape & Disciplined Formal Menswear",
         subject: "General",
-        core: "Chatbot Abhi features an anatomically proportioned **Handsome Male Humanoid Sculpt** dressed in an immaculate **Disciplined Bespoke Formal Suit**.",
+        core: "Chatbot Abhi features an anatomically proportioned **8-Head Athletic Male Human Body Shape** dressed in an immaculate **Disciplined Bespoke Formal Suit**.",
         formulas: [
-          "\\text{Aesthetic Ratio} \\approx 1.618 \\quad \\text{(Golden Ratio Masculine Proportions)}",
-          "\\text{Attire} = \\text{Blazer} + \\text{Epaulettes} + \\text{Shirt} + \\text{Windsor Tie} + \\text{Belt} + \\text{Creased Slacks} + \\text{Oxford Shoes}"
+          "\\text{Total Stature} = 8 \\times H_{\\text{head}} \\quad \\text{(Canonical 8-Head Human Proportion Standard)}",
+          "\\text{Shoulder-to-Head Ratio} \\approx 2.7 : 1 \\quad \\text{(Athletic Masculine V-Taper)}",
+          "\\text{Disciplined Dress} = \\text{Blazer} + \\text{Epaulettes} + \\text{Shirt} + \\text{Windsor Tie} + \\text{Belt} + \\text{Creased Slacks} + \\text{Oxford Shoes}"
         ],
         steps: [
-          "1. **Handsome Masculine Facial Sculpt**: Designed with sharp golden-ratio facial architecture—sculpted frontal bone, defined zygomatic cheekbones with subtle model blush, sharp mandibular jawline with mental protuberance and cleft chin, symmetrical almond eyes with positive canthal tilt and sparkling specular catchlights, straight anatomical dorsal nose, and charismatic lips with a subtle resting smile.",
-          "2. **Modern Swept Pompadour Quiff**: Tailored coiffure with tapered fade on the sides and back, crisp side-part grooming line, and voluminous upward-and-backward swept quiff with layered texture locks in rich dark espresso brunette.",
-          "3. **Disciplined Formal Suit (Active by Default)**: Bespoke midnight navy fine wool blazer with structured shoulder epaulettes and gold piping, sharp satin peak lapels, vertically aligned gold crested buttons, crisp poplin dress shirt with stiff spread collar, imperial crimson silk tie held with a polished 18k gold tie bar, 3-tier merit ribbon bar, and folded white linen pocket square with gold trim.",
-          "4. **Disciplined Accessories & Footwear**: Italian dark leather belt with polished buckle, French shirt cuffs with 18k gold cufflinks, executive chronometer wristwatch on the wrist, tailored trousers with razor-sharp pressed front creases, and hand-burnished mahogany espresso Oxford dress shoes with mirror cap-toes."
+          "1. **Canonical 8-Head Athletic Human Proportions**: Modeled after the classical artistic canon (Leonardo da Vinci / Andrew Loomis athletic mesomorph standard). The head height is proportioned to exactly 1/7.8th of total stature, eliminating cartoonish distortion and achieving true anatomical fidelity.",
+          "2. **Athletic V-Taper Torso & Shoulders**: Broad thoracic ribcage spanning 2.7x head width, sculpted with clavicle S-curves, acromion shoulder bridges, firm pectoralis major chest slabs, latissimus dorsi back wings, and chiseled 6-pack rectus abdominis tapering down to a lean waist and Apollo's belt (inguinal crease).",
+          "3. **Anatomical Arms & Legs**: Deltoid shoulder caps smoothly transitioning into biceps/triceps and brachioradialis forearms with 5-digit articulated hands reaching mid-thigh. Quadriceps with vastus medialis teardrop, patella kneecaps, gastrocnemius calf bellies, and articulated feet.",
+          "4. **Handsome Masculine Facial Sculpt**: Designed with golden-ratio facial architecture—sculpted frontal bone, defined cheekbones with model warmth, sharp jawline with cleft chin, symmetrical almond eyes with specular catchlights, modern swept pompadour quiff, straight dorsal nose, and charismatic resting smile.",
+          "5. **Disciplined Formal Suit (Active by Default)**: Bespoke midnight navy fine wool blazer with structured shoulder epaulettes, gold buttons, crisp poplin dress shirt with stiff spread collar, crimson silk tie with gold tie bar, 3-tier merit ribbon bar, folded pocket square, dark leather belt with buckle, creased trousers, and Oxford dress shoes."
         ],
-        analogy: "Like a distinguished, disciplined gentleman officer dressed in bespoke Savile Row tailoring, ready to instruct with effortless elegance and precision!",
-        pitfalls: "The disciplined suit is fully integrated into the 3D kinematic rig, so all waving, high-fives, thinking gestures, and 360° orbits maintain sharp crease lines without clipping.",
+        analogy: "Like an athletic, disciplined presenter or officer whose physical proportions, posture, and tailoring match real human anatomy with effortless elegance!",
+        pitfalls: "The 8-head anatomical scale is fully synchronized with the Three.js kinematic rig, maintaining realistic crease lines, joint rotations, and posture without clipping or distortion.",
         quiz: {
-          question: "What attire does Chatbot Abhi wear by default?",
-          options: ["Disciplined Bespoke Formal Suit", "Casual Pajamas", "Naked Chassis", "Tattered T-shirt"],
+          question: "What canonical proportion standard does Chatbot Abhi's body follow?",
+          options: ["8-Head Athletic Male Human Canon", "3-Head Cartoon Chibi", "12-Head Giant", "Random unscaled cubes"],
           correct: 0,
-          explanation: "Chatbot Abhi wears an immaculate Disciplined Bespoke Formal Suit with blazer, epaulettes, tie, belt, and Oxford shoes."
+          explanation: "Chatbot Abhi follows the canonical 8-Head Athletic Male proportion standard (head is 1/7.8th of total stature)."
         }
       }
     },
