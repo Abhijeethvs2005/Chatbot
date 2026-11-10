@@ -3,6 +3,11 @@
  * Features:
  * - Full Humanoid Anatomy:
  *   - Humanoid Head with Sculpted 3D Nose, Expressive Clear Glowing Eyes, Lips/Mouth, Eyebrows & Ears
+ *   - Enhanced Nose: Rhinion highlight, alar groove shadows, nasal sill, inter-alar width shadows
+ *   - Enhanced Ears: Darwin's Tubercle, Cymba Conchae, Triangular Fossa, Tragal micro-hair tufts, Superior ear skin crease
+ *   - Enhanced Mouth: Hard palate dome + Palatal Rugae, Lingual Frenulum, Fungiform Papillae, Labial Frenulum, Upper & Lower Molar teeth, Uvula
+ *   - Enhanced Eyes: Iris concentric texture rings, Scleral blood vessel wisps
+ *   - Enhanced Hair: Fine flyaway micro-strands, natural part line, temple volume clumps
  *   - Humanoid Torso with Quantum Core Arc Reactor & Abdominal Ribbing
  *   - Two Articulated Arms with Clear 5-Digit Hands (Palm, Knuckles, 3-Segment Phalanges, Opposable Thumb, Glowing Tips)
  *   - TWO REAL HUMANOID ARTICULATED LEGS (Pelvis, Dual Thighs/Femurs, Patellar Chrome Knee Caps with Glowing Halos, Dual Calves/Shins with Cooling Vents & Hydraulic Shocks, Dual-Axis Ankle Gimbals, Grounded Cyber Combat Boots)
@@ -228,7 +233,10 @@ class Robot3D {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.15;
+    this.renderer.toneMappingExposure = 1.08;
+    if (THREE.SRGBColorSpace) {
+      this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    }
     this.renderer.shadowMap.enabled = true;
     this.container.appendChild(this.renderer.domElement);
 
@@ -249,35 +257,49 @@ class Robot3D {
   }
 
   setupLights() {
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+    // Soft ambient wrap light (simulates sky bounce / environment)
+    this.ambientLight = new THREE.AmbientLight(0xfff8f0, 0.52);
     this.scene.add(this.ambientLight);
 
-    this.keyLight = new THREE.DirectionalLight(0xffffff, 1.35);
-    this.keyLight.position.set(4, 6, 5);
+    // Key light — primary skin illumination (warm natural sunlight angle)
+    this.keyLight = new THREE.DirectionalLight(0xfff5e8, 1.05);
+    this.keyLight.position.set(3.5, 6, 5.5);
     this.scene.add(this.keyLight);
 
-    // Balanced left fill light to eliminate any dark shadow or discoloration on the left eye
-    this.fillLight = new THREE.DirectionalLight(0xffffff, 1.1);
-    this.fillLight.position.set(-4, 5, 4);
+    // Fill light — soft warm bounce from left (lifts shadow side of face)
+    this.fillLight = new THREE.DirectionalLight(0xffe8d0, 0.52);
+    this.fillLight.position.set(-4, 4, 4);
     this.scene.add(this.fillLight);
 
-    // Front portrait light for clear facial features (eyes, nose, mouth)
-    this.faceLight = new THREE.DirectionalLight(0xfff7ed, 0.85);
-    this.faceLight.position.set(0, 1.2, 3.8);
+    // Portrait front light — dedicated soft frontal fill for facial clarity
+    this.faceLight = new THREE.DirectionalLight(0xfff8f0, 0.55);
+    this.faceLight.position.set(0, 0.8, 4.5);
     this.scene.add(this.faceLight);
 
-    this.rimLight = new THREE.DirectionalLight(0x38bdf8, 1.8);
+    // Eye-level portrait light — specifically illuminates the eye sockets
+    this.eyePortraitLight = new THREE.DirectionalLight(0xfff2e8, 0.42);
+    this.eyePortraitLight.position.set(0, 0.3, 4.0);
+    this.scene.add(this.eyePortraitLight);
+
+    // Rim / hair light — separates head from background
+    this.rimLight = new THREE.DirectionalLight(0x88ccff, 0.65);
     this.rimLight.position.set(-4, 3, -3);
     this.scene.add(this.rimLight);
 
-    this.coreLight = new THREE.PointLight(0x38bdf8, 2.2, 4);
+    // Core chest accent light
+    this.coreLight = new THREE.PointLight(0x38bdf8, 1.1, 4.5);
     this.coreLight.position.set(0, 0.1, 0.6);
     this.scene.add(this.coreLight);
 
-    // Dedicated lower ground light to illuminate the two legs and feet
-    this.groundLight = new THREE.PointLight(0x38bdf8, 1.2, 3);
+    // Ground fill light (bounces up from floor to light legs)
+    this.groundLight = new THREE.PointLight(0x4488cc, 0.70, 3.5);
     this.groundLight.position.set(0, -1.1, 0.8);
     this.scene.add(this.groundLight);
+
+    // Under-chin fill (lifts shadow under jaw/neck for natural look)
+    this.chinFillLight = new THREE.PointLight(0xffe8d0, 0.35, 2.0);
+    this.chinFillLight.position.set(0, 0.55, 1.2);
+    this.scene.add(this.chinFillLight);
   }
 
   initMaterials() {
@@ -368,29 +390,31 @@ class Robot3D {
     });
 
     // --- REALISTIC HUMAN DERMAL & MUSCLE SHADING ---
-    // Primary human skin: Warm masculine undertones, subtle hemoglobin subsurface warmth
+    // Primary human skin: Warm natural masculine undertones with realistic hemoglobin subsurface warmth
     this.matSkin = new THREE.MeshStandardMaterial({
-      color: 0xdfaa8b, // Healthy, warm masculine human skin tone
-      roughness: 0.52,
-      metalness: 0.02,
-      emissive: 0x2e1208, // Subtle subsurface scattering glow (blood warmth)
+      color: 0xd69974,       // Warm natural masculine human skin
+      roughness: 0.48,
+      metalness: 0.0,
+      emissive: 0x3d170a,    // Rich biological hemoglobin warmth
+      emissiveIntensity: 0.20
+    });
+
+    // Muscle highlight: specular dermal sheen on facial high points (brow, cheekbones, nose bridge, chin)
+    this.matSkinHighlight = new THREE.MeshStandardMaterial({
+      color: 0xebd0ba,       // Natural biological highlight for facial prominence
+      roughness: 0.35,
+      metalness: 0.0,
+      emissive: 0x3d180a,
       emissiveIntensity: 0.16
     });
 
-    // Muscle highlight: specular dermal sheen on muscle peaks (deltoid, bicep peak, upper chest, abs)
-    this.matSkinHighlight = new THREE.MeshStandardMaterial({
-      color: 0xefbe9b,
-      roughness: 0.42,
-      metalness: 0.03,
-      emissive: 0x3a180b,
-      emissiveIntensity: 0.14
-    });
-
-    // Muscle shadow/separation: deep anatomical grooves (linea alba, intercostal cuts, serratus, inframammary fold)
+    // Muscle shadow/separation: soft warm anatomical contours and creases
     this.matSkinShadow = new THREE.MeshStandardMaterial({
-      color: 0xb87353,
+      color: 0xaa6448,       // Natural warm anatomical shadow tone
       roughness: 0.68,
-      metalness: 0.02
+      metalness: 0.0,
+      emissive: 0x220c06,
+      emissiveIntensity: 0.12
     });
 
     // Subtle natural masculine vascularity (veins on pumped biceps/forearms)
@@ -434,25 +458,31 @@ class Robot3D {
     });
 
     this.matEyebrow = new THREE.MeshStandardMaterial({
-      color: 0x181512,
-      roughness: 0.85
+      color: 0x1a1512, // Deep natural espresso brown
+      roughness: 0.88,
+      metalness: 0.0
     });
 
     this.matLips = new THREE.MeshStandardMaterial({
-      color: 0xc97a70, // Natural masculine lips
-      roughness: 0.50,
-      metalness: 0.02
+      color: 0xbe686c, // Healthy natural masculine vermilion lips
+      roughness: 0.40,
+      metalness: 0.0,
+      emissive: 0x3a0c0c,
+      emissiveIntensity: 0.14
     });
 
     this.matSclera = new THREE.MeshStandardMaterial({
-      color: 0xf8fafc, // Pure pearlescent clean white sclera
-      roughness: 0.12,
-      metalness: 0.05
+      color: 0xf6f3ee,       // Warm biological off-white
+      roughness: 0.08,
+      metalness: 0.0,
+      emissive: 0x0c0806,
+      emissiveIntensity: 0.04
     });
 
     this.matCaruncle = new THREE.MeshStandardMaterial({
-      color: 0xe08f88,
-      roughness: 0.40
+      color: 0xde7b76, // Natural tear duct lacrimal node pink
+      roughness: 0.35,
+      metalness: 0.0
     });
 
     this.matNails = new THREE.MeshStandardMaterial({
@@ -462,21 +492,22 @@ class Robot3D {
     });
 
     this.matTeeth = new THREE.MeshStandardMaterial({
-      color: 0xf8fafc, // Pearlescent clean white enamel
-      roughness: 0.20,
-      metalness: 0.05
+      color: 0xfdfbf7, // Natural pearlescent human enamel
+      roughness: 0.18,
+      metalness: 0.04
     });
 
     this.matEyelash = new THREE.MeshStandardMaterial({
-      color: 0x0f0e0d, // Ultra-fine dark lash margin
-      roughness: 0.85
+      color: 0x0a0908, // Fine soft black human cilia
+      roughness: 0.88,
+      metalness: 0.0
     });
 
     // --- BIOLOGICAL ORAL ANATOMY & LIVING EYE MATERIALS ---
     this.matTongue = new THREE.MeshStandardMaterial({
-      color: 0xd46468, // Natural warm muscular tongue pink-red
-      roughness: 0.42,
-      metalness: 0.02
+      color: 0xce5e64, // Natural warm vascular tongue muscular tissue
+      roughness: 0.38,
+      metalness: 0.0
     });
 
     this.matTongueSulcus = new THREE.MeshStandardMaterial({
@@ -486,33 +517,33 @@ class Robot3D {
     });
 
     this.matGingiva = new THREE.MeshStandardMaterial({
-      color: 0xc45c66, // Healthy pink gingival mucosa (gums)
-      roughness: 0.46,
+      color: 0xbe5662, // Healthy natural pink gingival mucosa (gums)
+      roughness: 0.44,
       metalness: 0.02
     });
 
     this.matOralCavity = new THREE.MeshStandardMaterial({
-      color: 0x220c10, // Deep warm mucosal shadow of the oral pharynx
+      color: 0x1f0a0e, // Deep warm mucosal shadow of the oral pharynx
       roughness: 0.90,
       metalness: 0.04
     });
 
     this.matHumanIris = new THREE.MeshStandardMaterial({
-      color: 0x2e5984, // Rich handsome deep cerulean/slate blue human iris
-      roughness: 0.24,
-      metalness: 0.08
+      color: 0x2b4e6d, // Rich natural hazel-slate biological human iris
+      roughness: 0.28,
+      metalness: 0.05
     });
 
     this.matHumanIrisCollarette = new THREE.MeshStandardMaterial({
-      color: 0x4a7c9f, // Pupillary collarette & ciliary striae ring
-      roughness: 0.30,
+      color: 0x1e3d55, // Pupillary collarette & striae ring
+      roughness: 0.25,
       metalness: 0.06
     });
 
     this.matHumanIrisFibers = new THREE.MeshStandardMaterial({
-      color: 0x6ba4c8, // Radial ciliary fibers
-      roughness: 0.28,
-      metalness: 0.05
+      color: 0x5a82a0, // Radial ciliary fibers
+      roughness: 0.25,
+      metalness: 0.04
     });
 
     // --- REFINED HUMAN MENSWEAR CLOTHING MATERIALS ---
@@ -617,6 +648,19 @@ class Robot3D {
     this.matSlateTrousers = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.75 });
     this.matSpaceSuit = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.35, metalness: 0.3 });
     this.matStethoscope = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.25, metalness: 0.8 });
+
+    // --- ENHANCED FACIAL DETAIL MATERIALS ---
+    this.matScleraVein = new THREE.MeshStandardMaterial({ color: 0xdd8888, roughness: 0.5, metalness: 0.0, transparent: true, opacity: 0.5 });
+    this.matIrisRing = new THREE.MeshStandardMaterial({ color: 0x1a1a2e, roughness: 0.2, metalness: 0.3 });
+    this.matIrisRing2 = new THREE.MeshStandardMaterial({ color: 0x2a1a1a, roughness: 0.2, metalness: 0.3 });
+    this.matPalate = new THREE.MeshStandardMaterial({ color: 0xd4a0a0, roughness: 0.5 });
+    this.matUvula = new THREE.MeshStandardMaterial({ color: 0xc06870, roughness: 0.45 });
+    this.matFrenulum = new THREE.MeshStandardMaterial({ color: 0xc06060, roughness: 0.5, transparent: true, opacity: 0.8 });
+    this.matTongueBump = new THREE.MeshStandardMaterial({ color: 0xd47070, roughness: 0.5 });
+    this.matHairFlyaway = new THREE.MeshStandardMaterial({ color: 0x251e18, roughness: 0.60, metalness: 0.05, transparent: true, opacity: 0.75 });
+    this.matEarCrux = new THREE.MeshStandardMaterial({ color: 0xd4a090, roughness: 0.52 });
+    this.matNoseHighlight = new THREE.MeshStandardMaterial({ color: 0xeecbba, roughness: 0.28, metalness: 0.06 });
+    this.matScleraBorder = new THREE.MeshStandardMaterial({ color: 0xe8e0d0, roughness: 0.20 });
   }
 
   setTheme(themeKey) {
@@ -636,11 +680,12 @@ class Robot3D {
       this.matIris.color.setHex(p.eyeColor || p.accent);
       this.matIris.emissive.setHex(p.glow);
     }
+    // Maintain natural biological human iris colors across all themes
     if (this.matHumanIris) {
-      this.matHumanIris.color.setHex(p.eyeColor || p.accent);
+      this.matHumanIris.color.setHex(0x2b4e6d);
     }
     if (this.matHumanIrisCollarette) {
-      this.matHumanIrisCollarette.color.setHex(p.glow || p.accent);
+      this.matHumanIrisCollarette.color.setHex(0x1e3d55);
     }
     if (this.leftEye && this.leftEye.userData.aperture) {
       this.leftEye.userData.aperture.material.color.setHex(p.accent);
@@ -654,8 +699,9 @@ class Robot3D {
     if (this.coreLight) this.coreLight.color.setHex(p.light);
     if (this.rimLight) this.rimLight.color.setHex(p.light);
     if (this.groundLight) this.groundLight.color.setHex(p.light);
-    if (this.leftEyeLight) this.leftEyeLight.color.setHex(p.light);
-    if (this.rightEyeLight) this.rightEyeLight.color.setHex(p.light);
+    // Eye lights stay clean, warm natural portrait studio light (not colored neon)
+    if (this.leftEyeLight) this.leftEyeLight.color.setHex(0xfff6ed);
+    if (this.rightEyeLight) this.rightEyeLight.color.setHex(0xfff6ed);
   }
 
   buildHumanoidRobot() {
@@ -731,7 +777,7 @@ class Robot3D {
     [-0.21, 0.21].forEach((cx) => {
       const isLeft = cx < 0;
       // Zygomatic Cheekbone prominence
-      const cheekGeo = new THREE.SphereGeometry(0.155, 20, 20);
+      const cheekGeo = new THREE.SphereGeometry(0.155, 24, 24);
       cheekGeo.scale(0.92, 1.15, 0.86);
       const cheek = new THREE.Mesh(cheekGeo, this.matSkin);
       cheek.position.set(cx, -0.035, 0.315);
@@ -739,18 +785,29 @@ class Robot3D {
       cheek.rotation.z = isLeft ? -0.08 : 0.08;
       this.headGroup.add(cheek);
 
-      // Maxillary Midface Contour (curves toward nasolabial fold)
-      const maxilla = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 14), this.matSkin);
+      // Maxillary Midface Contour (curves gently toward nasolabial fold)
+      const maxilla = new THREE.Mesh(new THREE.SphereGeometry(0.11, 16, 16), this.matSkin);
       maxilla.scale.set(0.85, 1.25, 0.90);
       maxilla.position.set(cx * 0.62, -0.115, 0.380);
       maxilla.rotation.y = isLeft ? 0.22 : -0.22;
       this.headGroup.add(maxilla);
 
-      // Submalar Hollow Shadow (Athletic chiseled cheek hollow)
-      const submalar = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.12, 0.06), this.matSkinShadow);
+      // Smooth Submalar Hollow Shadow (Athletic chiseled cheek hollow - smooth organic contour)
+      const submalarGeo = new THREE.SphereGeometry(0.065, 16, 16);
+      submalarGeo.scale(0.80, 1.35, 0.45);
+      const submalar = new THREE.Mesh(submalarGeo, this.matSkinShadow);
       submalar.position.set(cx * 1.12, -0.14, 0.26);
       submalar.rotation.z = isLeft ? 0.24 : -0.24;
       this.headGroup.add(submalar);
+
+      // Natural Nasolabial Fold (smile line curve running from alar margin to mouth corner)
+      const nasolabialGeo = new THREE.CylinderGeometry(0.008, 0.005, 0.14, 12);
+      nasolabialGeo.scale(1.0, 1.0, 0.6);
+      const nasolabial = new THREE.Mesh(nasolabialGeo, this.matSkinShadow);
+      nasolabial.position.set(cx * 0.55, -0.145, 0.370);
+      nasolabial.rotation.z = isLeft ? -0.32 : 0.32;
+      nasolabial.rotation.y = isLeft ? 0.15 : -0.15;
+      this.headGroup.add(nasolabial);
     });
 
     // ==========================================
@@ -759,7 +816,7 @@ class Robot3D {
     [-0.19, 0.19].forEach((jx) => {
       const isLeft = jx < 0;
       // Mandibular Angle (Gonion / jawline corner)
-      const jawAngleGeo = new THREE.SphereGeometry(0.125, 16, 16);
+      const jawAngleGeo = new THREE.SphereGeometry(0.125, 18, 18);
       jawAngleGeo.scale(0.82, 1.35, 1.35);
       const jawAngle = new THREE.Mesh(jawAngleGeo, this.matSkin);
       jawAngle.position.set(jx, -0.22, 0.14);
@@ -767,8 +824,10 @@ class Robot3D {
       jawAngle.rotation.z = isLeft ? -0.14 : 0.14;
       this.headGroup.add(jawAngle);
 
-      // Mandibular Body (Sharp jawline ridge tapering toward chin)
-      const jawRidge = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.10, 0.22), this.matSkin);
+      // Mandibular Body (Smooth rounded jawline ridge tapering naturally toward chin)
+      const jawRidgeGeo = new THREE.CylinderGeometry(0.042, 0.036, 0.22, 16);
+      jawRidgeGeo.scale(1.0, 1.0, 0.75);
+      const jawRidge = new THREE.Mesh(jawRidgeGeo, this.matSkin);
       jawRidge.position.set(jx * 0.72, -0.27, 0.24);
       jawRidge.rotation.y = isLeft ? 0.38 : -0.38;
       jawRidge.rotation.z = isLeft ? -0.18 : 0.18;
@@ -776,7 +835,7 @@ class Robot3D {
     });
 
     // Strong Square Male Chin (Mental Protuberance)
-    const chinGeo = new THREE.SphereGeometry(0.155, 18, 18);
+    const chinGeo = new THREE.SphereGeometry(0.155, 20, 20);
     chinGeo.scale(1.22, 0.82, 1.05);
     const chin = new THREE.Mesh(chinGeo, this.matSkin);
     chin.position.set(0, -0.32, 0.33);
@@ -784,14 +843,15 @@ class Robot3D {
 
     // Dual Mental Tubercles (Left & Right chin corners defining handsome square chin)
     [-0.065, 0.065].forEach((tx) => {
-      const tubercle = new THREE.Mesh(new THREE.SphereGeometry(0.042, 12, 12), this.matSkin);
+      const tubercle = new THREE.Mesh(new THREE.SphereGeometry(0.042, 14, 14), this.matSkin);
       tubercle.scale.set(0.95, 0.90, 1.15);
       tubercle.position.set(tx, -0.325, 0.410);
       this.headGroup.add(tubercle);
     });
 
-    // Handsome Masculine Chin Cleft (Central dimple groove in shadow material)
-    const chinCleft = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.075, 0.024), this.matSkinShadow);
+    // Handsome Masculine Chin Cleft (Smooth central dimple groove in shadow material)
+    const chinCleftGeo = new THREE.CylinderGeometry(0.005, 0.004, 0.068, 10);
+    const chinCleft = new THREE.Mesh(chinCleftGeo, this.matSkinShadow);
     chinCleft.position.set(0, -0.325, 0.428);
     this.headGroup.add(chinCleft);
 
@@ -972,6 +1032,46 @@ class Robot3D {
     this.hairGroup = hairRoot;
     this.headGroup.add(hairRoot);
 
+    // 4i. Fine Flyaway Micro-Hair Strands (Wispy individual hairs catching light)
+    const flyawayData = [
+      { x: 0.08, y: 0.56, z: 0.30, len: 0.14, rotX: 0.55, rotY: 0.10, rotZ: 0.08 },
+      { x: -0.06, y: 0.57, z: 0.32, len: 0.12, rotX: 0.50, rotY: -0.14, rotZ: -0.06 },
+      { x: 0.22, y: 0.52, z: 0.22, len: 0.11, rotX: 0.42, rotY: 0.22, rotZ: 0.14 },
+      { x: -0.22, y: 0.52, z: 0.22, len: 0.11, rotX: 0.42, rotY: -0.22, rotZ: -0.14 },
+      { x: 0.0, y: 0.59, z: 0.18, len: 0.10, rotX: 0.60, rotY: 0.0, rotZ: 0.0 },
+      { x: 0.14, y: 0.55, z: 0.26, len: 0.09, rotX: 0.48, rotY: 0.16, rotZ: 0.10 },
+      { x: -0.14, y: 0.55, z: 0.26, len: 0.09, rotX: 0.48, rotY: -0.16, rotZ: -0.10 },
+      { x: 0.30, y: 0.46, z: 0.14, len: 0.08, rotX: 0.35, rotY: 0.30, rotZ: 0.22 },
+      { x: -0.30, y: 0.46, z: 0.14, len: 0.08, rotX: 0.35, rotY: -0.30, rotZ: -0.22 },
+    ];
+    flyawayData.forEach(f => {
+      const fw = new THREE.Mesh(new THREE.CylinderGeometry(0.001, 0.003, f.len, 5), this.matHairFlyaway);
+      fw.position.set(f.x, f.y, f.z);
+      fw.rotation.set(f.rotX, f.rotY, f.rotZ);
+      this.headGroup.add(fw);
+    });
+
+    // 4j. Natural Part Line (Central scalp separation groove)
+    const partLine = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.005, 0.28), this.matHairDeep);
+    partLine.position.set(0.02, 0.51, 0.08);
+    partLine.rotation.x = 0.05;
+    this.headGroup.add(partLine);
+
+    // 4k. Additional Temple Volume Hair Clumps
+    [-0.33, 0.33].forEach(tx => {
+      const isLeft = tx < 0;
+      [0, 1, 2].forEach(i => {
+        const tClump = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.012 - i * 0.002, 0.020 - i * 0.003, 0.14 - i * 0.02, 8),
+          i === 1 ? this.matHairHighlight : this.matHair
+        );
+        tClump.position.set(tx, 0.14 - i * 0.06, 0.18 + i * 0.04);
+        tClump.rotation.z = isLeft ? (0.55 + i * 0.08) : -(0.55 + i * 0.08);
+        tClump.rotation.y = isLeft ? 0.22 : -0.22;
+        this.headGroup.add(tClump);
+      });
+    });
+
     // ==========================================
     // 5. AUTHENTIC ANATOMICAL HUMAN EARS
     // ==========================================
@@ -1053,6 +1153,43 @@ class Robot3D {
       lobule.position.set(isLeft ? -0.010 : 0.010, -0.065, -0.002);
       earGroup.add(lobule);
 
+      // 5g. Darwin's Tubercle (Small cartilaginous node on helix apex - evolutionary remnant)
+      const darwinGeo = new THREE.SphereGeometry(0.009, 8, 8);
+      const darwin = new THREE.Mesh(darwinGeo, this.matSkin);
+      darwin.position.set(isLeft ? -0.015 : 0.015, 0.058, -0.018);
+      earGroup.add(darwin);
+
+      // 5h. Cymba Conchae (Upper hollow bowl above crus of helix)
+      const cymba = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 8), this.matSkinShadow);
+      cymba.scale.set(0.65, 0.5, 0.45);
+      cymba.position.set(isLeft ? -0.008 : 0.008, 0.028, 0.008);
+      earGroup.add(cymba);
+
+      // 5i. Triangular Fossa (Depression in upper antihelix)
+      const fossaGeo = new THREE.SphereGeometry(0.014, 8, 8);
+      const triangFossa = new THREE.Mesh(fossaGeo, this.matSkinShadow);
+      triangFossa.scale.set(0.7, 0.4, 0.5);
+      triangFossa.position.set(isLeft ? -0.010 : 0.010, 0.040, -0.014);
+      earGroup.add(triangFossa);
+
+      // 5j. Tragal Micro-Hair tufts
+      [0, 1].forEach(ti => {
+        const tHair = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.001, 0.002, 0.012, 4),
+          this.matHairFlyaway
+        );
+        tHair.position.set(isLeft ? -(0.003 + ti * 0.004) : (0.003 + ti * 0.004), -0.002 + ti * 0.004, 0.028 + ti * 0.003);
+        tHair.rotation.set(0.3 + ti * 0.2, 0, isLeft ? -0.3 : 0.3);
+        earGroup.add(tHair);
+      });
+
+      // 5k. Superior Ear Skin Crease
+      const earCrease = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.004, 6, 16, Math.PI * 0.5), this.matEarCrux);
+      earCrease.rotation.y = Math.PI / 2;
+      earCrease.rotation.z = isLeft ? 0.80 : -0.80;
+      earCrease.position.set(isLeft ? -0.018 : 0.018, 0.028, -0.038);
+      earGroup.add(earCrease);
+
       this.headGroup.add(earGroup);
     });
 
@@ -1098,10 +1235,12 @@ class Robot3D {
     bridge.position.set(0, 0.025, 0.035);
     noseGroup.add(bridge);
 
-    // Lateral Nasal Sidewalls
+    // Lateral Nasal Sidewalls (Smooth anatomical bridge slope)
     [-0.032, 0.032].forEach((nx) => {
       const isLeft = nx < 0;
-      const sidewall = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.12, 0.04), this.matSkin);
+      const sidewallGeo = new THREE.CylinderGeometry(0.012, 0.018, 0.12, 12);
+      sidewallGeo.scale(1.0, 1.0, 0.65);
+      const sidewall = new THREE.Mesh(sidewallGeo, this.matSkin);
       sidewall.position.set(nx, 0.020, 0.028);
       sidewall.rotation.y = isLeft ? 0.35 : -0.35;
       sidewall.rotation.x = 0.28;
@@ -1109,7 +1248,7 @@ class Robot3D {
     });
 
     // 7b. Sculpted Nose Tip (Apex / Lobule with Supra-tip break)
-    const tipGeo = new THREE.SphereGeometry(0.036, 16, 16);
+    const tipGeo = new THREE.SphereGeometry(0.036, 18, 18);
     tipGeo.scale(1.15, 0.95, 1.20);
     const noseTip = new THREE.Mesh(tipGeo, this.matSkin);
     noseTip.position.set(0, -0.052, 0.105);
@@ -1117,7 +1256,7 @@ class Robot3D {
 
     // 7c. Symmetrical Curved Alar Nostril Wings
     [-0.042, 0.042].forEach((nx) => {
-      const ala = new THREE.Mesh(new THREE.SphereGeometry(0.023, 14, 14), this.matSkin);
+      const ala = new THREE.Mesh(new THREE.SphereGeometry(0.023, 16, 16), this.matSkin);
       ala.scale.set(0.88, 0.82, 1.12);
       ala.position.set(nx, -0.062, 0.085);
       noseGroup.add(ala);
@@ -1130,18 +1269,55 @@ class Robot3D {
     });
 
     // 7d. Nasal Columella (Central column dividing nostrils)
-    const columella = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.028, 0.030), this.matSkin);
+    const columellaGeo = new THREE.CylinderGeometry(0.008, 0.009, 0.028, 12);
+    columellaGeo.scale(0.85, 1.0, 1.2);
+    const columella = new THREE.Mesh(columellaGeo, this.matSkin);
     columella.position.set(0, -0.072, 0.082);
     noseGroup.add(columella);
 
+    // 7d2. Rhinion Highlight (Specular point at nasal tip where light catches)
+    const rhinion = new THREE.Mesh(new THREE.SphereGeometry(0.012, 12, 12), this.matNoseHighlight);
+    rhinion.scale.set(0.9, 0.7, 1.1);
+    rhinion.position.set(0, -0.032, 0.115);
+    noseGroup.add(rhinion);
+
+    // 7d3. Alar Facial Groove Shadows (Nasolabial crease start points)
+    [-0.052, 0.052].forEach(ax => {
+      const alarGrooveGeo = new THREE.CylinderGeometry(0.004, 0.004, 0.045, 8);
+      const alarGroove = new THREE.Mesh(alarGrooveGeo, this.matSkinShadow);
+      alarGroove.position.set(ax, -0.072, 0.065);
+      alarGroove.rotation.y = ax < 0 ? 0.4 : -0.4;
+      alarGroove.rotation.z = ax < 0 ? -0.15 : 0.15;
+      noseGroup.add(alarGroove);
+    });
+
+    // 7d4. Nasal Sill (Horizontal shelf below nostrils)
+    const nasalSillGeo = new THREE.CylinderGeometry(0.006, 0.006, 0.065, 10);
+    const nasalSill = new THREE.Mesh(nasalSillGeo, this.matSkin);
+    nasalSill.rotation.z = Math.PI / 2;
+    nasalSill.position.set(0, -0.082, 0.072);
+    noseGroup.add(nasalSill);
+
+    // 7d5. Inter-alar Width Shadows (Shade under alar base)
+    [-0.038, 0.038].forEach(iax => {
+      const alarBase = new THREE.Mesh(new THREE.SphereGeometry(0.012, 10, 10), this.matSkinShadow);
+      alarBase.scale.set(1.0, 0.5, 0.8);
+      alarBase.position.set(iax, -0.082, 0.072);
+      noseGroup.add(alarBase);
+    });
+
     // 7e. Philtrum Columns & Central Groove
     [-0.016, 0.016].forEach((px) => {
-      const column = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.075, 10), this.matSkin);
+      const column = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.075, 12), this.matSkin);
       column.position.set(px, -0.125, 0.060);
       noseGroup.add(column);
     });
 
-    const philtrumGroove = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.070, 0.012), this.matSkinShadow);
+    const philtrumGrooveGeo = new THREE.CylinderGeometry(0.007, 0.007, 0.070, 10);
+    philtrumGrooveGeo.scale(1.2, 1.0, 0.45);
+    const philtrumGroove = new THREE.Mesh(philtrumGrooveGeo, this.matSkinShadow);
+    philtrumGroove.position.set(0, -0.125, 0.058);
+    noseGroup.add(philtrumGroove);
     philtrumGroove.position.set(0, -0.125, 0.058);
     noseGroup.add(philtrumGroove);
 
@@ -1177,6 +1353,24 @@ class Robot3D {
     );
     oralCavity.position.set(0, 0.0, -0.025);
     mouthRoot.add(oralCavity);
+
+    // 10a2. Palate Roof (Hard Palate - Dome arch behind upper teeth)
+    const palateGeo = new THREE.SphereGeometry(0.065, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.42);
+    const palate = new THREE.Mesh(palateGeo, this.matPalate);
+    palate.rotation.x = Math.PI;
+    palate.position.set(0, 0.025, -0.022);
+    mouthRoot.add(palate);
+
+    // 10a3. Palatal Rugae (Transverse ridges on hard palate - 3 pairs)
+    [0, 1, 2].forEach(ri => {
+      [-0.028, 0.028].forEach(rx => {
+        const rugaGeo = new THREE.BoxGeometry(0.028, 0.004, 0.006);
+        const ruga = new THREE.Mesh(rugaGeo, this.matUvula);
+        ruga.position.set(rx, 0.030, -0.010 - ri * 0.012);
+        ruga.rotation.y = rx < 0 ? 0.18 : -0.18;
+        mouthRoot.add(ruga);
+      });
+    });
 
     // Buccal Mucosa Walls (Inner cheek tissue framing the oral cavity)
     [-0.075, 0.075].forEach((bx) => {
@@ -1258,6 +1452,22 @@ class Robot3D {
     this.tongue = tongueGroup;
     mouthRoot.add(tongueGroup);
 
+    // Lingual Frenulum (Vertical mucosal band connecting tongue underside to floor)
+    const lingFren = new THREE.Mesh(new THREE.BoxGeometry(0.005, 0.016, 0.004), this.matFrenulum);
+    lingFren.position.set(0, -0.024, 0.008);
+    mouthRoot.add(lingFren);
+
+    // Fungiform Papillae (Mushroom-shaped taste buds on tongue dorsum - 5 bumps)
+    const papillaPositions = [
+      { x: 0.0, z: 0.014 }, { x: 0.012, z: 0.004 }, { x: -0.012, z: 0.004 },
+      { x: 0.008, z: -0.006 }, { x: -0.008, z: -0.006 }
+    ];
+    papillaPositions.forEach(pp => {
+      const pap = new THREE.Mesh(new THREE.SphereGeometry(0.003, 6, 6), this.matTongueBump);
+      pap.position.set(pp.x, 0.012, tongueGroup.position.z + pp.z);
+      mouthRoot.add(pap);
+    });
+
     // 10d. Mandibular (Lower) Dental Arch, Lower Gingiva & Lower Mouth / Jaw
     // Articulates dynamically on speech visemes, resting breath, and smiles
     const lowerMouthGroup = new THREE.Group();
@@ -1326,6 +1536,22 @@ class Robot3D {
     this.lowerMouth = lowerMouthGroup;
     mouthRoot.add(lowerMouthGroup);
 
+    // 10i. Upper Molar Teeth (deeper in arch, one per side upper)
+    [-0.062, 0.062].forEach(mx => {
+      const molar = new THREE.Mesh(new THREE.BoxGeometry(0.013, 0.013, 0.014), this.matTeeth);
+      molar.position.set(mx, 0.012, -0.014);
+      molar.rotation.y = mx < 0 ? 0.60 : -0.60;
+      upperJawGroup.add(molar);
+    });
+
+    // 10j. Lower Molar Teeth (deeper in arch, one per side lower)
+    [-0.056, 0.056].forEach(mx => {
+      const lmolar = new THREE.Mesh(new THREE.BoxGeometry(0.013, 0.012, 0.014), this.matTeeth);
+      lmolar.position.set(mx, -0.006, -0.012);
+      lmolar.rotation.y = mx < 0 ? 0.52 : -0.52;
+      lowerMouthGroup.add(lmolar);
+    });
+
     // 10e. Upper Lip (Cupid's Bow, Procheilon Central Tubercle & Lateral Wings)
     const upperLipGroup = new THREE.Group();
     upperLipGroup.position.set(0, 0.018, 0.020);
@@ -1354,6 +1580,11 @@ class Robot3D {
     this.upperLip = upperLipGroup;
     mouthRoot.add(upperLipGroup);
 
+    // Labial Frenulum (Mucosal band connecting upper lip to gingiva)
+    const labFren = new THREE.Mesh(new THREE.BoxGeometry(0.005, 0.014, 0.004), this.matFrenulum);
+    labFren.position.set(0, 0.014, -0.004);
+    mouthRoot.add(labFren);
+
     // 10f. Oral Commissures (Natural dimple nodes at left and right corners of the mouth)
     [-0.088, 0.088].forEach((cx) => {
       const commissure = new THREE.Mesh(
@@ -1364,13 +1595,25 @@ class Robot3D {
       mouthRoot.add(commissure);
     });
 
-    // 10g. Mentolabial Sulcus (Horizontal anatomical depression between lower lip & chin)
-    const mentolabial = new THREE.Mesh(
-      new THREE.BoxGeometry(0.12, 0.012, 0.016),
-      this.matSkinShadow
-    );
+    // 10g. Mentolabial Sulcus (Smooth horizontal anatomical depression between lower lip & chin)
+    const mentolabialGeo = new THREE.CylinderGeometry(0.006, 0.006, 0.11, 12);
+    mentolabialGeo.scale(1.0, 1.0, 0.5);
+    const mentolabial = new THREE.Mesh(mentolabialGeo, this.matSkinShadow);
+    mentolabial.rotation.z = Math.PI / 2;
     mentolabial.position.set(0, -0.042, 0.014);
     mouthRoot.add(mentolabial);
+
+    // 10h. Uvula (Pendant mucosal dangly hanging from soft palate)
+    const uvulaGroup = new THREE.Group();
+    uvulaGroup.position.set(0, 0.025, -0.038);
+    const uvulaStem = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.005, 0.016, 8), this.matUvula);
+    uvulaStem.position.set(0, 0, 0);
+    uvulaGroup.add(uvulaStem);
+    const uvulaTip = new THREE.Mesh(new THREE.SphereGeometry(0.006, 8, 8), this.matUvula);
+    uvulaTip.position.set(0, -0.012, 0);
+    uvulaGroup.add(uvulaTip);
+    mouthRoot.add(uvulaGroup);
+    this.uvula = uvulaGroup;
 
     this.faceLips = mouthRoot;
     this.headGroup.add(mouthRoot);
@@ -1383,124 +1626,336 @@ class Robot3D {
     const eyeGroup = new THREE.Group();
     eyeGroup.position.set(xPos, 0.065, 0.44);
 
-    // 1. Almond-Shaped Palpebral Orbital Rim
-    const almondArchGeo = new THREE.TorusGeometry(0.112, 0.014, 16, 32);
-    almondArchGeo.scale(1.22, 0.88, 1.0);
+    // ── 1. DEEP ORBITAL SOCKET CAVITY SHADOW ──────────────────────────────────
+    const socketShadowGeo = new THREE.SphereGeometry(0.108, 24, 24);
+    const socketShadow = new THREE.Mesh(socketShadowGeo, new THREE.MeshStandardMaterial({
+      color: 0x1a0e08,
+      roughness: 0.95,
+      metalness: 0.0
+    }));
+    socketShadow.position.set(0, 0, -0.045);
+    eyeGroup.add(socketShadow);
+
+    // ── 2. ALMOND-SHAPED PALPEBRAL ORBITAL RIM & CANTHI ──────────────────────
+    const almondArchGeo = new THREE.TorusGeometry(0.106, 0.012, 18, 36);
+    almondArchGeo.scale(1.22, 0.84, 1.0);
     const socketRim = new THREE.Mesh(almondArchGeo, this.matSkin);
-    socketRim.rotation.z = isLeft ? 0.08 : -0.08; // Positive canthal tilt
+    socketRim.rotation.z = isLeft ? 0.08 : -0.08; // Positive natural canthal tilt
+    socketRim.position.set(0, 0, 0.018);
     eyeGroup.add(socketRim);
 
-    // Medial Canthus (Inner eye corner pointing toward nose)
-    const innerCorner = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 12), this.matSkin);
-    innerCorner.scale.set(1.4, 0.8, 0.8);
-    innerCorner.position.set(isLeft ? 0.092 : -0.092, -0.006, 0.012);
+    // Inner Corner (Medial Canthus) with natural tear duct prominence
+    const innerCorner = new THREE.Mesh(new THREE.SphereGeometry(0.015, 14, 14), this.matSkin);
+    innerCorner.scale.set(1.4, 0.75, 0.75);
+    innerCorner.position.set(isLeft ? 0.086 : -0.086, -0.006, 0.016);
     eyeGroup.add(innerCorner);
 
-    // Medial Lacrimal Caruncle (Natural pink inner tear node)
-    const caruncle = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 10), this.matCaruncle);
-    caruncle.scale.set(1.1, 0.85, 0.9);
-    caruncle.position.set(isLeft ? 0.082 : -0.082, -0.006, 0.018);
-    eyeGroup.add(caruncle);
-
-    // Lateral Canthus (Outer eye corner with crisp taper)
-    const outerCorner = new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 10), this.matSkin);
-    outerCorner.scale.set(1.2, 0.8, 0.8);
-    outerCorner.position.set(isLeft ? -0.095 : 0.095, 0.008, 0.008);
+    // Outer Corner (Lateral Canthus)
+    const outerCorner = new THREE.Mesh(new THREE.SphereGeometry(0.013, 12, 12), this.matSkin);
+    outerCorner.scale.set(1.2, 0.75, 0.75);
+    outerCorner.position.set(isLeft ? -0.088 : 0.088, 0.008, 0.014);
     eyeGroup.add(outerCorner);
 
-    // 2. Pure Pearlescent White Eyeball Sclera (100% clean white on BOTH eyes - zero black defect!)
-    const eyeballGeo = new THREE.SphereGeometry(0.10, 32, 32);
+    // Lacrimal Caruncle (Natural pink inner tear gland node)
+    const caruncle = new THREE.Mesh(new THREE.SphereGeometry(0.012, 12, 12), this.matCaruncle);
+    caruncle.scale.set(1.15, 0.80, 0.85);
+    caruncle.position.set(isLeft ? 0.076 : -0.076, -0.006, 0.022);
+    eyeGroup.add(caruncle);
+
+    // Lacrimal Lake (Moist tear fluid pool at inner corner)
+    const lakeGeo = new THREE.SphereGeometry(0.0065, 10, 10);
+    const lake = new THREE.Mesh(lakeGeo, new THREE.MeshStandardMaterial({
+      color: 0xc8e8f0,
+      roughness: 0.0,
+      metalness: 0.25,
+      transparent: true,
+      opacity: 0.65
+    }));
+    lake.scale.set(1.2, 0.5, 0.9);
+    lake.position.set(isLeft ? 0.072 : -0.072, -0.005, 0.026);
+    eyeGroup.add(lake);
+
+    // ── 3. WHITE EYEBALL SCLERA GLOBE ─────────────────────────────────────────
+    // Eyeball globe sits cleanly inside socket with anterior pole at z = +0.030
+    const eyeballGeo = new THREE.SphereGeometry(0.092, 36, 36);
     const eyeball = new THREE.Mesh(eyeballGeo, this.matSclera);
-    eyeball.position.set(0, 0, -0.01);
+    eyeball.position.set(0, 0, -0.062);
     eyeGroup.add(eyeball);
 
-    // 3. Moving Gaze Assembly (Biological Human Iris, Limbal Ring, Collarette, Obsidian Pupil, Catchlights)
+    // Scleral Upper Eyelid Cast Shadow (Soft anatomical depth shadow across top of globe)
+    const scleraShadowGeo = new THREE.TorusGeometry(0.080, 0.007, 10, 28, Math.PI * 0.85);
+    scleraShadowGeo.scale(1.22, 0.80, 1.0);
+    const scleraShadow = new THREE.Mesh(scleraShadowGeo, new THREE.MeshStandardMaterial({
+      color: 0x9e7a68,
+      roughness: 0.65,
+      metalness: 0.0,
+      transparent: true,
+      opacity: 0.42
+    }));
+    scleraShadow.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
+    scleraShadow.position.set(0, 0.024, 0.026);
+    eyeGroup.add(scleraShadow);
+
+    // Scleral Blood Vessels (Fine red episcleral capillary branches)
+    const veinData = [
+      { x:  0.052, y:  0.018, a:  0.55 },
+      { x: -0.048, y:  0.015, a: -0.48 },
+      { x:  0.028, y: -0.038, a: -1.25 },
+      { x: -0.022, y: -0.034, a:  1.15 },
+      { x:  0.038, y:  0.032, a:  0.85 },
+      { x: -0.035, y: -0.024, a: -0.95 }
+    ];
+    veinData.forEach(vp => {
+      const veinGeo = new THREE.CylinderGeometry(0.0004, 0.0008, 0.028, 4);
+      const vein = new THREE.Mesh(veinGeo, this.matScleraVein);
+      vein.position.set(vp.x, vp.y, 0.034);
+      vein.rotation.z = vp.a;
+      eyeGroup.add(vein);
+    });
+
+    // ── 4. GAZE ASSEMBLY (Human Iris, Limbal Ring, Ciliary Fibers, Pupil) ─────
+    // Gaze group sits directly on anterior pole of eyeball and moves with eye tracking
     const gazeGroup = new THREE.Group();
-    gazeGroup.position.set(0, 0, 0.038);
+    gazeGroup.position.set(0, 0, 0.030);
     eyeGroup.add(gazeGroup);
 
-    // 3a. Deep Limbal Ring (Sharply defines the dark biological perimeter of the human cornea/iris)
-    const limbalRing = new THREE.Mesh(new THREE.TorusGeometry(0.073, 0.0055, 16, 36), this.matLimbalRing);
+    // 4a. Deep Obsidian Limbal Ring (Defines biological boundary of iris)
+    const limbalRingGeo = new THREE.TorusGeometry(0.0485, 0.0035, 16, 40);
+    const limbalRing = new THREE.Mesh(limbalRingGeo, this.matIrisRing);
+    limbalRing.position.set(0, 0, 0.0010);
     gazeGroup.add(limbalRing);
 
-    // 3b. Living Biological Iris Stroma Base (Handsome hazel / deep slate-sapphire human iris)
-    const irisDisk = new THREE.Mesh(new THREE.CircleGeometry(0.071, 36), this.matHumanIris);
-    irisDisk.position.set(0, 0, 0.002);
+    // 4b. Biological Iris Stroma Base (Rich natural hazel-slate human iris)
+    const irisDisk = new THREE.Mesh(new THREE.CircleGeometry(0.0480, 48), this.matHumanIris);
+    irisDisk.position.set(0, 0, 0.0012);
     gazeGroup.add(irisDisk);
 
-    // 3c. Pupillary Collarette (Concentric undulating ring dividing pupillary & ciliary zones)
-    const collarette = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.0035, 12, 32), this.matHumanIrisCollarette);
-    collarette.position.set(0, 0, 0.0035);
+    // 4c. Radial Ciliary Fibers (32 delicate spokes giving rich biological iris depth)
+    const fiberColors = [0x5a82a0, 0x8a6d3b, 0x355a7a, 0x426858];
+    for (let f = 0; f < 32; f++) {
+      const angle = (f / 32) * Math.PI * 2;
+      const fiberLen = 0.016 + (f % 3) * 0.003;
+      const fiberGeo = new THREE.PlaneGeometry(0.0011, fiberLen);
+      const fiberMat = new THREE.MeshStandardMaterial({
+        color: fiberColors[f % 4],
+        roughness: 0.25,
+        metalness: 0.04,
+        transparent: true,
+        opacity: 0.65
+      });
+      const fiber = new THREE.Mesh(fiberGeo, fiberMat);
+      const rad = 0.036;
+      fiber.position.set(Math.cos(angle) * rad, Math.sin(angle) * rad, 0.0020);
+      fiber.rotation.z = angle + Math.PI / 2;
+      gazeGroup.add(fiber);
+    }
+
+    // 4d. Pupillary Collarette (Natural zigzag ring dividing iris zones)
+    const collarette = new THREE.Mesh(
+      new THREE.TorusGeometry(0.027, 0.0022, 12, 36),
+      this.matHumanIrisCollarette
+    );
+    collarette.position.set(0, 0, 0.0024);
     gazeGroup.add(collarette);
 
-    // 3d. Radial Ciliary Striae (12 delicate radial trabeculae fibers giving lifelike biological depth)
-    const fibersGroup = new THREE.Group();
-    fibersGroup.position.set(0, 0, 0.004);
-    for (let f = 0; f < 12; f++) {
-      const angle = (f / 12) * Math.PI * 2;
-      const fiber = new THREE.Mesh(new THREE.BoxGeometry(0.0018, 0.022, 0.001), this.matHumanIrisFibers);
-      const rad = 0.057;
-      fiber.position.set(Math.cos(angle) * rad, Math.sin(angle) * rad, 0);
-      fiber.rotation.z = angle + Math.PI / 2;
-      fibersGroup.add(fiber);
-    }
-    gazeGroup.add(fibersGroup);
+    // 4e. Inner Pupillary Zone (Subtle warm hazel gradient ring near pupil)
+    const innerZoneMat = new THREE.MeshStandardMaterial({
+      color: 0x261e16,
+      roughness: 0.28,
+      metalness: 0.02
+    });
+    const innerZone = new THREE.Mesh(new THREE.RingGeometry(0.017, 0.027, 36), innerZoneMat);
+    innerZone.position.set(0, 0, 0.0026);
+    gazeGroup.add(innerZone);
 
-    // 3e. Deep Obsidian Human Pupil (Light-absorbing optical aperture - zero robotic laser diodes!)
-    const pupilObsidian = new THREE.Mesh(new THREE.CircleGeometry(0.034, 32), this.matPupilObsidian);
-    pupilObsidian.position.set(0, 0, 0.006);
+    // 4f. Deep Obsidian Human Pupil (Light-absorbing aperture - dilates cognitively)
+    const pupilObsidian = new THREE.Mesh(
+      new THREE.CircleGeometry(0.0180, 36),
+      new THREE.MeshBasicMaterial({ color: 0x000000 })
+    );
+    pupilObsidian.position.set(0, 0, 0.0030);
     gazeGroup.add(pupilObsidian);
 
-    // 3f. Primary Crisp Specular Corneal Catchlight (Glint at 2 o'clock for vibrant lively gaze)
-    const catchlight1 = new THREE.Mesh(new THREE.SphereGeometry(0.009, 10, 10), this.matCatchlight);
-    catchlight1.position.set(0.018, 0.018, 0.018);
+    // 4g. Pupil Sphincter Muscle Ring
+    const sphincter = new THREE.Mesh(
+      new THREE.TorusGeometry(0.0185, 0.0012, 10, 32),
+      this.matIrisRing
+    );
+    sphincter.position.set(0, 0, 0.0032);
+    gazeGroup.add(sphincter);
+
+    // 4h. Primary Specular Catchlight (Key light glint at 1:30 o'clock)
+    const catchlight1 = new THREE.Mesh(
+      new THREE.SphereGeometry(0.0062, 12, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 1.8,
+        roughness: 0.0,
+        metalness: 0.0
+      })
+    );
+    catchlight1.position.set(0.012, 0.013, 0.010);
     gazeGroup.add(catchlight1);
 
-    // 3g. Secondary Sub-Specular Catchlight (Soft reflection at 7 o'clock for wet optical realism)
-    const catchlight2 = new THREE.Mesh(new THREE.SphereGeometry(0.0045, 8, 8), this.matCatchlight);
-    catchlight2.position.set(-0.014, -0.014, 0.016);
+    // 4i. Secondary Specular Catchlight (Soft skylight bounce at 7:30 o'clock)
+    const catchlight2 = new THREE.Mesh(
+      new THREE.SphereGeometry(0.0032, 10, 10),
+      new THREE.MeshStandardMaterial({
+        color: 0xdceeff,
+        emissive: 0xdceeff,
+        emissiveIntensity: 0.9,
+        roughness: 0.0,
+        metalness: 0.0
+      })
+    );
+    catchlight2.position.set(-0.010, -0.011, 0.008);
     gazeGroup.add(catchlight2);
 
-    // 4. Crystal-Clear Optical Cornea Lens Dome (Pure clarity, zero milky fog)
-    const lensGeo = new THREE.SphereGeometry(0.104, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.42);
-    const lens = new THREE.Mesh(lensGeo, this.matEyeLens);
-    lens.position.set(0, 0, 0.012);
-    eyeGroup.add(lens);
+    // ── 5. REFRACTIVE CORNEA DOME (Glassy optical moisture) ───────────────────
+    const corneaGeo = new THREE.SphereGeometry(0.052, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.44);
+    const corneaMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
+      roughness: 0.0,
+      metalness: 0.0,
+      transmission: 0.94,
+      transparent: true,
+      opacity: 0.16,
+      ior: 1.376 // Exact biological human cornea refraction index
+    });
+    const cornea = new THREE.Mesh(corneaGeo, corneaMat);
+    cornea.position.set(0, 0, 0.027);
+    eyeGroup.add(cornea);
 
-    // 5. Upper Eyelash Fringe (Fine dark cilia defining the upper eyelid margin)
-    const lashGeo = new THREE.TorusGeometry(0.092, 0.006, 8, 28, Math.PI * 0.88);
-    lashGeo.scale(1.22, 0.86, 1.0);
+    // Outer Scleral Moisture Shell (Glossy living sheen over exposed eye)
+    const moistureShellGeo = new THREE.SphereGeometry(0.093, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.44);
+    const moistureShell = new THREE.Mesh(moistureShellGeo, new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.02,
+      metalness: 0.06,
+      transparent: true,
+      opacity: 0.08
+    }));
+    moistureShell.position.set(0, 0, -0.060);
+    eyeGroup.add(moistureShell);
+
+    // ── 6. EYELID TARSAL MARGINS & WATERLINE ──────────────────────────────────
+    // Upper Waterline (Peach mucosal intermarginal strip)
+    const upperWaterlineGeo = new THREE.TorusGeometry(0.076, 0.0038, 10, 32, Math.PI * 0.88);
+    upperWaterlineGeo.scale(1.22, 0.82, 1.0);
+    const upperWaterline = new THREE.Mesh(upperWaterlineGeo, new THREE.MeshStandardMaterial({
+      color: 0xd69a88,
+      roughness: 0.55,
+      metalness: 0.0
+    }));
+    upperWaterline.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
+    upperWaterline.position.set(0, 0.013, 0.028);
+    eyeGroup.add(upperWaterline);
+
+    // Lower Waterline
+    const lowerWaterlineGeo = new THREE.TorusGeometry(0.074, 0.0032, 10, 28, Math.PI * 0.78);
+    lowerWaterlineGeo.scale(1.18, 0.78, 1.0);
+    const lowerWaterline = new THREE.Mesh(lowerWaterlineGeo, new THREE.MeshStandardMaterial({
+      color: 0xd09484,
+      roughness: 0.58,
+      metalness: 0.0
+    }));
+    lowerWaterline.rotation.z = isLeft ? 0.08 : -0.08;
+    lowerWaterline.position.set(0, -0.013, 0.026);
+    eyeGroup.add(lowerWaterline);
+
+    // ── 7. NATURAL EYELID FOLDS & EYELASHES ────────────────────────────────────
+    // Upper Eyelid Fold (wraps top 15% of iris for natural, relaxed human gaze)
+    const upperFoldGeo = new THREE.TorusGeometry(0.082, 0.0075, 12, 32, Math.PI * 0.88);
+    upperFoldGeo.scale(1.24, 0.82, 1.0);
+    const upperFold = new THREE.Mesh(upperFoldGeo, this.matSkin);
+    upperFold.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
+    upperFold.position.set(0, 0.016, 0.025);
+    eyeGroup.add(upperFold);
+
+    // Lower Eyelid Fold
+    const lowerFoldGeo = new THREE.TorusGeometry(0.078, 0.0055, 10, 28, Math.PI * 0.78);
+    lowerFoldGeo.scale(1.18, 0.78, 1.0);
+    const lowerFold = new THREE.Mesh(lowerFoldGeo, this.matSkin);
+    lowerFold.rotation.z = isLeft ? 0.08 : -0.08;
+    lowerFold.position.set(0, -0.015, 0.023);
+    eyeGroup.add(lowerFold);
+
+    // Upper Eyelash Fringe (Dense dark lash base)
+    const lashGeo = new THREE.TorusGeometry(0.082, 0.0055, 8, 30, Math.PI * 0.88);
+    lashGeo.scale(1.23, 0.82, 1.0);
     const lash = new THREE.Mesh(lashGeo, this.matEyelash);
     lash.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
-    lash.position.set(0, 0.018, 0.028);
+    lash.position.set(0, 0.018, 0.027);
     eyeGroup.add(lash);
 
-    // Lower Eyelash Waterline / Subtle Shadow
-    const lowerLashGeo = new THREE.TorusGeometry(0.088, 0.0035, 8, 24, Math.PI * 0.78);
-    lowerLashGeo.scale(1.18, 0.82, 1.0);
+    // 10 Individual Upper Eyelash Cilia (Curving outward and upward naturally)
+    for (let li = 0; li < 10; li++) {
+      const t = (li / 9) * Math.PI * 0.86 + Math.PI * 0.07;
+      const lx = Math.cos(t + Math.PI) * 0.082 * 1.23;
+      const ly = Math.sin(t + Math.PI) * 0.082 * 0.82 + 0.018;
+      const lashLength = 0.014 + (li % 3) * 0.003;
+      const lashSpike = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0003, 0.0016, lashLength, 4),
+        this.matEyelash
+      );
+      lashSpike.position.set(lx, ly, 0.030);
+      lashSpike.rotation.z = t + Math.PI + (isLeft ? 0.08 : -0.08);
+      lashSpike.rotation.x = -0.32 - (li % 3) * 0.06;
+      eyeGroup.add(lashSpike);
+    }
+
+    // Lower Eyelash Waterline & Fine Lower Lashes
+    const lowerLashGeo = new THREE.TorusGeometry(0.077, 0.0025, 8, 24, Math.PI * 0.76);
+    lowerLashGeo.scale(1.18, 0.78, 1.0);
     const lowerLash = new THREE.Mesh(lowerLashGeo, this.matSkinShadow);
     lowerLash.rotation.z = isLeft ? 0.08 : -0.08;
     lowerLash.position.set(0, -0.016, 0.024);
     eyeGroup.add(lowerLash);
 
-    // 6. Supratarsal Upper Eyelid Crease (Natural double eyelid fold in skin shadow)
-    const lidArchGeo = new THREE.TorusGeometry(0.104, 0.009, 12, 24, Math.PI * 0.85);
-    lidArchGeo.scale(1.24, 0.86, 1.0);
-    const lidArch = new THREE.Mesh(lidArchGeo, this.matSkinShadow);
-    lidArch.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
-    lidArch.position.set(0, 0.038, 0.026);
-    eyeGroup.add(lidArch);
+    // 8 Individual Lower Eyelash Cilia
+    for (let lli = 0; lli < 8; lli++) {
+      const lt = (lli / 7) * Math.PI * 0.74 + Math.PI * 0.13;
+      const llx = Math.cos(lt) * 0.077 * 1.18;
+      const lly = -Math.sin(lt) * 0.077 * 0.78 - 0.016;
+      const lowerLashSpike = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.0002, 0.0012, 0.009 + (lli % 2) * 0.003, 4),
+        this.matEyelash
+      );
+      lowerLashSpike.position.set(llx, lly, 0.026);
+      lowerLashSpike.rotation.z = lt + (isLeft ? 0.08 : -0.08);
+      lowerLashSpike.rotation.x = 0.28;
+      eyeGroup.add(lowerLashSpike);
+    }
 
-    // 7. Natural Skin-Toned Eyelid Shutter for Blinking (Uses matSkin!)
-    const lidGeo = new THREE.SphereGeometry(0.106, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.5);
+    // ── 8. SUPRATARSAL CREASE & SUB-BROW SHADOW ──────────────────────────────
+    // Supratarsal Crease (Classic human double-eyelid fold)
+    const creaseGeo = new THREE.TorusGeometry(0.092, 0.0065, 12, 28, Math.PI * 0.84);
+    creaseGeo.scale(1.26, 0.82, 1.0);
+    const crease = new THREE.Mesh(creaseGeo, this.matSkinShadow);
+    crease.rotation.z = Math.PI + (isLeft ? 0.08 : -0.08);
+    crease.position.set(0, 0.038, 0.025);
+    eyeGroup.add(crease);
+
+    // Sub-Brow Shadow (Soft anatomical hollowness under supraorbital rim)
+    const subBrowGeo = new THREE.SphereGeometry(0.060, 14, 14);
+    subBrowGeo.scale(1.6, 0.38, 0.45);
+    const subBrow = new THREE.Mesh(subBrowGeo, this.matSkinShadow);
+    subBrow.position.set(0, 0.058, 0.010);
+    eyeGroup.add(subBrow);
+
+    // ── 9. BLINKING EYELID SHUTTER ────────────────────────────────────────────
+    // Cleanly sweeps down over the eyeball globe during natural blinks
+    const lidGeo = new THREE.SphereGeometry(0.096, 32, 18, 0, Math.PI * 2, 0, Math.PI * 0.52);
     const eyelid = new THREE.Mesh(lidGeo, this.matSkin);
-    eyelid.position.set(0, 0, 0.016);
+    eyelid.position.set(0, 0, -0.058);
     eyelid.rotation.x = -Math.PI / 2; // Default open
     eyeGroup.add(eyelid);
 
-    // 8. High-Definition Portrait Eye Light (Symmetrically illuminates both eyes)
-    const eyeLight = new THREE.PointLight(this.themes[this.currentTheme].light, 1.2, 1.8);
-    eyeLight.position.set(0, 0, 0.14);
+    // ── 10. HIGH-DEFINITION PORTRAIT STUDIO EYE LIGHT ─────────────────────────
+    // Soft warm studio illumination for clear, lifelike catchlights without neon glare
+    const eyeLight = new THREE.PointLight(0xfff6ed, 0.65, 1.8);
+    eyeLight.position.set(0, 0.02, 0.16);
     eyeGroup.add(eyeLight);
 
     if (isLeft) this.leftEyeLight = eyeLight;
@@ -1522,31 +1977,47 @@ class Robot3D {
 
   createEyebrow(xPos, isLeft) {
     const brow = new THREE.Group();
-    brow.position.set(xPos, 0.19, 0.47);
+    brow.position.set(xPos, 0.188, 0.468);
 
-    // Groomed Masculine 3-Part Arched Eyebrow:
-    // 1. Head (Medial end at glabella: thicker, angled)
-    const headGeo = new THREE.CylinderGeometry(0.019, 0.017, 0.075, 12);
+    // Groomed Natural Masculine Eyebrow:
+    // 1. Head (Medial end at glabella: thicker, angled slightly upward)
+    const headGeo = new THREE.CylinderGeometry(0.018, 0.016, 0.076, 14);
+    headGeo.scale(1.0, 1.0, 0.65);
     const head = new THREE.Mesh(headGeo, this.matEyebrow);
     head.position.set(isLeft ? 0.065 : -0.065, -0.008, 0.010);
     head.rotation.z = isLeft ? 1.42 : -1.42;
-    head.rotation.y = isLeft ? -0.16 : 0.16;
+    head.rotation.y = isLeft ? -0.14 : 0.14;
     brow.add(head);
 
-    // 2. Body (Central arch over supraorbital ridge)
-    const bodyGeo = new THREE.CylinderGeometry(0.017, 0.014, 0.090, 12);
+    // 2. Body (Central arched span over supraorbital ridge)
+    const bodyGeo = new THREE.CylinderGeometry(0.016, 0.014, 0.092, 14);
+    bodyGeo.scale(1.0, 1.0, 0.60);
     const body = new THREE.Mesh(bodyGeo, this.matEyebrow);
-    body.position.set(0, 0.002, 0.005);
+    body.position.set(0, 0.003, 0.004);
     body.rotation.z = isLeft ? 1.54 : -1.54;
     brow.add(body);
 
-    // 3. Tail (Lateral end tapering toward temple)
-    const tailGeo = new THREE.CylinderGeometry(0.014, 0.008, 0.072, 12);
+    // 3. Tail (Lateral tapering end extending toward temple)
+    const tailGeo = new THREE.CylinderGeometry(0.012, 0.005, 0.074, 12);
+    tailGeo.scale(1.0, 1.0, 0.55);
     const tail = new THREE.Mesh(tailGeo, this.matEyebrow);
-    tail.position.set(isLeft ? -0.070 : 0.070, -0.012, -0.010);
-    tail.rotation.z = isLeft ? 1.78 : -1.78;
-    tail.rotation.y = isLeft ? 0.20 : -0.20;
+    tail.position.set(isLeft ? -0.072 : 0.072, -0.013, -0.012);
+    tail.rotation.z = isLeft ? 1.80 : -1.80;
+    tail.rotation.y = isLeft ? 0.22 : -0.22;
     brow.add(tail);
+
+    // 4. Follicular Layer: 6 Delicate Brow Hair Tufts for Genuine Hair Texture
+    const tuftOffsets = isLeft
+      ? [0.06, 0.035, 0.01, -0.02, -0.045, -0.07]
+      : [-0.06, -0.035, -0.01, 0.02, 0.045, 0.07];
+    tuftOffsets.forEach((tx, ti) => {
+      const tuftGeo = new THREE.CylinderGeometry(0.0010, 0.0022, 0.018 - ti * 0.0015, 4);
+      const tuft = new THREE.Mesh(tuftGeo, this.matEyebrow);
+      tuft.position.set(tx, 0.002 + ti * 0.001, 0.012 - ti * 0.002);
+      tuft.rotation.z = isLeft ? (1.40 + ti * 0.08) : -(1.40 + ti * 0.08);
+      tuft.rotation.y = isLeft ? -0.15 + ti * 0.06 : 0.15 - ti * 0.06;
+      brow.add(tuft);
+    });
 
     return brow;
   }
