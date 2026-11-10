@@ -11,8 +11,19 @@ class AudioEngine {
     this.isListening = false;
     this.recognition = null;
     this.currentUtterance = null;
+    this.waveformListener = null;
 
     this.initSpeechRecognition();
+  }
+
+  setWaveformListener(fn) {
+    this.waveformListener = fn;
+  }
+
+  notifyWaveform(state, label) {
+    if (typeof this.waveformListener === "function") {
+      this.waveformListener(state, label);
+    }
   }
 
   ensureContext() {
@@ -38,6 +49,27 @@ class AudioEngine {
       window.speechSynthesis.cancel();
     }
     return this.voiceEnabled;
+  }
+
+  setVoiceEnabled(enabled) {
+    this.voiceEnabled = !!enabled;
+    if (!this.voiceEnabled && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    return this.voiceEnabled;
+  }
+
+  async requestMicrophonePermission() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return { ok: false, error: "MediaDevices API not supported in this browser." };
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: err.name || err.message || "Microphone access blocked." };
+    }
   }
 
   // --- Procedural Robotics SFX ---
@@ -328,18 +360,29 @@ class AudioEngine {
       utterance.voice = preferredVoice;
     }
 
-    utterance.onstart = () => { if (onStart) onStart(); };
-    utterance.onend = () => { if (onEnd) onEnd(); };
-    utterance.onerror = () => { if (onEnd) onEnd(); };
+    utterance.onstart = () => {
+      this.notifyWaveform("speaking", "NEURAL AUDIO: SYNTHESIZING SPEECH...");
+      if (onStart) onStart();
+    };
+    utterance.onend = () => {
+      this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
+      if (onEnd) onEnd();
+    };
+    utterance.onerror = () => {
+      this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
+      if (onEnd) onEnd();
+    };
 
     window.speechSynthesis.speak(utterance);
     this.currentUtterance = utterance;
+    this.notifyWaveform("speaking", "NEURAL AUDIO: SYNTHESIZING SPEECH...");
   }
 
   stopSpeaking() {
     if (window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+    this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
   }
 
   playVoiceCommandChime() {
@@ -362,6 +405,31 @@ class AudioEngine {
 
       osc.start(now);
       osc.stop(now + 0.35);
+    } catch (err) {
+      // AudioContext unavailable
+    }
+  }
+
+  playAxiomWakeChime() {
+    if (!this.soundEnabled) return;
+    try {
+      const ctx = this.getAudioContext();
+      const now = ctx.currentTime;
+      // Ascending futuristic chord: F#5 (739.99Hz), A5 (880.0Hz), C#6 (1108.73Hz)
+      const freqs = [739.99, 880.0, 1108.73];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        const t0 = now + idx * 0.08;
+        osc.frequency.setValueAtTime(freq, t0);
+        gain.gain.setValueAtTime(0.22, t0);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.32);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t0);
+        osc.stop(t0 + 0.32);
+      });
     } catch (err) {
       // AudioContext unavailable
     }
@@ -394,6 +462,7 @@ class AudioEngine {
     this.recognition.interimResults = false;
     this.recognition.lang = "en-US";
     this.playClick();
+    this.notifyWaveform("listening", continuous ? "VOICE CMD ENGINE: CONTINUOUS LISTENING..." : "VOICE RECOGNITION: LISTENING...");
 
     this.recognition.onresult = (event) => {
       const results = event.results;
@@ -424,6 +493,7 @@ class AudioEngine {
       }
       this.isListening = false;
       this.isContinuous = false;
+      this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
       if (onEnd) onEnd();
     };
 
@@ -442,6 +512,7 @@ class AudioEngine {
       } catch (e) {}
       this.isListening = false;
     }
+    this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
   }
 }
 

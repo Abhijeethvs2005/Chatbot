@@ -1720,27 +1720,28 @@ function lookupFactualKnowledge(query) {
   const q = query.toLowerCase().trim();
 
   const FACTS = [
-    // 1. PERSONA: CHATBOT ABHI
+    // 1. PERSONA: AXIOM
     {
-      pattern: /^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+chatbot\s+abhi)/i,
+      pattern: /^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+axiom|who\s+is\s+chatbot\s+abhi|hey\s+axiom)/i,
       data: {
-        id: "persona_abhi",
-        title: "Interactive Assistant: Chatbot Abhi",
+        id: "persona_axiom",
+        title: "Voice-Controlled 3D Assistant: Axiom",
         subject: "General",
-        core: "I am **Chatbot Abhi**, an intelligent, interactive 3D AI educational assistant created by **Abhijeeth V S**.",
+        core: "I am **Axiom**, an intelligent, voice-controlled 3D AI assistant and academic companion created by **Abhijeeth V S**. You can activate and command me hands-free anytime by saying **'Hey Axiom'**!",
         formulas: [],
         steps: [
-          "1. **Creator & Purpose**: Conceived and developed by **Abhijeeth V S** to provide learners with an ultra-responsive, highly accurate, and engaging STEM companion.",
-          "2. **3D Interactive Avatar**: Articulated humanoid 3D robot avatar with reactive expressions, five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
-          "3. **Multi-Discipline Intelligence**: Sub-millisecond symbolic mathematical solvers (Calculus, Polynomial Integration, Differentiation, Molar Mass chemistry), comprehensive physics/biology/computer science encyclopedias, and professional communication coaching."
+          "1. **Voice Wake Word**: Say **'Hey Axiom'** anytime to trigger hands-free speech recognition and spoken audio responses.",
+          "2. **Creator & Purpose**: Conceived and developed by **Abhijeeth V S** to provide learners with an ultra-responsive, highly accurate, and engaging STEM companion.",
+          "3. **3D Interactive Avatar**: Articulated humanoid 3D robot avatar with reactive expressions, customizable wardrobe outfits, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
+          "4. **Multi-Discipline Intelligence**: Sub-millisecond symbolic mathematical solvers (Calculus, Polynomial Integration, Differentiation, Molar Mass chemistry), comprehensive physics/biology/computer science encyclopedias, and Oxford lexicon intelligence."
         ],
-        analogy: "Like having an enthusiastic, personal futuristic robot tutor sitting right beside you at your study desk!",
-        pitfalls: "I am 'Chatbot Abhi' created by Abhijeeth V S—never generic boilerplate!",
+        analogy: "Like having a personal futuristic AI companion sitting right beside you at your study desk!",
+        pitfalls: "My name is **Axiom**, activated by **'Hey Axiom'**, created by Abhijeeth V S—never generic boilerplate!",
         quiz: {
-          question: "Who created Chatbot Abhi?",
-          options: ["Abhijeeth V S", "Anonymous Corporation", "Random Open Source", "Nobody"],
+          question: "Who created Axiom and what is the voice wake command?",
+          options: ["Abhijeeth V S (Wake command: 'Hey Axiom')", "Anonymous Corporation", "Random Open Source", "Nobody"],
           correct: 0,
-          explanation: "Chatbot Abhi was designed and developed by Abhijeeth V S."
+          explanation: "Axiom was designed and developed by Abhijeeth V S, and activates via the voice command 'Hey Axiom'."
         }
       }
     },

@@ -76,9 +76,9 @@ class Robot3D {
     this.coreLight = null;
     this.holoStage = null;
 
-    // Wardrobe Outfits Container & Active Outfit
+    // Wardrobe Outfits Container & Active Outfit (Defaults to Next-Gen V2.0 Cyber Android)
     this.wardrobeGroup = null;
-    this.currentOutfit = "suit"; // 'suit', 'cyber', 'student', 'scientist', 'hoodie', 'astronaut', 'physique'
+    this.currentOutfit = "cyber"; // 'cyber' (V2 Next-Gen Android), 'suit', 'student', 'scientist', 'hoodie', 'astronaut', 'physique'
     this.outfitMeshes = {};
 
     // Dynamic Muscle Hypertrophy System
@@ -3129,107 +3129,238 @@ class Robot3D {
     }
 
     // ==========================================
-    // 1. CYBER MECHA EXOSKELETON ARMOR (TITANIUM PLATES & NEON CONDUITS)
+    // 1. NOVA-X GEN-2 CYBER ANDROID (AERODYNAMIC NANO-CERAMIC ARMOR & QUANTUM SINGULARITY)
     // ==========================================
     const cyberTorso = new THREE.Group();
     cyberTorso.position.set(0, 0, 0);
 
-    // Left and Right Cyber Chest Pectoral Armor Plates
+    // 1a. Contoured Aerodynamic Pectoral Shells (Curved Ceramic Composite)
     [-0.155, 0.155].forEach((cx) => {
       const isLeft = cx < 0;
-      const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.04), this.matArmor);
-      chestPlate.position.set(cx, 0.12, 0.17);
+      const pecShellGeo = new THREE.SphereGeometry(0.18, 20, 20);
+      pecShellGeo.scale(1.22, 0.90, 0.52);
+      const chestPlate = new THREE.Mesh(pecShellGeo, this.matArmor);
+      chestPlate.position.set(cx, 0.12, 0.155);
       chestPlate.rotation.z = isLeft ? -0.10 : 0.10;
-      chestPlate.rotation.y = isLeft ? 0.08 : -0.08;
+      chestPlate.rotation.y = isLeft ? 0.10 : -0.10;
       cyberTorso.add(chestPlate);
 
-      // Glowing Neon Conduit on Pectoral Plate
-      const pecGlow = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.12, 0.012), this.matAccent);
-      pecGlow.position.set(cx + (isLeft ? -0.04 : 0.04), 0.12, 0.192);
-      cyberTorso.add(pecGlow);
+      // Polished Chrome Clavicular Border
+      const clavBorder = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.022, 0.035), this.matChrome);
+      clavBorder.position.set(cx, 0.20, 0.17);
+      clavBorder.rotation.z = isLeft ? 0.12 : -0.12;
+      cyberTorso.add(clavBorder);
+
+      // Glowing Chevron Neural Waveguide
+      const chevronGlow = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.14, 0.016), this.matAccent);
+      chevronGlow.position.set(cx + (isLeft ? -0.045 : 0.045), 0.125, 0.198);
+      chevronGlow.rotation.z = isLeft ? -0.25 : 0.25;
+      cyberTorso.add(chevronGlow);
     });
 
-    // Hexagonal Cyber Abdominal Armor Protector
-    const cyberAbPlate = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 0.035), this.matChassis);
-    cyberAbPlate.position.set(0, -0.08, 0.145);
-    cyberTorso.add(cyberAbPlate);
+    // 1b. Multi-Stage Quantum Singularity Core V2 (Toroidal Magnetic Confinement)
+    const coreV2Group = new THREE.Group();
+    coreV2Group.position.set(0, 0.105, 0.185);
 
-    // Cyber Belt & Hip Armor Guards
-    const cyberBelt = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.05, 0.22), this.matJoint);
-    cyberBelt.position.set(0, -0.22, 0.05);
+    const outerBezel = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.014, 16, 36), this.matChrome);
+    coreV2Group.add(outerBezel);
+
+    const innerAccelerator = new THREE.Mesh(new THREE.TorusGeometry(0.072, 0.009, 14, 28), this.matAccent);
+    coreV2Group.add(innerAccelerator);
+
+    const plasmaCore = new THREE.Mesh(new THREE.SphereGeometry(0.044, 18, 18), this.matAccent);
+    coreV2Group.add(plasmaCore);
+
+    cyberTorso.add(coreV2Group);
+
+    // 1c. Anatomical 6-Pack Articulated Abdominal Shells
+    [-0.055, 0.055].forEach((ax) => {
+      const isLeft = ax < 0;
+      [0.01, -0.065, -0.14].forEach((ay, idx) => {
+        const abTileGeo = new THREE.BoxGeometry(0.092, 0.058, 0.028);
+        const abTile = new THREE.Mesh(abTileGeo, this.matChassis);
+        abTile.position.set(ax, ay, 0.148 + (2 - idx) * 0.005);
+        abTile.rotation.y = isLeft ? 0.06 : -0.06;
+        cyberTorso.add(abTile);
+
+        // Micro-LED Status Node on each ab tile
+        const abLed = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.008, 0.010), this.matAccent);
+        abLed.position.set(ax + (isLeft ? 0.025 : -0.025), ay, 0.165);
+        cyberTorso.add(abLed);
+      });
+    });
+
+    // Central Glowing Linea Alba Neural Strip
+    const lineaAlbaGlow = new THREE.Mesh(new THREE.BoxGeometry(0.010, 0.23, 0.014), this.matAccent);
+    lineaAlbaGlow.position.set(0, -0.065, 0.155);
+    cyberTorso.add(lineaAlbaGlow);
+
+    // Ergonomic Cybernetic Pelvis & Hip Joint Shields
+    const cyberBelt = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.22, 0.065, 24), this.matJoint);
+    cyberBelt.position.set(0, -0.21, 0.04);
     cyberTorso.add(cyberBelt);
 
     [-0.22, 0.22].forEach((hx) => {
-      const hipGuard = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.14, 0.16), this.matArmor);
-      hipGuard.position.set(hx, -0.26, 0.06);
-      cyberTorso.add(hipGuard);
+      const isLeft = hx < 0;
+      const hipCowl = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 14), this.matArmor);
+      hipCowl.scale.set(0.75, 1.25, 1.15);
+      hipCowl.position.set(hx, -0.25, 0.06);
+      cyberTorso.add(hipCowl);
+
+      const hipGlow = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.12, 0.012), this.matAccent);
+      hipGlow.position.set(hx + (isLeft ? -0.02 : 0.02), -0.25, 0.09);
+      cyberTorso.add(hipGlow);
     });
 
     register("cyber", cyberTorso, this.torsoGroup);
 
-    // Cyber Deltoid Epaulet Caps
+    // 1d. Next-Gen Deltoid Pauldrons & Arm Waveguides
     [-1, 1].forEach((dir) => {
       const armGroup = (dir === -1) ? this.leftArm.group : this.rightArm.group;
+      const upperArm = (dir === -1) ? this.leftArm.upperArm : this.rightArm.upperArm;
+      const forearm = (dir === -1) ? this.leftArm.forearm : this.rightArm.forearm;
       const isLeft = dir === -1;
-      const cyberShoulder = new THREE.Mesh(new THREE.SphereGeometry(0.165, 16, 16), this.matArmor);
-      cyberShoulder.scale.set(1.15, 0.90, 1.10);
-      cyberShoulder.position.set(isLeft ? -0.02 : 0.02, 0.03, 0);
-      register("cyber", cyberShoulder, armGroup);
 
-      const shoulderHalo = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.012, 12, 24), this.matAccent);
-      shoulderHalo.position.set(isLeft ? -0.02 : 0.02, 0.03, 0);
-      register("cyber", shoulderHalo, armGroup);
+      // Sculpted Aerodynamic Deltoid Pauldron
+      const shoulderGroup = new THREE.Group();
+      shoulderGroup.position.set(isLeft ? -0.02 : 0.02, 0.04, 0);
+
+      const cyberShoulderGeo = new THREE.SphereGeometry(0.17, 18, 18);
+      cyberShoulderGeo.scale(1.18, 0.95, 1.12);
+      const cyberShoulder = new THREE.Mesh(cyberShoulderGeo, this.matArmor);
+      shoulderGroup.add(cyberShoulder);
+
+      const shoulderHalo = new THREE.Mesh(new THREE.TorusGeometry(0.125, 0.012, 12, 28), this.matAccent);
+      shoulderHalo.rotation.y = Math.PI / 2;
+      shoulderGroup.add(shoulderHalo);
+
+      const shoulderChromeFin = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.14, 0.18), this.matChrome);
+      shoulderChromeFin.position.set(isLeft ? -0.08 : 0.08, 0.02, 0);
+      shoulderGroup.add(shoulderChromeFin);
+
+      register("cyber", shoulderGroup, armGroup);
+
+      // Upper Arm Armor Bracer
+      const upperBracer = new THREE.Mesh(new THREE.CylinderGeometry(0.098, 0.088, 0.26, 18), this.matChassis);
+      upperBracer.position.set(0, -0.16, 0);
+      register("cyber", upperBracer, upperArm);
+
+      const upperGlowStrip = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.22, 0.014), this.matAccent);
+      upperGlowStrip.position.set(isLeft ? -0.085 : 0.085, -0.16, 0.02);
+      register("cyber", upperGlowStrip, upperArm);
+
+      // Forearm Tactical Gauntlet & Cybernetic Wrist Display
+      const forearmGauntlet = new THREE.Mesh(new THREE.CylinderGeometry(0.090, 0.076, 0.24, 18), this.matArmor);
+      forearmGauntlet.position.set(0, -0.14, 0);
+      register("cyber", forearmGauntlet, forearm);
+
+      const wristHudDisplay = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.038, 0.016), this.matAccent);
+      wristHudDisplay.position.set(0, -0.22, 0.082);
+      register("cyber", wristHudDisplay, forearm);
     });
 
-    // Cyber Thigh, Knee & Shin Armor Plating
+    // 1e. Cybernetic Leg Exoskeleton & High-Tech Mag-Lev Combat Boots
     if (this.leftLeg && this.rightLeg) {
       [-1, 1].forEach((dir) => {
         const leg = (dir === -1) ? this.leftLeg : this.rightLeg;
         const isLeft = dir === -1;
 
-        // Front Thigh Armor Shield
-        const thighShield = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.34, 0.05), this.matArmor);
-        thighShield.position.set(0, -0.23, 0.075);
-        register("cyber", thighShield, leg.thigh);
+        // Aerodynamic Thigh Armor Shield with Hydraulic Struts
+        const thighGroup = new THREE.Group();
+        thighGroup.position.set(0, -0.23, 0);
 
-        const thighGlow = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.26, 0.015), this.matAccent);
-        thighGlow.position.set(0, -0.23, 0.102);
-        register("cyber", thighGlow, leg.thigh);
+        const thighShieldGeo = new THREE.CylinderGeometry(0.122, 0.105, 0.36, 18);
+        thighShieldGeo.scale(1.10, 1.0, 0.88);
+        const thighShield = new THREE.Mesh(thighShieldGeo, this.matArmor);
+        thighGroup.add(thighShield);
 
-        // Knee Cap Armor & Halo Ring
-        const kneeCap = new THREE.Mesh(new THREE.SphereGeometry(0.082, 16, 16), this.matChrome);
+        const thighGlow = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.30, 0.018), this.matAccent);
+        thighGlow.position.set(0, 0, 0.106);
+        thighGroup.add(thighGlow);
+
+        const hydraulicStrut = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.32, 10), this.matChrome);
+        hydraulicStrut.position.set(isLeft ? -0.11 : 0.11, 0, 0);
+        thighGroup.add(hydraulicStrut);
+
+        register("cyber", thighGroup, leg.thigh);
+
+        // Polished Titanium Knee Shield & Dual Blue Halo Rings
+        const kneeGroup = new THREE.Group();
+        kneeGroup.position.set(0, 0.01, 0.04);
+
+        const kneeCap = new THREE.Mesh(new THREE.SphereGeometry(0.086, 18, 18), this.matChrome);
         kneeCap.scale.set(1.0, 1.15, 1.25);
-        kneeCap.position.set(0, 0.01, 0.04);
-        register("cyber", kneeCap, leg.knee);
+        kneeGroup.add(kneeCap);
 
-        const kneeHalo = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.012, 12, 24), this.matAccent);
-        kneeHalo.position.set(0, 0.01, 0.095);
-        register("cyber", kneeHalo, leg.knee);
+        const kneeHalo1 = new THREE.Mesh(new THREE.TorusGeometry(0.072, 0.010, 12, 24), this.matAccent);
+        kneeHalo1.position.set(0, 0, 0.06);
+        kneeGroup.add(kneeHalo1);
 
-        // Shin Armor Guard
-        const shinGuard = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.38, 0.055), this.matArmor);
-        shinGuard.position.set(0, -0.24, 0.075);
-        register("cyber", shinGuard, leg.calf);
+        const kneeHalo2 = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.008, 10, 20), this.matAccent);
+        kneeHalo2.position.set(0, 0, 0.085);
+        kneeGroup.add(kneeHalo2);
 
-        const shinGlow = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.30, 0.015), this.matAccent);
-        shinGlow.position.set(0, -0.24, 0.105);
-        register("cyber", shinGlow, leg.calf);
+        register("cyber", kneeGroup, leg.knee);
 
-        // Cyber Combat Boot Upper Armor & Sole
-        const bootPlate = new THREE.Mesh(new THREE.BoxGeometry(0.165, 0.082, 0.30), this.matArmor);
-        bootPlate.position.set(0, 0.01, 0.03);
-        register("cyber", bootPlate, leg.foot);
+        // Sculpted Shin Greaves with Air-Induction Ducts
+        const calfGroup = new THREE.Group();
+        calfGroup.position.set(0, -0.24, 0);
+
+        const shinGreaveGeo = new THREE.CylinderGeometry(0.108, 0.092, 0.38, 18);
+        shinGreaveGeo.scale(1.12, 1.0, 0.85);
+        const shinGuard = new THREE.Mesh(shinGreaveGeo, this.matArmor);
+        calfGroup.add(shinGuard);
+
+        const shinGlow = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.32, 0.018), this.matAccent);
+        shinGlow.position.set(0, 0, 0.102);
+        calfGroup.add(shinGlow);
+
+        register("cyber", calfGroup, leg.calf);
+
+        // Mag-Lev Cyber Combat Boots with Illuminated Neon Hover Soles
+        const bootGroup = new THREE.Group();
+        bootGroup.position.set(0, 0, 0.03);
+
+        const bootPlate = new THREE.Mesh(new THREE.BoxGeometry(0.170, 0.085, 0.31), this.matChassis);
+        bootGroup.add(bootPlate);
 
         const toeCap = new THREE.Mesh(new THREE.CylinderGeometry(0.072, 0.072, 0.145, 16), this.matChrome);
         toeCap.rotation.z = Math.PI / 2;
         toeCap.position.set(0, 0.01, 0.155);
-        register("cyber", toeCap, leg.foot);
+        bootGroup.add(toeCap);
 
-        const bootSole = new THREE.Mesh(new THREE.BoxGeometry(0.170, 0.020, 0.32), this.matAccent);
-        bootSole.position.set(0, -0.038, 0.035);
-        register("cyber", bootSole, leg.foot);
+        // Neon Hover Sole Glow Strips
+        const bootSole = new THREE.Mesh(new THREE.BoxGeometry(0.178, 0.024, 0.33), this.matAccent);
+        bootSole.position.set(0, -0.042, 0.01);
+        bootGroup.add(bootSole);
+
+        const heelGlow = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.09, 10), this.matChrome);
+        heelGlow.rotation.x = Math.PI / 2;
+        heelGlow.position.set(0, -0.01, -0.12);
+        bootGroup.add(heelGlow);
+
+        register("cyber", bootGroup, leg.foot);
       });
     }
+
+    // 1f. Futuristic Temporal Cyber Nodes on Head
+    const headCyberGroup = new THREE.Group();
+    headCyberGroup.position.set(0, 0.12, 0.22);
+
+    [-0.38, 0.38].forEach((tx) => {
+      const isLeft = tx < 0;
+      const temporalNode = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.035, 16), this.matChrome);
+      temporalNode.rotation.z = Math.PI / 2;
+      temporalNode.position.set(tx, 0, 0);
+      headCyberGroup.add(temporalNode);
+
+      const nodeRing = new THREE.Mesh(new THREE.TorusGeometry(0.022, 0.006, 8, 20), this.matAccent);
+      nodeRing.rotation.y = Math.PI / 2;
+      nodeRing.position.set(tx + (isLeft ? -0.018 : 0.018), 0, 0);
+      headCyberGroup.add(nodeRing);
+    });
+
+    register("cyber", headCyberGroup, this.headGroup);
 
     // ==========================================
     // 1. STUDENT SCHOOL UNIFORM (ACADEMIC SHIELD CREST & GRADUATION MORTARBOARD)
@@ -3640,7 +3771,10 @@ class Robot3D {
 
   setOutfit(outfitKey) {
     if (!outfitKey) return this.currentOutfit;
-    const cleanKey = outfitKey.toLowerCase().trim();
+    let cleanKey = outfitKey.toLowerCase().trim();
+    if (cleanKey === "v2" || cleanKey === "v2_cyber" || cleanKey === "android" || cleanKey === "robot" || cleanKey === "new") {
+      cleanKey = "cyber";
+    }
     const validOutfits = ["suit", "cyber", "student", "scientist", "hoodie", "astronaut", "physique", "none"];
     if (!validOutfits.includes(cleanKey)) return this.currentOutfit;
     this.currentOutfit = cleanKey;
@@ -4517,22 +4651,22 @@ class Robot3D {
       } else if (this.currentAction === "salute") {
         this.actionTimer += delta;
         // Step-by-Step Salute:
-        // Step 1 (0.0s - 0.5s): Right hand goes directly to right ear with elbow flared OUTSIDE body
-        // Step 2 (0.5s - 2.4s): Holds crisp rigid salute at the right ear outside the body
-        // Step 3 (2.4s - 3.0s): Smartly snaps hand down to side and returns to ready stance
+        // Step 1 (0.0s - 0.5s): Right arm raises, elbow flaring naturally outward, hand moving to outer right ear
+        // Step 2 (0.5s - 2.4s): Holds crisp rigid salute with fingertips touching the right ear on the outside of the cranium
+        // Step 3 (2.4s - 3.0s): Snaps hand cleanly down to attention at the side
         if (this.actionTimer < 2.4) {
-          // Steps 1 & 2: Right hand goes directly to touch the right ear with elbow flared OUTSIDE body
-          targetRight.upper = { x: -0.12, y: 0.17, z: 2.48 };
-          targetRight.fore = { x: -1.20, y: -0.03, z: 1.41 };
-          targetRight.hand = { x: -0.13, y: 0.07, z: 0.53 }; // fingertips touch right ear directly
-          rightFingersTarget = 0.0; // Pinned flat fingers touching ear
+          // Right arm kinematics: fingertips touch outer right ear helix without clipping into the skull
+          targetRight.upper = { x: -0.30, y: -0.05, z: 2.14 };
+          targetRight.fore = { x: -2.20, y: -0.15, z: 1.10 };
+          targetRight.hand = { x: 0.00, y: 0.15, z: 0.40 }; // fingertips touch right ear directly outside cranium
+          rightFingersTarget = 0.0; // Pinned straight fingers touching outer ear
 
           targetLeft.upper = { x: 0.0, y: 0.0, z: -0.05 }; // Left arm pinned flush to side
           targetLeft.fore = { x: 0.0, y: 0.0, z: 0.0 };
           targetLeft.hand = { x: 0.0, y: 0.0, z: 0.0 };
           leftFingersTarget = 0.0;
 
-          targetHead.x = 0.04;
+          targetHead.x = 0.02;
           targetHead.y = 0.0;
           targetHead.z = 0.0;
         } else {

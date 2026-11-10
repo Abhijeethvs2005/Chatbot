@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chatbot Abhi • 3D Robot System & Educational AI Companion</title>
+  <title>AXIOM • Voice-Controlled 3D Robot &amp; AI Companion</title>
   
   <!-- KaTeX for Rigorous Mathematical Equations (Local + CDN fallback) -->
   <link rel="stylesheet" href="/static/vendor/katex.min.css">
@@ -19,15 +19,15 @@
   </script>
 
   <!-- Robot System Stylesheet -->
-  <link rel="stylesheet" href="/static/css/style.css?v=5.8.0">
+  <link rel="stylesheet" href="/static/css/style.css?v=6.1.0">
 </head>
 <body class="theme-cyber">
   <div class="app-shell">
     <!-- Top Mecha Navigation Bar -->
     <header class="robot-header">
       <div class="brand-badge">
-        <span class="brand-title">Chatbot Abhi</span>
-        <span class="system-tag">Student Project by Abhi</span>
+        <span class="brand-title">AXIOM</span>
+        <span class="system-tag">Voice Command: <strong>"Hey Axiom"</strong> • AI Companion</span>
       </div>
 
       <!-- Theme Switcher -->
@@ -57,9 +57,10 @@
 
       <!-- Controls -->
       <div style="display: flex; align-items: center; gap: 8px;">
-        <button id="settings-btn" class="btn-sm" title="Configure AI Engine & API Key">⚙️ API KEY <span id="api-status-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748b; margin-left:4px; vertical-align:middle;"></span></button>
-        <button id="sound-toggle-btn" class="btn-sm active" title="Robot Servo & Audio SFX: ON">🔊 SFX</button>
-        <button id="voice-toggle-btn" class="btn-sm" title="Speech Synthesis (TTS): OFF">🗣️ VOICE</button>
+        <button id="voice-assistant-master-btn" class="btn-sm voice-assistant-glow-btn" title="Grant Microphone Access &amp; Activate Full Voice Assistant">🎙️ VOICE ASSISTANT</button>
+        <button id="settings-btn" class="btn-sm" title="Configure AI Engine &amp; API Key">⚙️ API KEY <span id="api-status-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748b; margin-left:4px; vertical-align:middle;"></span></button>
+        <button id="sound-toggle-btn" class="btn-sm active" title="Robot Servo &amp; Audio SFX: ON">🔊 SFX</button>
+        <button id="voice-toggle-btn" class="btn-sm" title="Speech Synthesis (TTS): ON / OFF">🗣️ VOICE</button>
         <button id="notes-toggle-btn" class="btn-sm">🎒 NOTES</button>
         <button id="maker-notes-btn" class="btn-sm">🛠️ SYSTEM</button>
       </div>
@@ -100,23 +101,12 @@
         <!-- Wardrobe / Outfits Selector -->
         <div class="hud-wardrobe-bar">
           <span class="wardrobe-label">👗 OUTFIT:</span>
-          <button class="outfit-pill active" data-outfit="suit" title="Disciplined Bespoke Tailored Suit, Shoulder Epaulettes, Gold Crest, Crisp Poplin Shirt, Silk Tie, Belt & Oxford Shoes">👔 Disciplined Suit</button>
-          <button class="outfit-pill" data-outfit="cyber" title="Cyber Exoskeleton Mecha Armor Plates & Glowing Neon Conduits">⚡ Cyber Mecha</button>
-          <button class="outfit-pill" data-outfit="student" title="Navy Uniform Blazer, White Collared Shirt, Red Tie & Academic Shield Crest">🎓 Student Uniform</button>
-          <button class="outfit-pill" data-outfit="scientist" title="White Lab Coat, ID Badge, Stethoscope, Pens & Smart Spectacles">🥼 Scientist Coat</button>
-          <button class="outfit-pill" data-outfit="hoodie" title="Streetwear Hoodie, Pouch, Drawstrings, Neon Symbol & Denim Jeans">🧥 Streetwear Hoodie</button>
-          <button class="outfit-pill" data-outfit="astronaut" title="Pressurized Lunar EVA Suit, Mission Patch, O2 Valves & Backpack">🚀 Astronaut Suit</button>
-          <button class="outfit-pill" data-outfit="physique" title="Pure Muscular Physique (Chiseled Natural Skin, Sculpted Pectorals, 6-Pack Abs & Quad Hypertrophy)">💪 Muscular Physique</button>
-        </div>
-
-        <!-- Dynamic Muscle Hypertrophy Control Bar -->
-        <div class="hud-muscle-bar">
-          <span class="muscle-label">💪 MUSCLE:</span>
-          <button class="muscle-pill" data-level="lean" title="Lean / Calisthenics Physique (0.75x)">Lean</button>
-          <button class="muscle-pill active" data-level="athletic" title="Athletic / Natural Physique (1.0x)">Athletic</button>
-          <button class="muscle-pill" data-level="muscular" title="Muscular / Gym Fit Physique (1.38x)">Muscular</button>
-          <button class="muscle-pill" data-level="bodybuilder" title="Heavyweight Bodybuilder / Superhero Physique (1.75x)">Bodybuilder</button>
-          <button class="muscle-gain-btn" id="gain-muscle-btn" title="Progressively Gain Muscle (Level Up Hypertrophy)">⚡ GAIN MUSCLE</button>
+          <button class="outfit-pill active" data-outfit="cyber" title="Next-Gen 2026 Cyber Android V2.0 Armor Plates, Quantum Arc Reactor &amp; Glowing Waveguides">⚡ Cyber Android V2</button>
+          <button class="outfit-pill" data-outfit="suit" title="Disciplined Bespoke Tailored Suit, Shoulder Epaulettes, Gold Crest, Crisp Poplin Shirt, Silk Tie, Belt &amp; Oxford Shoes">👔 Disciplined Suit</button>
+          <button class="outfit-pill" data-outfit="student" title="Navy Uniform Blazer, White Collared Shirt, Red Tie &amp; Academic Shield Crest">🎓 Student Uniform</button>
+          <button class="outfit-pill" data-outfit="scientist" title="White Lab Coat, ID Badge, Stethoscope, Pens &amp; Smart Spectacles">🥼 Scientist Coat</button>
+          <button class="outfit-pill" data-outfit="hoodie" title="Streetwear Hoodie, Pouch, Drawstrings, Neon Symbol &amp; Denim Jeans">🧥 Streetwear Hoodie</button>
+          <button class="outfit-pill" data-outfit="astronaut" title="Pressurized Lunar EVA Suit, Mission Patch, O2 Valves &amp; Backpack">🚀 Astronaut Suit</button>
         </div>
 
         <!-- 3D Orbit & Zoom Control Hint -->
@@ -130,14 +120,13 @@
         <!-- Floating Voice Command Live HUD Toast -->
         <div id="voice-toast" class="voice-toast hidden">
           <span class="voice-toast-dot"></span>
-          <span class="voice-toast-text" id="voice-toast-text">🎙️ Say "Wear Suit", "Salute", "Zoom Face", "Flex"...</span>
+          <span class="voice-toast-text" id="voice-toast-text">🎙️ Say "Hey Axiom" • "Hey Axiom, wear suit" • "Hey Axiom, salute"...</span>
         </div>
 
         <!-- Robot Interactive Actions & Gestures -->
         <div class="hud-actions-bar">
-          <button class="action-btn" id="act-flex-btn" title="Front Double-Biceps Flex Pose & Maximum Muscle Contraction">💪 Flex</button>
           <button class="action-btn" id="act-hifi-btn" title="Interactive High-Five - Lift hand and tap to slap!">✋ High-Five</button>
-          <button class="action-btn" id="act-hello-btn" title="Friendly Wave Greeting & Cheerful Eye Glow">👋 Hello</button>
+          <button class="action-btn" id="act-hello-btn" title="Friendly Wave Greeting &amp; Cheerful Glow">👋 Hello</button>
           <button class="action-btn" id="act-bye-btn" title="Warm Farewell Wave with Gentle Head Tilt">👋 Bye</button>
           <button class="action-btn" id="act-kiss-btn" title="Sweeping Flying Kiss with Floating 3D Glowing Hearts">💋 Flying Kiss</button>
           <button class="action-btn" id="act-salute-btn" title="Military / Mecha Salute Standing at Attention">🫡 Salute</button>
@@ -147,9 +136,8 @@
         <div class="hud-bottom-bar">
           <button class="hud-btn voice-cmd-btn" id="voice-cmd-btn" title="Toggle Hands-Free Voice Command Operation (speak commands to control robot)">🎙️ VOICE CMD</button>
           <button class="hud-btn overdrive-btn" id="overdrive-btn" title="Trigger high-speed thinking mode">⚡ OVERDRIVE</button>
-          <button class="hud-btn" id="cam-command-btn" title="Full chassis & legs view">🎥 FULL</button>
-          <button class="hud-btn" id="cam-legs-btn" title="Inspect articulated mechanical legs & boots">🦵 LEGS</button>
-          <button class="hud-btn" id="cam-core-btn" title="Focus on clear glowing eyes">👁️ EYES</button>
+          <button class="hud-btn" id="cam-command-btn" title="Full chassis &amp; legs view">🎥 FULL</button>
+          <button class="hud-btn" id="cam-legs-btn" title="Inspect articulated mechanical legs &amp; boots">🦵 LEGS</button>
           <button class="hud-btn" id="cam-orbit-btn" title="Toggle 360° cinematic orbit mode">🔄 ORBIT</button>
           <button class="hud-btn" id="cam-reset-btn" title="Reset camera view">↺ RESET</button>
         </div>
@@ -189,30 +177,28 @@
             <div class="avatar bot-avatar">🤖</div>
             <div class="message-bubble">
               <div class="sender-tag">
-                <span class="sender-name">Chatbot Abhi // AI System</span>
-                <span style="color: var(--text-dim); font-size: 10px;">[AUTONOMOUS CORE ONLINE]</span>
+                <span class="sender-name">AXIOM // Autonomous Quantum Core</span>
+                <span style="color: var(--text-dim); font-size: 10px;">[VOICE WAKE WORD: "HEY AXIOM"]</span>
               </div>
               <div class="message-content">
                 <div class="topic-header">
                   <span class="badge accuracy-badge">✓ Sub-10ms Verified</span>
-                  <h3>System Initialized: Greetings from Chatbot Abhi! 👋</h3>
+                  <h3>System Initialized: Greetings from Axiom! 👋</h3>
                 </div>
-                <p>I am <strong>Chatbot Abhi</strong>, an interactive 3D robot system engineered by Abhijeeth for deep learning and high-accuracy academic problem solving.</p>
+                <p>I am <strong>Axiom</strong>, a voice-controlled 3D cybernetic android and multimodal AI companion engineered by Abhijeeth. You can command me hands-free anytime simply by speaking: <strong>"Hey Axiom"</strong>!</p>
                 <br>
                 <div class="analogy-box">
-                  <div class="box-title">⚡ Humanoid Robotic Capabilities:</div>
+                  <div class="box-title">⚡ Axiom Voice-Controlled Capabilities:</div>
                   <ul style="padding-left: 20px; margin-top: 6px;">
-                    <li><strong>Handsome Guy Sculpt & Disciplined Menswear:</strong> Sculpted handsome masculine facial anatomy (chiseled jawline, defined cheekbones, modern swept pompadour quiff coiffure, almond eyes with specular catchlights, warm healthy skin) dressed by default in an immaculate <strong>Disciplined Bespoke Suit</strong> (tailored navy blazer, shoulder epaulettes, gold buttons, crisp poplin shirt, silk tie with Windsor knot & gold tie clip, medal ribbon bar, folded pocket square, leather belt, creased slacks, and Oxford dress shoes).</li>
-                    <li><strong>Human Skin & Dynamic Muscle Hypertrophy:</strong> Realistic warm human skin with subtle subsurface scattering warmth, anatomical pectorals, 6-pack abs, deltoids, biceps, and quads. Click <strong>⚡ GAIN MUSCLE</strong> to watch the robot progressively build muscle from <em>Lean (0.75x)</em> to <em>Athletic (1.0x)</em>, <em>Muscular (1.38x)</em>, and <em>Bodybuilder (1.75x)</em>, or tap <strong>💪 Flex</strong> for the classic front double-biceps pose!</li>
-                    <li><strong>Interactive Gestures:</strong> Tap <strong>💪 Flex</strong>, <strong>✋ High-Five</strong>, <strong>👋 Hello</strong>, <strong>👋 Bye</strong>, <strong>💋 Blow Kiss</strong> (with floating 3D hearts), or <strong>🫡 Salute</strong>!</li>
-                    <li><strong>Communication Mastery:</strong> Master the 7 C's of Communication, STAR interview framework, active listening, and public speaking with real-time feedback.</li>
-                    <li><strong>Wardrobe Dressing:</strong> Switch outfits in real-time (👔 Disciplined Suit, ⚡ Cyber Mecha, 🎓 Student Uniform, 🥼 Lab Coat, 🧥 Urban Hoodie, 🚀 Space Suit, 💪 Pure Muscular Physique).</li>
-                    <li><strong>Advanced Vocabulary & Lexicon:</strong> Comprehensive vocabulary definitions, IPA pronunciation, historical etymology (Greek, Latin, Old English roots), and Word of the Day.</li>
-                    <li><strong>Cursor Zoom & 360° Orbit:</strong> Scroll mouse wheel to zoom in/out with cursor, and click-drag to rotate the robot 360°.</li>
-                    <li><strong>Sub-10ms Academic Engine:</strong> High-precision math, science, and multi-domain solving with KaTeX and live factual retrieval.</li>
+                    <li><strong>🎙️ Voice Command Operation (Call: <em>"Hey Axiom"</em>):</strong> Speak <em>"Hey Axiom"</em> to wake me up! You can give direct commands like: <em>"Hey Axiom, wear suit"</em>, <em>"Hey Axiom, salute"</em>, <em>"Hey Axiom, explain Bayes' Theorem"</em>, or <em>"Hey Axiom, wave hello"</em>.</li>
+                    <li><strong>NOVA-X Cyber Android Chassis:</strong> Sleek aerodynamic ceramic composite armor shells, pulsating multi-ring quantum singularity arc reactor with magnetic containment torus, glowing neon waveguides, and mag-lev hover boots.</li>
+                    <li><strong>Anatomical Facial Realism:</strong> Handsome masculine human facial anatomy with photorealistic cornea reflections, crystalline iris depth, pupil dilation, articulated lips, teeth, tongue, and modern quiff hair.</li>
+                    <li><strong>Complete Wardrobe System:</strong> Seamlessly transform between ⚡ Cyber Android V2, 👔 Disciplined Suit, 🎓 Student Uniform, 🥼 Scientist Lab Coat, 🧥 Streetwear Hoodie, and 🚀 Astronaut Suit.</li>
+                    <li><strong>Interactive Gestures &amp; SFX:</strong> Tap <strong>✋ High-Five</strong>, <strong>👋 Hello</strong>, <strong>👋 Bye</strong>, <strong>💋 Flying Kiss</strong>, or <strong>🫡 Salute</strong>!</li>
+                    <li><strong>Next-Gen Multimodal Terminal:</strong> Real-time neural audio frequency visualizer, quick action chips, and sub-10ms KaTeX STEM knowledge core.</li>
                   </ul>
                 </div>
-                <p style="font-size: 12.5px; color: var(--text-dim); margin-top: 8px;">Select a subject module or click a quick prompt below to begin!</p>
+                <p style="font-size: 12.5px; color: var(--text-dim); margin-top: 8px;">Click <strong>🎙️ VOICE ASSISTANT</strong> in the header to grant microphone access, then say <strong>"Hey Axiom"</strong>!</p>
               </div>
             </div>
           </div>
@@ -240,6 +226,32 @@
 
         <!-- Input Console -->
         <div class="terminal-input-bar">
+          <!-- Neural Audio Waveform Visualizer -->
+          <div id="neural-waveform" class="neural-waveform idle">
+            <div class="waveform-header">
+              <span class="waveform-dot"></span>
+              <span class="waveform-label" id="waveform-label">NEURAL AUDIO ENGINE: READY</span>
+            </div>
+            <div class="waveform-bars" id="waveform-bars">
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+              <span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            </div>
+          </div>
+
+          <!-- Glassmorphism Quick Action Chips -->
+          <div class="chat-quick-actions">
+            <button class="quick-chip active" data-action="outfit-cyber" title="Equip Next-Gen Cyber Android V2.0">⚡ V2 Cyber</button>
+            <button class="quick-chip" data-action="outfit-suit" title="Equip Disciplined Bespoke Suit">👔 Suit</button>
+            <button class="quick-chip" data-action="gesture-wave" title="Friendly Wave Greeting">👋 Wave</button>
+            <button class="quick-chip" data-action="gesture-salute" title="Salute at Attention">🫡 Salute</button>
+            <button class="quick-chip" data-action="voice-toggle" title="Toggle Hands-Free Voice Commands">🎙️ Voice</button>
+            <button class="quick-chip" data-action="camera-orbit" title="Toggle 360° Cinematic Orbit">🔄 Orbit</button>
+          </div>
+
           <div class="input-box">
             <button id="mic-btn" class="input-icon-btn" title="Speak via microphone">🎤</button>
             <input type="text" id="chat-input" placeholder="Ask any question, explore word definitions, or solve math... (e.g. 'define serendipity' or '15 * 14')" autocomplete="off">
@@ -247,8 +259,8 @@
           </div>
 
           <div class="telemetry-footer">
-            <div id="latency-badge">⚡ <strong>1.8 ms</strong> • Robot Core Synchronized</div>
-            <div>Engineering Student Project • Sub-10ms Verified</div>
+            <div id="latency-badge">⚡ <strong>1.8 ms</strong> • AXIOM Quantum Core Synced</div>
+            <div>AXIOM-AI • Voice Command: "Hey Axiom"</div>
           </div>
         </div>
       </section>
@@ -425,7 +437,7 @@
           <!-- Resource Card 6 -->
           <div class="resource-card" data-prompt="How does Spaced Repetition conquer the Ebbinghaus Forgetting Curve?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🧠 Spaced Repetition & Cognitive Memory Retention</span>
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🧠 Spaced Repetition &amp; Cognitive Memory Retention</span>
               <span class="badge" style="font-size: 10px; background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #38bdf8;">Study Strategy</span>
             </div>
             <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Schedules active recall at exponential intervals to flatten memory decay and achieve permanent retention.</p>
@@ -437,13 +449,51 @@
         </div>
       </div>
     </div>
+
+    <!-- Voice Assistant Access & Microphone Permission Modal -->
+    <div id="voice-modal" class="modal-backdrop">
+      <div class="modal-box" style="max-width: 520px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <h3 style="font-family: var(--font-mono); color: var(--accent); margin: 0; font-size: 16px;">🎙️ VOICE ASSISTANT ACCESS</h3>
+          <button id="close-voice-modal-btn" class="close-btn">&times;</button>
+        </div>
+
+        <div style="font-size: 13px; line-height: 1.6; color: #cbd5e1;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); padding: 12px 14px; border-radius: 8px;">
+            <div style="font-size: 28px;">🎙️</div>
+            <div>
+              <div style="font-weight: 700; color: #f1f5f9; font-size: 14px;">Axiom Voice Operation • Wake Word: "Hey Axiom"</div>
+              <div style="font-size: 12px; color: var(--text-dim);">Continuous hands-free speech recognition &amp; spoken AI voice responses</div>
+            </div>
+          </div>
+
+          <p style="margin-bottom: 12px;">To interact with <strong>Axiom</strong> hands-free using the voice command <strong>"Hey Axiom"</strong>, your browser needs microphone permission:</p>
+
+          <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 16px; font-family: var(--font-mono); font-size: 11.5px;">
+            <div style="color: var(--accent); font-weight: 700; margin-bottom: 6px;">📋 How to Grant Microphone Access:</div>
+            <ol style="padding-left: 18px; margin: 0; display: flex; flex-direction: column; gap: 4px; color: #94a3b8;">
+              <li>Click the <strong>"Grant Access &amp; Activate"</strong> button below.</li>
+              <li>When your browser displays the popup, click <strong>"Allow"</strong>.</li>
+              <li>If already blocked, click the 🔒 / ⚙️ icon in your browser's address bar and set <em>Microphone</em> to <strong>Allow</strong>.</li>
+            </ol>
+          </div>
+
+          <div id="voice-permission-feedback" style="display: none; margin-bottom: 14px; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-family: var(--font-mono);"></div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button id="cancel-voice-modal-btn" class="btn-sm" style="border-color: #64748b; color: #94a3b8;">Cancel</button>
+            <button id="grant-mic-permission-btn" class="btn-sm" style="background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #ffffff; font-weight: 700; padding: 6px 16px; border: none; cursor: pointer; box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);">🎙️ Grant Access &amp; Activate</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Scripts -->
-  <script src="/static/js/knowledge.js?v=5.8.0"></script>
-  <script src="/static/js/audio.js?v=5.8.0"></script>
-  <script src="/static/js/mathgraph.js?v=5.8.0"></script>
-  <script src="/static/js/robot3d.js?v=5.8.0"></script>
-  <script src="/static/js/app.js?v=5.8.0"></script>
+  <script src="/static/js/knowledge.js?v=6.1.0"></script>
+  <script src="/static/js/audio.js?v=6.1.0"></script>
+  <script src="/static/js/mathgraph.js?v=6.1.0"></script>
+  <script src="/static/js/robot3d.js?v=6.1.0"></script>
+  <script src="/static/js/app.js?v=6.1.0"></script>
 </body>
 </html>

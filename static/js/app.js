@@ -386,7 +386,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const camCommandBtn = document.getElementById("cam-command-btn");
   const camLegsBtn = document.getElementById("cam-legs-btn");
-  const camCoreBtn = document.getElementById("cam-core-btn");
   const camOrbitBtn = document.getElementById("cam-orbit-btn");
   const toggleGridBtn = document.getElementById("toggle-grid-btn");
   const frameThemeBtn = document.getElementById("frame-theme-btn");
@@ -410,20 +409,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (robot) {
         if (robot.isOrbiting) robot.toggleOrbit();
         robot.setCameraView("legs");
-      }
-      if (camOrbitBtn) {
-        camOrbitBtn.classList.remove("active");
-        camOrbitBtn.innerHTML = "🔄 ORBIT";
-      }
-      window.AudioEngine.playHydraulicClick();
-    });
-  }
-
-  if (camCoreBtn) {
-    camCoreBtn.addEventListener("click", () => {
-      if (robot) {
-        if (robot.isOrbiting) robot.toggleOrbit();
-        robot.setCameraView("eyes");
       }
       if (camOrbitBtn) {
         camOrbitBtn.classList.remove("active");
@@ -477,6 +462,15 @@ document.addEventListener("DOMContentLoaded", () => {
       if (p.dataset.outfit === outfitKey) p.classList.add("active");
       else p.classList.remove("active");
     });
+    // Sync Quick Action Chips
+    document.querySelectorAll(".quick-chip").forEach((chip) => {
+      const act = chip.dataset.action;
+      if (act === `outfit-${outfitKey}`) {
+        chip.classList.add("active");
+      } else if (act && act.startsWith("outfit-")) {
+        chip.classList.remove("active");
+      }
+    });
   };
 
   outfitPills.forEach((pill) => {
@@ -487,61 +481,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Dynamic Muscle Hypertrophy Controls
-  const musclePills = document.querySelectorAll(".muscle-pill");
-  const gainMuscleBtn = document.getElementById("gain-muscle-btn");
-
-  const syncMuscleUI = (levelKey) => {
-    musclePills.forEach((p) => {
-      if (p.dataset.level === levelKey) p.classList.add("active");
-      else p.classList.remove("active");
-    });
-    const status = document.getElementById("frame-system-status");
-    if (status && robot) {
-      const name = robot.getMuscleLevelName ? robot.getMuscleLevelName() : levelKey;
-      status.textContent = `3D FRAME: MUSCLE HYPERTROPHY [${name.toUpperCase()}]`;
-    }
-  };
-
-  musclePills.forEach((pill) => {
-    pill.addEventListener("click", () => {
-      const level = pill.dataset.level;
-      if (robot) {
-        robot.setMuscleLevel(level);
-        syncMuscleUI(level);
-        if (window.AudioEngine) {
-          if (window.AudioEngine.playClick) window.AudioEngine.playClick();
-          if (window.AudioEngine.voiceEnabled) {
-            const name = robot.getMuscleLevelName ? robot.getMuscleLevelName() : level;
-            window.AudioEngine.speak(`Muscle hypertrophy set to ${name} physique.`);
-          }
-        }
-      }
-    });
-  });
-
-  if (gainMuscleBtn) {
-    gainMuscleBtn.addEventListener("click", () => {
-      if (robot) {
-        const nextLevel = robot.gainMuscle();
-        syncMuscleUI(nextLevel);
-        if (window.AudioEngine) {
-          if (window.AudioEngine.playServoHum) window.AudioEngine.playServoHum();
-          if (window.AudioEngine.voiceEnabled) {
-            const name = robot.getMuscleLevelName ? robot.getMuscleLevelName() : nextLevel;
-            window.AudioEngine.speak(`Gaining muscle! Hypertrophy advanced to ${name} build!`);
-          }
-        }
-        if (nextLevel === "muscular" || nextLevel === "bodybuilder") {
-          setTimeout(() => { if (robot) robot.flex(); }, 350);
-        }
-      }
-    });
-  }
-
   // Robot Interactive Actions & Gestures
   const actionConfigs = [
-    { id: "act-flex-btn", action: "flex" },
     { id: "act-hifi-btn", action: "hifi" },
     { id: "act-hello-btn", action: "hello" },
     { id: "act-bye-btn", action: "bye" },
@@ -564,6 +505,55 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Quick Action Chips in Terminal Input Bar
+  const quickChips = document.querySelectorAll(".quick-chip");
+  quickChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const action = chip.dataset.action;
+      if (!action) return;
+
+      if (window.AudioEngine && window.AudioEngine.playClick) {
+        window.AudioEngine.playClick();
+      }
+
+      if (action === "outfit-cyber") {
+        syncOutfitUI("cyber");
+        if (robot) robot.setOutfit("cyber");
+      } else if (action === "outfit-suit") {
+        syncOutfitUI("suit");
+        if (robot) robot.setOutfit("suit");
+      } else if (action === "gesture-wave") {
+        if (robot) robot.doAction("hello");
+      } else if (action === "gesture-salute") {
+        if (robot) robot.doAction("salute");
+      } else if (action === "voice-toggle") {
+        if (voiceCmdBtn) voiceCmdBtn.click();
+      } else if (action === "camera-orbit") {
+        if (camOrbitBtn) camOrbitBtn.click();
+        else if (robot) robot.toggleOrbit();
+      }
+    });
+  });
+
+  // Neural Waveform Equalizer UI integration
+  const neuralWaveform = document.getElementById("neural-waveform");
+  const waveformLabel = document.getElementById("waveform-label");
+  const updateNeuralWaveform = (state, label) => {
+    if (!neuralWaveform || !waveformLabel) return;
+    if (state === "idle") {
+      neuralWaveform.classList.remove("active");
+      waveformLabel.textContent = label || "NEURAL AUDIO ENGINE: READY";
+    } else {
+      neuralWaveform.classList.add("active");
+      waveformLabel.textContent = label || "NEURAL AUDIO ENGINE: ACTIVE";
+    }
+  };
+
+  if (window.AudioEngine && window.AudioEngine.setWaveformListener) {
+    window.AudioEngine.setWaveformListener((st, lbl) => {
+      updateNeuralWaveform(st, lbl);
+    });
+  }
 
   const waveBtn = document.getElementById("wave-btn");
   if (waveBtn) {
@@ -750,15 +740,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 2. GESTURES & ACTIONS
-    if (/\b(?:flex|show muscles?|biceps?|workout pose|double bicep)\b/i.test(text)) {
-      if (robot) robot.flex();
-      return {
-        label: "Double-Biceps Flex",
-        spoken: "Executing front double-biceps flex! Peak hypertrophy engaged!",
-        feedback: "💪 Action: Double-Biceps Flex"
-      };
-    }
-
     if (/\b(?:high[\s-]*five|hifi|give me five|clap hands?|slap hand)\b/i.test(text)) {
       if (robot) robot.hifi();
       return {
@@ -831,53 +812,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     }
 
-    // 3. MUSCLE HYPERTROPHY
-    if (/\b(?:gain|grow|build|level up|increase)\s+muscles?\b/i.test(text) || /\bhypertrophy\b/i.test(text)) {
-      let nextName = "athletic";
-      if (robot) nextName = robot.gainMuscle();
-      syncMuscleUI(nextName);
-      return {
-        label: "Gain Muscle",
-        spoken: `Muscle hypertrophy advanced to ${nextName} build!`,
-        feedback: `⚡ Hypertrophy: ${nextName.toUpperCase()}`
-      };
-    }
-
-    if (/\blean(?:\s+physique|\s+body|\s+level)?\b/i.test(text)) {
-      if (robot) robot.setMuscleLevel("lean");
-      syncMuscleUI("lean");
-      return { label: "Lean Physique", spoken: "Set to lean athletic build.", feedback: "⚡ Level: LEAN (0.75x)" };
-    }
-    if (/\bathletic(?:\s+physique|\s+body|\s+level)?\b/i.test(text)) {
-      if (robot) robot.setMuscleLevel("athletic");
-      syncMuscleUI("athletic");
-      return { label: "Athletic Physique", spoken: "Set to canonical athletic physique.", feedback: "⚡ Level: ATHLETIC (1.0x)" };
-    }
-    if (/\bmuscular(?:\s+physique|\s+body|\s+level)?\b/i.test(text)) {
-      if (robot) robot.setMuscleLevel("muscular");
-      syncMuscleUI("muscular");
-      return { label: "Muscular Physique", spoken: "Set to muscular bodybuilder physique.", feedback: "⚡ Level: MUSCULAR (1.38x)" };
-    }
-    if (/\bbodybuilder(?:\s+physique|\s+mode|\s+level)?\b/i.test(text)) {
-      if (robot) robot.setMuscleLevel("bodybuilder");
-      syncMuscleUI("bodybuilder");
-      return { label: "Bodybuilder Physique", spoken: "Maximum heavyweight bodybuilder physique activated!", feedback: "⚡ Level: BODYBUILDER (1.75x)" };
-    }
-
-    // 4. CAMERA & PERSPECTIVES
-    if (/\b(?:zoom\s+in|zoom\s+to|focus\s+(?:on\s+)?|look\s+at\s+|show\s+|view\s+)?(?:the\s*)?(?:face|eyes|head|facial)\b/i.test(text) ||
-        /\b(?:face|eyes)\s*view\b/i.test(text) || /\bzoom\s+in\b/i.test(text)) {
-      if (robot) {
-        if (robot.isOrbiting) robot.toggleOrbit();
-        robot.setCameraView("eyes");
-      }
-      return {
-        label: "Focus Face & Eyes",
-        spoken: "Focusing on realistic human face, eyes, nose, teeth, and tongue.",
-        feedback: "👁️ Camera: Face & Eyes Close-Up"
-      };
-    }
-
+    // 3. CAMERA & PERSPECTIVES
     if (/\b(?:look at|focus on|show|view)\s*(?:the\s*)?(?:legs|boots|feet)\b/i.test(text) ||
         /\blegs\s*view\b/i.test(text)) {
       if (robot) {
@@ -958,21 +893,56 @@ document.addEventListener("DOMContentLoaded", () => {
       return { label: "Toggle Platform", spoken: "Hologram stage toggled.", feedback: "🛸 Stage: Toggled" };
     }
 
+    // 7. AXIOM IDENTITY & WAKE CALLS
+    if (/\b(?:who are you|what is your name|tell me about yourself|who created you|who made you)\b/i.test(text)) {
+      if (robot) {
+        robot.setExpression("happy");
+        robot.doAction("hello");
+      }
+      return {
+        label: "Axiom Identity",
+        spoken: "I am Axiom, your voice-controlled 3D AI companion and study assistant created by Abhijeeth! Say Hey Axiom to command me anytime.",
+        feedback: "🤖 Identity: AXIOM-AI"
+      };
+    }
+
     return null;
   };
 
-  const handleVoiceInput = (transcript, isFromVoiceCmdMode = false) => {
-    if (!transcript) return;
-    const cmd = matchAndExecuteVoiceCommand(transcript);
+  const WAKE_WORD_MATCH = /^(?:(?:hey|hi|hello|ok|okay)\s+)?(?:axiom|axion|a[\s-]?xiom)\b[,:]?\s*/i;
+  const IS_STANDALONE_WAKE = /^(?:(?:hey|hi|hello|ok|okay)\s+)?(?:axiom|axion|a[\s-]?xiom)[!?,.]*$/i;
 
-    if (cmd) {
-      if (window.AudioEngine.playVoiceCommandChime) {
+  const handleVoiceInput = (rawTranscript, isFromVoiceCmdMode = false) => {
+    if (!rawTranscript) return;
+    const transcript = rawTranscript.trim();
+
+    // 1. Check if user called the Wake Word ("Hey Axiom")
+    const hasWakeWord = WAKE_WORD_MATCH.test(transcript);
+    const isStandaloneWake = IS_STANDALONE_WAKE.test(transcript);
+
+    if (isStandaloneWake) {
+      if (window.AudioEngine.playAxiomWakeChime) {
+        window.AudioEngine.playAxiomWakeChime();
+      } else if (window.AudioEngine.playVoiceCommandChime) {
         window.AudioEngine.playVoiceCommandChime();
       }
-      showVoiceToast(`✨ ${cmd.feedback}`, "executing", 3200);
+
+      if (robot) {
+        robot.setExpression("happy");
+        robot.doAction("hello");
+      }
+
+      showVoiceToast("✨ AXIOM AWAKE: Listening for your command or query...", "listening", 3500);
+
+      const greetings = [
+        "Yes, I am Axiom! I am listening. How can I help you?",
+        "Hello! Axiom online. What would you like to explore or solve?",
+        "Axiom at your service! Ready for your question or command."
+      ];
+      const greeting = greetings[Math.floor(Math.random() * greetings.length)];
 
       if (window.AudioEngine.voiceEnabled) {
-        window.AudioEngine.speak(cmd.spoken, () => {
+        window.AudioEngine.speak(greeting, () => {
           if (robot) robot.setExpression("speaking");
         }, () => {
           if (robot) robot.setExpression("idle");
@@ -980,99 +950,217 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       appendMessage("user", `🎙️ "${transcript}"`);
-      appendMessage("bot", `<div class="voice-cmd-confirmation"><span class="voice-cmd-pill">${cmd.feedback}</span><p>${cmd.spoken}</p></div>`);
+      appendMessage("bot", `<div class="voice-cmd-confirmation"><span class="voice-cmd-pill">⚡ WAKE WORD: "HEY AXIOM" DETECTED</span><p>${greeting}</p></div>`);
+      return true;
+    }
+
+    // 2. Strip wake word prefix if spoken as a compound phrase:
+    // e.g. "Hey Axiom, wear suit" -> "wear suit"
+    // e.g. "Hey Axiom, explain quantum physics" -> "explain quantum physics"
+    let cleanPrompt = transcript;
+    if (hasWakeWord) {
+      cleanPrompt = transcript.replace(WAKE_WORD_MATCH, "").trim();
+    }
+
+    if (!cleanPrompt) {
+      return true;
+    }
+
+    // Check if the prompt is a direct robot command
+    const cmd = matchAndExecuteVoiceCommand(cleanPrompt);
+
+    if (cmd) {
+      if (hasWakeWord && window.AudioEngine.playAxiomWakeChime) {
+        window.AudioEngine.playAxiomWakeChime();
+      } else if (window.AudioEngine.playVoiceCommandChime) {
+        window.AudioEngine.playVoiceCommandChime();
+      }
+
+      showVoiceToast(`✨ ${cmd.feedback}`, "executing", 3200);
+
+      const spokenResponse = hasWakeWord ? `Axiom executing: ${cmd.spoken}` : cmd.spoken;
+
+      if (window.AudioEngine.voiceEnabled) {
+        window.AudioEngine.speak(spokenResponse, () => {
+          if (robot) robot.setExpression("speaking");
+        }, () => {
+          if (robot) robot.setExpression("idle");
+        });
+      }
+
+      appendMessage("user", `🎙️ "${transcript}"`);
+      appendMessage("bot", `<div class="voice-cmd-confirmation"><span class="voice-cmd-pill">${cmd.feedback}</span><p>${spokenResponse}</p></div>`);
       return true;
     }
 
     // Not a direct robot command: forward as conversational/academic inquiry
-    if (isFromVoiceCmdMode) {
-      showVoiceToast(`🔍 Academic query: "${transcript}"`, "executing", 2500);
+    if (hasWakeWord && window.AudioEngine.playAxiomWakeChime) {
+      window.AudioEngine.playAxiomWakeChime();
     }
-    chatInput.value = transcript;
+    showVoiceToast(`🔍 Axiom Query: "${cleanPrompt}"`, "executing", 2500);
+    chatInput.value = cleanPrompt;
     sendMessage();
     return false;
   };
 
-  // Continuous Hands-Free Voice Command Mode Toggle
-  if (voiceCmdBtn) {
-    voiceCmdBtn.addEventListener("click", () => {
-      if (isVoiceCommandModeActive) {
-        // Deactivate Voice Command Mode
-        isVoiceCommandModeActive = false;
-        voiceCmdBtn.classList.remove("listening");
-        voiceCmdBtn.innerHTML = "🎙️ VOICE CMD";
-        window.AudioEngine.stopListening();
-        showVoiceToast("Voice command mode deactivated.", "listening", 1800);
-        setTimeout(() => { if (voiceToast) voiceToast.classList.add("hidden"); }, 1800);
-      } else {
-        // Activate Voice Command Mode
-        isVoiceCommandModeActive = true;
+  // Voice Assistant Access & Two-Way Hands-Free Engine
+  const voiceAssistantMasterBtn = document.getElementById("voice-assistant-master-btn");
+  const voiceModal = document.getElementById("voice-modal");
+  const closeVoiceModalBtn = document.getElementById("close-voice-modal-btn");
+  const cancelVoiceModalBtn = document.getElementById("cancel-voice-modal-btn");
+  const grantMicPermissionBtn = document.getElementById("grant-mic-permission-btn");
+  const voicePermissionFeedback = document.getElementById("voice-permission-feedback");
+
+  const syncVoiceAssistantUI = (isActive) => {
+    isVoiceCommandModeActive = isActive;
+    if (isActive) {
+      if (voiceAssistantMasterBtn) {
+        voiceAssistantMasterBtn.classList.add("active");
+        voiceAssistantMasterBtn.innerHTML = "🟢 ASSISTANT ACTIVE";
+      }
+      if (voiceCmdBtn) {
         voiceCmdBtn.classList.add("listening");
         voiceCmdBtn.innerHTML = "🔴 LISTENING...";
-        showVoiceToast("🎙️ Listening... Say 'Wear suit', 'Salute', 'Zoom face', 'Flex'...", "listening", 0);
-
-        if (window.AudioEngine.voiceEnabled) {
-          window.AudioEngine.speak("Voice command mode active. Ready for your command.");
-        }
-
-        window.AudioEngine.startListening(
-          (transcript) => {
-            handleVoiceInput(transcript, true);
-          },
-          () => {
-            if (!isVoiceCommandModeActive) {
-              voiceCmdBtn.classList.remove("listening");
-              voiceCmdBtn.innerHTML = "🎙️ VOICE CMD";
-              if (voiceToast) voiceToast.classList.add("hidden");
-            }
-          },
-          (err) => {
-            console.warn("Voice command recognition error:", err);
-            if (!isVoiceCommandModeActive) {
-              voiceCmdBtn.classList.remove("listening");
-              voiceCmdBtn.innerHTML = "🎙️ VOICE CMD";
-              if (voiceToast) voiceToast.classList.add("hidden");
-            }
-          },
-          true // continuous = true
-        );
       }
+      if (micBtn) {
+        micBtn.classList.add("listening");
+      }
+      document.querySelectorAll('.quick-chip[data-action="voice-toggle"]').forEach(c => c.classList.add("active"));
+      if (voiceToggleBtn) {
+        voiceToggleBtn.classList.add("active");
+        voiceToggleBtn.textContent = "🗣️ VOICE: ON";
+      }
+      showVoiceToast("🟢 Voice Assistant Online: Listening... Speak naturally!", "listening", 0);
+    } else {
+      if (voiceAssistantMasterBtn) {
+        voiceAssistantMasterBtn.classList.remove("active");
+        voiceAssistantMasterBtn.innerHTML = "🎙️ VOICE ASSISTANT";
+      }
+      if (voiceCmdBtn) {
+        voiceCmdBtn.classList.remove("listening");
+        voiceCmdBtn.innerHTML = "🎙️ VOICE CMD";
+      }
+      if (micBtn) {
+        micBtn.classList.remove("listening");
+      }
+      document.querySelectorAll('.quick-chip[data-action="voice-toggle"]').forEach(c => c.classList.remove("active"));
+      if (voiceToast) voiceToast.classList.add("hidden");
+    }
+  };
+
+  async function activateVoiceAssistant(forceState = null) {
+    const shouldActivate = (forceState !== null) ? forceState : !isVoiceCommandModeActive;
+
+    if (!shouldActivate) {
+      // Deactivate Voice Assistant
+      syncVoiceAssistantUI(false);
+      window.AudioEngine.stopListening();
+      showVoiceToast("Voice Assistant deactivated.", "listening", 1800);
+      return;
+    }
+
+    // 1. Explicitly request microphone access from browser
+    showVoiceToast("🎙️ Requesting microphone permission...", "listening", 0);
+    const permResult = await window.AudioEngine.requestMicrophonePermission();
+
+    if (!permResult.ok) {
+      syncVoiceAssistantUI(false);
+      showVoiceToast("⚠️ Microphone access needed. Opening permission setup...", "executing", 2800);
+      if (voiceModal) {
+        voiceModal.classList.add("active");
+        if (voicePermissionFeedback) {
+          voicePermissionFeedback.style.display = "block";
+          voicePermissionFeedback.style.background = "rgba(239, 68, 68, 0.15)";
+          voicePermissionFeedback.style.border = "1px solid #ef4444";
+          voicePermissionFeedback.style.color = "#fca5a5";
+          voicePermissionFeedback.innerHTML = `⚠️ <strong>Microphone Access Needed (${permResult.error})</strong><br>Please click <strong>"Allow"</strong> in your browser popup, or enable microphone permissions in the URL bar settings.`;
+        }
+      }
+      return;
+    }
+
+    // 2. Microphone access granted!
+    if (voiceModal) voiceModal.classList.remove("active");
+    window.AudioEngine.setVoiceEnabled(true);
+    syncVoiceAssistantUI(true);
+
+    if (window.AudioEngine.playVoiceCommandChime) {
+      window.AudioEngine.playVoiceCommandChime();
+    }
+
+    // Speak welcome confirmation
+    window.AudioEngine.speak(
+      "Voice assistant access granted! I can hear you clearly. Ask me any question or tell me what to do!",
+      () => { if (robot) robot.setExpression("speaking"); },
+      () => { if (robot) robot.setExpression("idle"); }
+    );
+
+    // 3. Start Speech Recognition Engine (Continuous Hands-Free)
+    window.AudioEngine.startListening(
+      (transcript) => {
+        handleVoiceInput(transcript, true);
+      },
+      () => {
+        if (!isVoiceCommandModeActive) {
+          syncVoiceAssistantUI(false);
+        }
+      },
+      (err) => {
+        console.warn("Voice assistant recognition error:", err);
+        if (err === "not-allowed" || err === "permission-denied") {
+          syncVoiceAssistantUI(false);
+          if (voiceModal) {
+            voiceModal.classList.add("active");
+            if (voicePermissionFeedback) {
+              voicePermissionFeedback.style.display = "block";
+              voicePermissionFeedback.innerHTML = `⚠️ <strong>Microphone Access Blocked</strong><br>Please click the 🔒 icon next to localhost in the address bar and set Microphone to "Allow".`;
+            }
+          }
+        }
+      },
+      true // continuous hands-free listening
+    );
+  }
+
+  // Master Voice Assistant Button Listener
+  if (voiceAssistantMasterBtn) {
+    voiceAssistantMasterBtn.addEventListener("click", () => activateVoiceAssistant());
+  }
+
+  // Voice Assistant Modal Listeners
+  if (closeVoiceModalBtn) {
+    closeVoiceModalBtn.addEventListener("click", () => {
+      if (voiceModal) voiceModal.classList.remove("active");
     });
+  }
+
+  if (cancelVoiceModalBtn) {
+    cancelVoiceModalBtn.addEventListener("click", () => {
+      if (voiceModal) voiceModal.classList.remove("active");
+    });
+  }
+
+  if (grantMicPermissionBtn) {
+    grantMicPermissionBtn.addEventListener("click", async () => {
+      if (voiceModal) voiceModal.classList.remove("active");
+      await activateVoiceAssistant(true);
+    });
+  }
+
+  if (voiceModal) {
+    voiceModal.addEventListener("click", (e) => {
+      if (e.target === voiceModal) voiceModal.classList.remove("active");
+    });
+  }
+
+  // Bottom Bar Voice CMD Button
+  if (voiceCmdBtn) {
+    voiceCmdBtn.addEventListener("click", () => activateVoiceAssistant());
   }
 
   // 8. Microphone Input (Quick single-shot speech input in chat box)
   if (micBtn) {
-    micBtn.addEventListener("click", () => {
-      if (window.AudioEngine.isListening) {
-        window.AudioEngine.stopListening();
-        micBtn.classList.remove("listening");
-        if (voiceToast) voiceToast.classList.add("hidden");
-      } else {
-        micBtn.classList.add("listening");
-        showVoiceToast("🎙️ Listening for speech input...", "listening", 0);
-        if (robot) robot.setExpression("surprised");
-
-        window.AudioEngine.startListening(
-          (transcript) => {
-            micBtn.classList.remove("listening");
-            if (robot) robot.setExpression("idle");
-            handleVoiceInput(transcript, false);
-          },
-          () => {
-            micBtn.classList.remove("listening");
-            if (robot) robot.setExpression("idle");
-            if (voiceToast) voiceToast.classList.add("hidden");
-          },
-          (err) => {
-            micBtn.classList.remove("listening");
-            if (robot) robot.setExpression("idle");
-            if (voiceToast) voiceToast.classList.add("hidden");
-            console.warn("Speech error:", err);
-          },
-          false
-        );
-      }
-    });
+    micBtn.addEventListener("click", () => activateVoiceAssistant());
   }
 
   // 9. Send Message on Enter or Click
@@ -1118,6 +1206,7 @@ document.addEventListener("DOMContentLoaded", () => {
       robot.setExpression("thinking");
       robot.triggerOverdrive(2200);
     }
+    updateNeuralWaveform("thinking", "NEURAL CORE: INFERENCE ACTIVE...");
     window.AudioEngine.playThinking();
 
     const startTime = performance.now();
@@ -1131,7 +1220,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (localMatch) {
       const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
-      updateLatencyBadge(elapsed, "Chatbot Abhi Academic Engine (Sub-10ms Verified)");
+      updateLatencyBadge(elapsed, "NOVA-AI v2.0 Academic Engine (Sub-10ms Verified)");
 
       // Format response based on mode
       const formattedHtml = formatAcademicTopic(localMatch, state.mode);
@@ -1153,6 +1242,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           });
         } else {
+          updateNeuralWaveform("idle", "NEURAL AUDIO ENGINE: READY");
           if (robot) {
             robot.setExpression("happy");
             setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
@@ -1217,7 +1307,7 @@ document.addEventListener("DOMContentLoaded", () => {
               const data = JSON.parse(line.slice(6));
               if (!firstChunkReceived && data.latency_ms) {
                 firstChunkReceived = true;
-                updateLatencyBadge(data.latency_ms, data.source || "Chatbot Abhi Turbo API");
+                updateLatencyBadge(data.latency_ms, data.source || "NOVA-AI v2.0 Turbo API");
               }
 
               if (data.chunk) {
@@ -1231,6 +1321,7 @@ document.addEventListener("DOMContentLoaded", () => {
               }
 
               if (data.done) {
+                updateNeuralWaveform("idle", "NEURAL AUDIO ENGINE: READY");
                 if (robot) {
                   robot.setExpression("happy");
                   setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1500);
@@ -1243,6 +1334,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
+      updateNeuralWaveform("idle", "NEURAL AUDIO ENGINE: READY");
       addXP(10);
     } catch (err) {
       console.warn("Backend API not reachable, evaluating standalone fallback options:", err);
@@ -1252,6 +1344,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           const directSuccess = await streamDirectFromOpenAI(text, customApiKey, state.subject, state.mode, startTime);
           if (directSuccess) {
+            updateNeuralWaveform("idle", "NEURAL AUDIO ENGINE: READY");
             addXP(10);
             return;
           }
@@ -1262,7 +1355,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Autonomous Fallback when running standalone without python backend or when offline
       const elapsed = Math.round((performance.now() - startTime) * 10) / 10;
-      updateLatencyBadge(elapsed, "Chatbot Abhi Autonomous Engine");
+      updateLatencyBadge(elapsed, "NOVA-AI v2.0 Autonomous Core");
 
       // Check if window.findAcademicTopic has an exact analytical, factual, or curriculum answer
       const offlineTopic = window.findAcademicTopic ? window.findAcademicTopic(text) : null;
@@ -1271,6 +1364,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const botMsgElement = appendMessage("bot", "", offlineTopic);
         streamTextToElement(botMsgElement, formattedHtml, () => {
           if (robot) robot.setExpression("idle");
+          updateNeuralWaveform("idle", "NEURAL AUDIO ENGINE: READY");
           window.AudioEngine.playClick();
           MathGrapher.renderMath(botMsgElement);
           if (offlineTopic.graph) {
@@ -1324,6 +1418,7 @@ Always double check starting assumptions, sign conventions, and ensure units are
       const botMsgElement = appendMessage("bot", "");
       streamTextToElement(botMsgElement, markedParse(fallbackMsg), () => {
         if (robot) robot.setExpression("idle");
+        updateNeuralWaveform("idle", "NEURAL AUDIO ENGINE: READY");
         MathGrapher.renderMath(botMsgElement);
       });
       addXP(10);
@@ -1332,7 +1427,7 @@ Always double check starting assumptions, sign conventions, and ensure units are
 
   // Direct client-side streaming from OpenAI API (CORS supported)
   async function streamDirectFromOpenAI(userMsg, key, subject, mode, startTime) {
-    const sysPrompt = `You are Chatbot Abhi, an ultra-fast, friendly, accurate educational AI study companion created by Abhijeeth. Subject: ${subject}. Mode: ${mode}. Format answers with: 1. Core summary, 2. Step-by-step breakdown with KaTeX math ($...$), 3. Intuitive analogy, 4. Exam pitfall.`;
+    const sysPrompt = `You are NOVA-AI v2.0, an ultra-fast, next-gen cybernetic AI study companion created by Abhijeeth. Subject: ${subject}. Mode: ${mode}. Format answers with: 1. Core summary, 2. Step-by-step breakdown with KaTeX math ($...$), 3. Intuitive analogy, 4. Exam pitfall.`;
 
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -1476,8 +1571,8 @@ Always double check starting assumptions, sign conventions, and ensure units are
         <div class="avatar bot-avatar">🤖</div>
         <div class="message-bubble">
           <div class="sender-header">
-            <span class="sender-name">Chatbot Abhi</span>
-            <span class="model-tag">Campus Engine by Abhijeeth</span>
+            <span class="sender-name">NOVA-AI v2.0</span>
+            <span class="model-tag">Gen-2 Quantum AI Core</span>
           </div>
           <div class="message-content">${text}</div>
         </div>

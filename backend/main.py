@@ -50,9 +50,9 @@ if not (STATIC_DIR / "index.html").exists() and (APP_DIR / "static" / "index.htm
     STATIC_DIR = APP_DIR / "static"
 
 app = FastAPI(
-    title="Chatbot Abhi - AI Educational Companion",
-    description="3D Robot System & High-Speed Multi-Domain Academic AI Engine created by Abhijeeth",
-    version="4.0.0",
+    title="AXIOM - Voice-Controlled 3D Cyber Android & AI Companion",
+    description="3D Cyber Android & High-Speed Voice-Controlled Academic AI Engine created by Abhijeeth (Wake Command: 'Hey Axiom')",
+    version="6.1.0",
 )
 
 app.add_middleware(
@@ -973,19 +973,20 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
     q = query.lower().strip()
     
     FACTS_CATALOG = [
-# 1. PERSONA & IDENTITY: CHATBOT ABHI
-    (r'^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+chatbot\s+abhi)', {
-        "title": "Interactive Assistant: Chatbot Abhi",
-        "core": "I am **Chatbot Abhi**, an intelligent, interactive 3D AI educational assistant created by **Abhijeeth V S**.",
+    # 1. PERSONA & IDENTITY: AXIOM
+    (r'^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+axiom|who\s+is\s+chatbot\s+abhi|hey\s+axiom)', {
+        "title": "Voice-Controlled 3D Assistant: Axiom",
+        "core": "I am **Axiom**, an intelligent, voice-controlled 3D AI assistant and academic companion created by **Abhijeeth V S**. You can command me hands-free anytime simply by speaking: **'Hey Axiom'**!",
         "formulas": [],
         "steps": [
-            "1. **Creator & Purpose**: Conceived, designed, and developed by **Abhijeeth V S** to provide students and learners with an ultra-responsive, highly accurate, and engaging STEM study companion.",
-            "2. **3D Interactive Avatar**: Features an articulated humanoid 3D avatar sculpted with athletic masculine human anatomy and dressed in tailored modern menswear (navy blazer, collared dress shirt, silk tie, leather belt, slacks, and classic leather dress shoes) with animated head-tracking, expressive eyes, five customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
-            "3. **Multi-Discipline Intelligence**: Equipped with sub-millisecond symbolic mathematical solvers (Calculus, Polynomial Integration, Differentiation, Molar Mass chemistry), comprehensive physics/biology/computer science encyclopedias, and professional communication skills coaching.",
-            "4. **Zero-Latency Architecture**: Answers common academic and factual queries deterministically in under 1 millisecond, complete with step-by-step reasoning, KaTeX mathematical formulas, intuitive analogies, and exam pitfalls."
+            "1. **Voice Wake Word**: Say **'Hey Axiom'** anytime to trigger hands-free speech recognition and spoken audio answers.",
+            "2. **Creator & Purpose**: Conceived, designed, and developed by **Abhijeeth V S** to provide learners with an ultra-responsive, highly accurate, and engaging STEM study companion.",
+            "3. **3D Interactive Avatar**: Articulated humanoid 3D robot avatar with reactive expressions, customizable wardrobe uniforms, and real-time physical gestures (✋ High-Five, 👋 Hello, 👋 Bye, 💋 Flying Kiss, 🫡 Salute).",
+            "4. **Multi-Discipline Intelligence**: Equipped with sub-millisecond symbolic mathematical solvers (Calculus, Polynomial Integration, Differentiation, Molar Mass chemistry), comprehensive physics/biology/computer science encyclopedias, and Oxford lexicon intelligence.",
+            "5. **Zero-Latency Architecture**: Answers common academic and factual queries deterministically in under 1 millisecond, complete with step-by-step reasoning, KaTeX mathematical formulas, intuitive analogies, and exam pitfalls."
         ],
         "analogy": "Like having an enthusiastic, personal futuristic robot tutor sitting right beside you at your study desk, ready to tackle any problem together!",
-        "pitfalls": "I am **Chatbot Abhi** created by **Abhijeeth V S**—never a generic template bot or standard off-the-shelf chatbot!",
+        "pitfalls": "I am **Axiom**, activated by **'Hey Axiom'**, created by **Abhijeeth V S**—never a generic template bot or standard off-the-shelf chatbot!",
         "confidence": "100% Core Identity Verified"
     }),
 
@@ -2818,19 +2819,19 @@ async def chat_endpoint(payload: ChatRequest):
     math_match = try_eval_math(user_msg)
     if math_match:
         response_text = format_curriculum_markdown(math_match, mode)
-        source = "Chatbot Abhi Math & Physics Solver (Deterministic 100%)"
+        source = "NOVA-AI v2.0 Math & Physics Solver (Deterministic 100%)"
     else:
         # 2. Direct Factual Intelligence & Q&A (<1ms)
         fact_match = lookup_factual_knowledge(user_msg)
         if fact_match:
             response_text = format_curriculum_markdown(fact_match, mode)
-            source = "Chatbot Abhi Verified Facts Engine (100% Accuracy)"
+            source = "NOVA-AI v2.0 Verified Facts Engine (100% Accuracy)"
         else:
             # 3. Local Academic Curriculum Knowledge Base (<1ms)
             matched = match_curriculum(user_msg)
             if matched:
                 response_text = format_curriculum_markdown(matched, mode)
-                source = "Chatbot Abhi Academic Core (<1ms Verified)"
+                source = "NOVA-AI v2.0 Academic Core (<1ms Verified)"
             else:
                 # 4. Check for OpenAI API Key (Custom user key or active server key)
                 custom_key = (payload.api_key or "").strip()
@@ -2852,7 +2853,8 @@ async def chat_endpoint(payload: ChatRequest):
                         # Strict 2.5s timeout and 0 retries to prevent blocking UI if quota exhausted
                         client = AsyncOpenAI(api_key=active_key, timeout=2.5, max_retries=0)
                         sys_prompt = (
-                            f"You are Chatbot Abhi, an ultra-fast, friendly, highly accurate educational AI study companion created by Abhijeeth. "
+                            f"You are Axiom, an ultra-fast, friendly, highly accurate voice-controlled 3D AI companion created by Abhijeeth. "
+                            f"Your voice wake command is 'Hey Axiom'. "
                             f"Subject: {subject}. Mode: {mode}. "
                             f"Format answers with: 1. Core summary, 2. Step-by-step breakdown with KaTeX math ($...$), 3. Intuitive analogy, 4. Exam pitfall."
                         )
@@ -2885,28 +2887,28 @@ async def chat_endpoint(payload: ChatRequest):
                 if not response_text:
                     if is_oed_overview_query(user_msg):
                         response_text = get_oed_overview_markdown(mode)
-                        source = "Chatbot Abhi Lexicon Intelligence"
+                        source = "NOVA-AI v2.0 Lexicon Intelligence"
                     elif is_word_of_the_day_query(user_msg):
                         response_text = get_word_of_the_day_markdown()
-                        source = "Chatbot Abhi Word of the Day Core"
+                        source = "NOVA-AI v2.0 Word of the Day Core"
                     else:
                         dict_word = extract_dictionary_word(user_msg, subject)
                         if dict_word:
                             dict_entry = await fetch_oxford_dictionary_entry(dict_word)
                             if dict_entry:
                                 response_text = format_oxford_markdown(dict_entry, user_msg, mode)
-                                source = "Chatbot Abhi Lexicon Intelligence"
+                                source = "NOVA-AI v2.0 Lexicon Intelligence"
 
                 # 5. Live Encyclopedic Factual Knowledge Retrieval via Wikipedia (Free, Fast, Factual)
                 if not response_text:
                     wiki_data = await fetch_wikipedia_knowledge(user_msg)
                     if wiki_data:
                         response_text = format_wiki_markdown(wiki_data, user_msg, mode)
-                        source = "Chatbot Abhi Encyclopedic Core (Wikipedia Academic Repository)"
+                        source = "NOVA-AI v2.0 Encyclopedic Core (Wikipedia Academic Repository)"
                     else:
                         # 6. High-Precision Domain Synthesis
                         response_text = synthesize_rich_response(user_msg, subject, mode)
-                        source = "Chatbot Abhi Dynamic Reasoning Engine"
+                        source = "NOVA-AI v2.0 Dynamic Reasoning Engine"
 
     # Streaming Response generator for smooth, high-speed delivery
     async def fast_stream():
@@ -3041,12 +3043,18 @@ async def health_check():
     has_key = bool(api_key and api_key.startswith("sk-") and not api_key.startswith("sk-proj-Your") and not OPENAI_KEY_EXHAUSTED)
     return {
         "status": "operational",
-        "name": "Chatbot Abhi",
+        "name": "Axiom",
         "creator": "Abhijeeth V S",
-        "version": "4.0.0",
+        "version": "6.1.0",
         "openai_configured": has_key,
         "features": [
-            "Real 3D Humanoid Robot in Handsome Guy Sculpt Dressed in Disciplined Bespoke Menswear with Expressive Eyes & 5-Digit Hands",
+            "Voice-Controlled Operation via Wake Command 'Hey Axiom' (Speech-to-Text & Spoken TTS Output)",
+            "NOVA-X Gen-2 Cybernetic Humanoid Android Chassis with Aerodynamic Ceramic Armor & Quantum Arc Reactor",
+            "Two-Way Hands-Free Voice Assistant with One-Click Microphone Permission Access & Spoken Audio Output",
+            "Continuous Voice Command Operation with Spoken Execution & Audio HUD Feedback",
+            "Photorealistic Cornea, Realistic Facial Anatomy, Expressive Articulated Lips & Quiff Hair",
+            "Complete Wardrobe Matrix (Cyber Android V2, Disciplined Suit, Student Uniform, Scientist Lab Coat, Hoodie, Space Suit)",
+            "Integrated Neural Waveform Equalizer & Modern Glassmorphism Quick Action Chips",
             "Advanced Lexicon & Historical Etymological Intelligence",
             "Deterministic Math & Quadratic Equation Solver",
             "Multi-Domain Academic Knowledge Base",
@@ -3064,4 +3072,4 @@ async def serve_index():
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
-    return HTMLResponse("<h1>Chatbot Abhi initializing...</h1>")
+    return HTMLResponse("<h1>NOVA-AI v2.0 initializing...</h1>")
