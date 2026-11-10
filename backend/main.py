@@ -2399,6 +2399,375 @@ ACADEMIC_REPOSITORY = {
         "analogy": "Creating your own practice exam while listening to the lecture: the right side is the lecture, the left side is the exam question, and covering the right side gives you an instant practice test every evening!",
         "pitfalls": "Copying down everything the professor says word-for-word! Verbatim transcription is passive stenography that bypasses cognitive synthesis; always translate ideas into your own words.",
         "confidence": "100% Academic Study Strategy Standard"
+    },
+    'differential_equations': {
+        "title": 'Ordinary Differential Equations (ODEs) & Separation of Variables',
+        "keywords": ['differential equations', 'differential equation', 'ode', 'integrating factor', 'separable equations', 'first order differential'],
+        "core": 'An equation involving an unknown function and its derivatives, expressing relationships between quantities and their rates of change across engineering, physics, and biology.',
+        "formulas": [
+            r'\frac{dy}{dx} = g(x)h(y) \implies \int \frac{1}{h(y)} dy = \int g(x) dx \quad \text{(Separation of Variables)}',
+            r'\frac{dy}{dx} + P(x)y = Q(x) \implies I(x) = e^{\int P(x)dx}, \quad y = \frac{1}{I(x)}\left(\int I(x)Q(x)dx + C\right)'
+        ],
+        "steps": ['1. **Identify the Type**: Check if the equation is first-order separable, linear, exact, or homogeneous.', '2. **Separate or Form Factor**: If separable, group all y and dy on the left, and x and dx on the right. If linear, compute integrating factor I(x) = e^{\int P(x)dx}.', '3. **Integrate Both Sides**: Apply standard integration formulas and remember to add integration constant + C.', '4. **Apply Initial Conditions**: Use given boundary conditions y(x0) = y0 to solve for the exact particular constant C.'],
+        "analogy": 'A speedometer tells your speed right now, but a differential equation is like a flight computer constantly recalculating how your speed changes based on wind and gravity over time.',
+        "pitfalls": 'Forgetting the integration constant + C during the indefinite integration step, or dropping the negative sign when rearranging terms like dy/dx = -ky.',
+        "confidence": '100% Verified Pure Mathematics Standard'
+    },
+    'matrix_decomposition_svd': {
+        "title": 'Singular Value Decomposition (SVD) & Principal Component Analysis (PCA)',
+        "keywords": ['singular value decomposition', 'svd', 'matrix decomposition', 'pca', 'principal component analysis', 'eigenvalues', 'eigenvectors'],
+        "core": 'Singular Value Decomposition (SVD) factorizes any real matrix into constituent orthogonal rotations and scaling dimensions, forming the algebraic backbone of data compression, dimensionality reduction, and modern machine learning.',
+        "formulas": [
+            r'A = U \Sigma V^T \quad \text{where } U \in \mathbb{R}^{m \times m}, \Sigma \in \mathbb{R}^{m \times n}, V \in \mathbb{R}^{n \times n}',
+            r'A v_i = \lambda_i v_i \quad \text{(Eigenvalue Equation)} \implies \sigma_i = \sqrt{\lambda_i(A^T A)}'
+        ],
+        "steps": ['1. **Form the Gram Matrix**: Compute A^T A to extract orthonormal eigenvectors forming matrix V.', '2. **Determine Singular Values**: Compute eigenvalues of A^T A; singular values sigma_i are their non-negative square roots.', '3. **Calculate Left Singular Vectors**: Compute u_i = (1 / sigma_i) A v_i to construct orthogonal matrix U.', '4. **Low-Rank Approximation**: Truncate to top-k singular values to compress data while minimizing Frobenius reconstruction error.'],
+        "analogy": 'Like decomposing white sunlight through a glass prism into pure rainbow wavelengths; SVD breaks a tangled data matrix into its strongest fundamental patterns sorted from most important to least.',
+        "pitfalls": 'Confusing eigenvalues with singular values; singular values are always real and non-negative, whereas eigenvalues can be negative or complex for asymmetric matrices.',
+        "confidence": '100% Linear Algebra & Data Science Standard'
+    },
+    'probability_distributions': {
+        "title": 'Probability Distributions: Gaussian (Normal), Binomial & Poisson',
+        "keywords": ['probability distributions', 'normal distribution', 'gaussian distribution', 'poisson distribution', 'binomial distribution', 'standard deviation'],
+        "core": 'Mathematical functions that describe the likelihood of observing possible values of a random variable, categorized into discrete (Binomial, Poisson) and continuous (Normal, Exponential) regimes.',
+        "formulas": [
+            r'f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{(x - \mu)^2}{2\sigma^2}} \quad \text{(Normal Distribution)}',
+            r'P(X = k) = \binom{n}{k} p^k (1-p)^{n-k} \quad \text{(Binomial Distribution)}',
+            r'P(X = k) = \frac{\lambda^k e^{-\lambda}}{k!} \quad \text{(Poisson Distribution)}'
+        ],
+        "steps": ['1. **Identify Variable Nature**: Determine if the variable is discrete counts (integers) or continuous measurements (real numbers).', '2. **Check Assumptions**: If counting successes in n independent trials, use Binomial; if modeling rare events per time interval, use Poisson; if aggregating many independent effects, use Normal.', '3. **Calculate Parameters**: Find mean mu, variance sigma^2, or event rate lambda.', '4. **Evaluate Probability**: Integrate continuous PDF or sum discrete PMF over the target interval.'],
+        "analogy": 'A normal distribution is like shoe sizes in a crowd—most cluster around the average, with smoothly tapering rarities at both extremes forming a bell curve.',
+        "pitfalls": 'Applying continuous integration to discrete variables (like number of coin tosses) without continuity correction, or using Poisson when event occurrences are dependent on one another.',
+        "confidence": '100% Probability & Statistics Standard'
+    },
+    'vectors_3d': {
+        "title": '3D Vectors: Dot Product, Cross Product & Geometric Projections',
+        "keywords": ['dot product', 'cross product', 'vectors 3d', 'vector projection', 'scalar product', 'unit vector'],
+        "core": 'Vectors represent quantities possessing both magnitude and direction in space; the dot product yields a scalar measuring parallel alignment, while the cross product produces a perpendicular vector measuring rotational area.',
+        "formulas": [
+            r'\mathbf{a} \cdot \mathbf{b} = \|\mathbf{a}\| \|\mathbf{b}\| \cos\theta = a_x b_x + a_y b_y + a_z b_z',
+            r'\mathbf{a} \times \mathbf{b} = \begin{vmatrix} \mathbf{i} & \mathbf{j} & \mathbf{k} \\ a_x & a_y & a_z \\ b_x & b_y & b_z \end{vmatrix} = \|\mathbf{a}\| \|\mathbf{b}\| \sin\theta \, \mathbf{\hat{n}}'
+        ],
+        "steps": ['1. **Determine Vector Components**: Express vectors in cartesian coordinates a = (a_x, a_y, a_z).', '2. **Apply Dot Product for Projections**: Multiply matching components and sum them; if dot product is zero, vectors are orthogonal (perpendicular).', '3. **Apply Cross Product for Perpendicularity**: Use the 3x3 determinant expansion; direction follows the right-hand rule.', '4. **Compute Magnitude**: Magnitude is ||v|| = sqrt(v_x^2 + v_y^2 + v_z^2); normalize by dividing by magnitude.'],
+        "analogy": 'The dot product tells you how much a gust of wind pushes *with* your bicycle, while the cross product is the torque twisting a wrench into a bolt.',
+        "pitfalls": 'Assuming cross product is commutative; a x b = -(b x a). Also confusing dot product (results in a single number) with cross product (results in a new 3D vector).',
+        "confidence": '100% Vector Calculus & Mechanics Standard'
+    },
+    'graph_theory': {
+        "title": 'Graph Theory: Vertices, Edges, Traversal (BFS/DFS) & Trees',
+        "keywords": ['graph theory', 'breadth first search', 'depth first search', 'eulerian path', 'hamiltonian path', 'spanning tree', 'adjacency matrix'],
+        "core": 'The mathematical study of networks consisting of vertices (nodes) connected by edges (links), fundamental to GPS routing, internet topologies, social networks, and compilers.',
+        "formulas": [
+            r'\sum_{v \in V} \text{deg}(v) = 2|E| \quad \text{(Handshaking Lemma)}',
+            r"V - E + F = 2 \quad \text{(Euler's Planar Formula)}"
+        ],
+        "steps": ['1. **Represent the Graph**: Choose an adjacency list (space O(V + E), best for sparse graphs) or adjacency matrix (space O(V^2), best for dense graphs).', '2. **Select Traversal Strategy**: Use Breadth-First Search (queue) for shortest path on unweighted graphs; use Depth-First Search (stack/recursion) for cycle detection and topological sorting.', '3. **Track Visited Nodes**: Maintain a boolean visited set to avoid infinite loops in cyclic graphs.', "4. **Analyze Graph Invariants**: Check connectivity, bipartite coloring, or minimum spanning tree properties using Kruskal's or Prim's algorithm."],
+        "analogy": 'Graph theory is like an airline flight route map: cities are vertices, flights are edges, and finding the connection with the fewest layovers is Breadth-First Search.',
+        "pitfalls": 'Forgetting to mark nodes as visited during traversal, causing an infinite loop when graphs contain cycles.',
+        "confidence": '100% Discrete Mathematics & CS Standard'
+    },
+    'complex_numbers': {
+        "title": "Complex Numbers, Argand Plane & Euler's Formula",
+        "keywords": ['complex numbers', 'imaginary numbers', 'euler formula', 'argand plane', 'polar form', 'de moivre theorem'],
+        "core": "Numbers extending real numbers by introducing imaginary unit i = sqrt(-1), unifying algebra, geometry, and oscillatory phenomena via Euler's identity.",
+        "formulas": [
+            r'z = a + bi = r(\cos\theta + i\sin\theta) = r e^{i\theta}',
+            r"e^{i\pi} + 1 = 0 \quad \text{(Euler's Identity)}",
+            r'r = \sqrt{a^2 + b^2}, \quad \theta = \text{atan2}(b, a)'
+        ],
+        "steps": ['1. **Identify Rectangular Components**: Express number as z = a + bi with real part Re(z) = a and imaginary part Im(z) = b.', '2. **Convert to Polar Form**: Calculate modulus r = sqrt(a^2 + b^2) and argument theta = arctan(b/a).', '3. **Multiply via Exponential Representation**: In exponential form z1*z2 = r1*r2 * e^(i(theta1+theta2)), multiplication simply multiplies lengths and adds angles.', "4. **Apply De Moivre's Theorem**: For powers and roots, [r(cos theta + i sin theta)]^n = r^n(cos n*theta + i sin n*theta)."],
+        "analogy": 'Real numbers live on a one-dimensional straight line (left/right). Complex numbers open up the second dimension (up/down), allowing you to rotate around the origin like the hands of a clock.',
+        "pitfalls": 'Writing sqrt(a) * sqrt(b) = sqrt(ab) when both a and b are negative! For example, sqrt(-1) * sqrt(-1) = i * i = -1, NOT sqrt((-1)(-1)) = sqrt(1) = 1.',
+        "confidence": '100% Complex Analysis Standard'
+    },
+    'schrodinger_wave_equation': {
+        "title": 'Quantum Wave Mechanics & The Schrödinger Equation',
+        "keywords": ['schrodinger equation', 'wave function', 'quantum mechanics', 'uncertainty principle', 'heisenberg', 'quantum state', 'hamiltonian operator'],
+        "core": "The foundational equation of non-relativistic quantum mechanics that governs the spatial and temporal evolution of a particle's wave function Psi(r, t).",
+        "formulas": [
+            r'i\hbar \frac{\partial}{\partial t}\Psi(\mathbf{r}, t) = \hat{H}\Psi(\mathbf{r}, t) = \left[-\frac{\hbar^2}{2m}\nabla^2 + V(\mathbf{r})\right]\Psi(\mathbf{r}, t)',
+            r"P(\mathbf{r}) = |\Psi(\mathbf{r}, t)|^2 \quad \text{(Born's Probabilistic Interpretation)}",
+            r'\Delta x \Delta p \ge \frac{\hbar}{2} \quad \text{(Heisenberg Uncertainty Principle)}'
+        ],
+        "steps": ['1. **Set Up Potential Energy V(r)**: Define boundary conditions (e.g., infinite square well, harmonic oscillator, Coulomb potential).', '2. **Separate Time and Space**: Write Psi(x, t) = psi(x)e^(-iEt/hbar) to reduce to time-independent Schrödinger equation H*psi = E*psi.', '3. **Solve Differential Equation**: Find normalizable spatial wavefunctions (eigenstates) corresponding to quantized energy eigenvalues E_n.', '4. **Normalize the Wavefunction**: Ensure total spatial integral of |psi(x)|^2 dx = 1 over all space.'],
+        "analogy": 'Like plucking a guitar string: the string can only vibrate at specific harmonic standing wave frequencies; in quantum mechanics, electrons can only exist in discrete standing wave orbitals around an atom.',
+        "pitfalls": 'Thinking the wave function Psi is a physical charge smeared out in space; Psi is a probability amplitude, and only its squared magnitude |Psi|^2 represents physical probability.',
+        "confidence": '100% Quantum Physics Standard'
+    },
+    'maxwells_equations': {
+        "title": "Maxwell's Equations & Classical Electromagnetism",
+        "keywords": ['maxwell', 'maxwells', 'maxwell equations', 'maxwells equations', "maxwell's equations", 'electromagnetism', 'gauss law', 'faraday law', 'ampere law', 'electromagnetic waves', 'displacement current'],
+        "core": 'A set of four coupled partial differential equations that describe how electric and magnetic fields are generated by charges and currents, and how they propagate as light.',
+        "formulas": [
+            r"\nabla \cdot \mathbf{E} = \frac{\rho}{\varepsilon_0} \quad \text{(Gauss's Law)}",
+            r'\nabla \cdot \mathbf{B} = 0 \quad \text{(No Magnetic Monopoles)}',
+            r"\nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t} \quad \text{(Faraday's Law of Induction)}",
+            r'\nabla \times \mathbf{B} = \mu_0 \mathbf{J} + \mu_0 \varepsilon_0 \frac{\partial \mathbf{E}}{\partial t} \quad \text{(Ampère-Maxwell Law)}',
+            r'c = \frac{1}{\sqrt{\mu_0 \varepsilon_0}} \approx 3 \times 10^8 \text{ m/s}'
+        ],
+        "steps": ['1. **Gauss Electric**: Electric field divergence relates directly to enclosed net charge density.', '2. **Gauss Magnetic**: Magnetic lines form closed loops with zero divergence—there are no isolated magnetic charges.', '3. **Faraday Induction**: A changing magnetic field curls to induce an electric field (the basis for electric generators and transformers).', '4. **Ampère-Maxwell Addition**: Electric currents and changing electric fields generate curling magnetic fields, giving rise to self-propagating electromagnetic radiation (light).'],
+        "analogy": 'Like an infinite self-sustaining leapfrog: a changing electric field creates a magnetic field, which immediately changes and creates an electric field, propagating across cosmic vacuum at the speed of light.',
+        "pitfalls": "Forgetting Maxwell's displacement current term mu0*eps0*(dE/dt); without this term, electric field changes between capacitor plates cannot explain magnetic field generation, and light waves cannot exist mathematically!",
+        "confidence": '100% Classical Electrodynamics Standard'
+    },
+    'classical_mechanics_lagrangian': {
+        "title": 'Lagrangian Mechanics & Principle of Least Action',
+        "keywords": ['lagrangian', 'hamiltonian', 'least action', 'euler lagrange', 'generalized coordinates', 'analytical mechanics'],
+        "core": 'A reformulation of classical mechanics based on energy rather than vector forces, using generalized coordinates to eliminate complex internal constraint forces.',
+        "formulas": [
+            r'L = T - V \quad \text{(Kinetic Energy } T \text{ minus Potential Energy } V\text{)}',
+            r'\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}_i}\right) - \frac{\partial L}{\partial q_i} = 0 \quad \text{(Euler-Lagrange Equation)}',
+            r"S = \int_{t_1}^{t_2} L \, dt \implies \delta S = 0 \quad \text{(Hamilton's Principle)}"
+        ],
+        "steps": ['1. **Choose Generalized Coordinates**: Select minimal coordinates q_i matching system degrees of freedom (e.g. angle theta for a pendulum).', '2. **Formulate Kinetic and Potential Energy**: Write T(q, dq/dt) and V(q) in terms of chosen coordinates.', '3. **Form the Lagrangian**: Calculate L = T - V.', '4. **Apply Euler-Lagrange Equation**: Differentiate to obtain the exact equations of motion without needing normal or tension contact forces.'],
+        "analogy": 'Instead of tracking every single push and pull on a bead sliding on a curved wire, Lagrangian mechanics looks at the overall energy economy—the universe automatically picks the trajectory with the minimum total action.',
+        "pitfalls": 'Writing L = T + V instead of T - V; total energy is H = T + V (Hamiltonian), but the Lagrangian is strictly L = T - V.',
+        "confidence": '100% Analytical Mechanics Standard'
+    },
+    'wave_optics_interference': {
+        "title": "Wave Optics: Young's Double-Slit & Diffraction Grating",
+        "keywords": ['wave optics', 'interference', 'diffraction', 'young double slit', 'constructive interference', 'destructive interference', 'snell law'],
+        "core": "The study of light behavior when aperture dimensions are comparable to wavelength, proving light's wave nature through constructive and destructive phase interference.",
+        "formulas": [
+            r'd \sin\theta = m \lambda \quad \text{(Constructive Bright Fringes, } m = 0, \pm 1, \pm 2\dots\text{)}',
+            r'd \sin\theta = \left(m + \frac{1}{2}\right)\lambda \quad \text{(Destructive Dark Fringes)}',
+            r'y_m \approx \frac{m \lambda L}{d} \quad \text{(Fringe Spacing on Screen)}'
+        ],
+        "steps": ['1. **Identify Slit Separation and Distance**: Note slit gap d, wavelength lambda, and distance to projection screen L.', '2. **Determine Path Length Difference**: The path difference between waves from adjacent slits is delta_x = d sin theta.', '3. **Apply Phase Condition**: If path difference is integer wavelength m*lambda, crest meets crest (bright); if half-integer (m + 0.5)lambda, crest meets trough (dark).', '4. **Calculate Spatial Fringe Width**: Use delta_y = lambda*L / d for small angles to determine fringe spacing on detector.'],
+        "analogy": "Imagine two stones dropped into a calm pond: where the circular ripples' peaks collide they build a double-height wave; where a peak meets a trough the water cancels out perfectly flat.",
+        "pitfalls": 'Confusing double-slit fringe formulas with single-slit diffraction minimum formulas (which use a sin theta = m*lambda for DARK fringes).',
+        "confidence": '100% Physical Optics Standard'
+    },
+    'black_holes_cosmology': {
+        "title": 'Black Holes, Event Horizons & Big Bang Cosmology',
+        "keywords": ['black hole', 'event horizon', 'schwarzschild radius', 'hawking radiation', 'big bang', 'cosmology', 'general relativity', 'hubble law'],
+        "core": 'Regions of spacetime where gravitational curvature becomes so extreme that nothing—not even electromagnetic radiation—can escape past the boundary event horizon.',
+        "formulas": [
+            r'r_s = \frac{2GM}{c^2} \quad \text{(Schwarzschild Radius)}',
+            r'v = H_0 d \quad \text{(Hubble-Lemaître Expansion Law)}',
+            r'T_H = \frac{\hbar c^3}{8\pi G M k_B} \quad \text{(Hawking Radiation Temperature)}'
+        ],
+        "steps": ['1. **Gravitational Collapse**: When massive stellar cores exhaust nuclear fuel, degeneracy pressure fails, collapsing matter within radius r_s.', '2. **Event Horizon Formation**: Spacetime paths tilt inward so that future light cones point entirely toward the central gravitational singularity.', '3. **Hawking Radiation**: Quantum vacuum fluctuations near the horizon allow one particle to escape while negative energy enters, causing black hole evaporation over eons.', "4. **Cosmic Expansion**: Hubble's law demonstrates galaxies recede at speeds proportional to distance, confirming metric expansion from the Big Bang."],
+        "analogy": 'The event horizon is like a waterfall where the current moves faster than the top swimming speed of any fish; once you drift past the lip, even swimming at maximum speed still carries you downstream.',
+        "pitfalls": "Believing a black hole acts like a giant cosmic vacuum cleaner sucking in distant stars; if our Sun were replaced by a black hole of equal mass, Earth's orbit would remain completely unchanged.",
+        "confidence": '100% Astrophysics Standard'
+    },
+    'nuclear_physics_decay': {
+        "title": 'Nuclear Physics: Radioactive Decay, Half-Life & Fission vs Fusion',
+        "keywords": ['radioactive decay', 'half life', 'nuclear fission', 'nuclear fusion', 'alpha decay', 'beta decay', 'binding energy', 'mass defect'],
+        "core": 'Processes occurring within atomic nuclei governed by the strong nuclear force, involving exponential radioactive decay, mass defects, and energy release via fission or fusion.',
+        "formulas": [
+            r'N(t) = N_0 e^{-\lambda t} = N_0 \left(\frac{1}{2}\right)^{t / t_{1/2}} \quad \text{where } t_{1/2} = \frac{\ln 2}{\lambda}',
+            r'\Delta E = \Delta m \cdot c^2 \quad \text{(Mass Defect Energy Release)}'
+        ],
+        "steps": ['1. **Identify Decay Mode**: Alpha decay emits 4He nucleus (delta Z = -2, delta A = -4); Beta-minus converts neutron to proton emitting e- and antineutrino (delta Z = +1); Gamma emits photon.', '2. **Determine Half-Life**: Calculate decay constant lambda = ln(2) / t_1/2.', '3. **Evaluate Remaining Nuclei**: Compute N(t) for elapsed time t.', '4. **Energy Calculation**: Compare total mass before and after reaction; missing mass defect delta_m converts to kinetic energy via E = mc^2.'],
+        "analogy": 'Radioactive half-life is like flipping 1,000 coins every minute and discarding those that land heads; each minute reduces remaining coins by half, completely independent of how many you started with.',
+        "pitfalls": 'Thinking that two half-lives mean 100% of the sample decays! After 1 half-life 50% remains; after 2 half-lives 25% remains; after 3 half-lives 12.5% remains.',
+        "confidence": '100% Nuclear Physics Standard'
+    },
+    'deep_learning_backprop': {
+        "title": 'Deep Learning: Artificial Neural Networks & Backpropagation',
+        "keywords": ['deep learning', 'backpropagation', 'neural networks', 'gradient descent', 'activation function', 'loss function', 'multilayer perceptron'],
+        "core": 'Hierarchical computational models composed of stacked layers of parameterized linear transformations and non-linear activations, optimized through gradient descent via backpropagation.',
+        "formulas": [
+            r'z^{[l]} = W^{[l]} a^{[l-1]} + b^{[l]}, \quad a^{[l]} = \sigma(z^{[l]}) \quad \text{(Forward Pass)}',
+            r'\frac{\partial \mathcal{L}}{\partial W^{[l]}} = \frac{\partial \mathcal{L}}{\partial z^{[l]}} (a^{[l-1]})^T, \quad W^{[l]} \leftarrow W^{[l]} - \eta \frac{\partial \mathcal{L}}{\partial W^{[l]}} \quad \text{(Weight Update)}'
+        ],
+        "steps": ['1. **Forward Propagation**: Matrix multiply inputs by weight matrices, add bias vectors, and apply non-linear activations (ReLU, GELU, Sigmoid).', '2. **Compute Loss**: Evaluate cost function (e.g. Cross-Entropy or Mean Squared Error) between prediction and ground truth.', '3. **Backward Pass (Chain Rule)**: Propagate error gradients backwards layer-by-layer from output to input.', '4. **Optimizer Step**: Update weights using Adam or SGD with learning rate eta to step down the error surface.'],
+        "analogy": 'A neural network is like an orchestra of thousands of volume sliders: during a song (forward pass), it plays a chord; the conductor (loss function) hears mistakes and points backwards through each section (backpropagation) to tell them how much to nudge their slider.',
+        "pitfalls": 'Vanishing and exploding gradients when training deep architectures with sigmoid activations; solved modernly using ReLU/GELU activations, batch normalization, and residual skip connections.',
+        "confidence": '100% Deep Learning & AI Standard'
+    },
+    'convolutional_neural_networks': {
+        "title": 'Convolutional Neural Networks (CNNs) & Spatial Feature Maps',
+        "keywords": ['convolutional neural network', 'cnn', 'convolution kernel', 'pooling layer', 'computer vision', 'feature map', 'stride padding'],
+        "core": 'Specialized neural network architectures designed for grid-structured data (images), enforcing translation invariance and parameter sharing via spatial kernel convolutions.',
+        "formulas": [
+            r'(I * K)(i, j) = \sum_m \sum_n I(i - m, j - n) K(m, n)',
+            r'O = \left\lfloor \frac{W - K + 2P}{S} \right\rfloor + 1 \quad \text{(Output Feature Map Dimension)}'
+        ],
+        "steps": ['1. **Kernel Convolution**: Slide learnable spatial filter matrices over input tensor channels to extract local edges, textures, and motifs.', '2. **Non-Linear Rectification**: Pass feature maps through ReLU activation to introduce non-linearity.', '3. **Pooling / Subsampling**: Apply Max-Pooling to downsample spatial dimensions, reducing compute and conferring translation tolerance.', '4. **Dense Classification**: Flatten deep feature maps into fully-connected classification heads.'],
+        "analogy": 'Looking through a small magnifying stencil that slides across a painting: early stencils detect simple pencil edges, middle stencils recognize eyes and noses, and deep layers recognize the entire face.',
+        "pitfalls": 'Confusing mathematical cross-correlation with true formal convolution (which flips the kernel 180 degrees); in deep learning libraries like PyTorch/TensorFlow, 2D convolution is technically implemented as cross-correlation.',
+        "confidence": '100% Computer Vision & Machine Learning Standard'
+    },
+    'dynamic_programming': {
+        "title": 'Dynamic Programming: Memoization, Tabulation & Knapsack',
+        "keywords": ['dynamic programming', 'memoization', 'tabulation', 'knapsack problem', 'optimal substructure', 'overlapping subproblems', 'longest common subsequence'],
+        "core": 'An algorithmic optimization technique that solves complex problems by breaking them down into overlapping subproblems, storing solved states to avoid exponential redundant computation.',
+        "formulas": [
+            r'dp[i][w] = \max(dp[i-1][w], \; dp[i-1][w - \text{wt}[i-1]] + \text{val}[i-1]) \quad \text{(0/1 Knapsack Recurrence)}',
+            r'\text{Fibonacci: } T(n) = O(2^n) \xrightarrow{\text{DP}} O(n)'
+        ],
+        "steps": ['1. **Verify DP Suitability**: Confirm the problem exhibits optimal substructure (optimal solution composed of optimal sub-solutions) and overlapping subproblems.', '2. **Define State Variables**: Choose minimal parameters representing each sub-state (e.g. index i and remaining capacity w).', '3. **Formulate State Transition**: Write down the recurrence relation linking the current state to previous sub-states.', '4. **Implement Memoization or Tabulation**: Use top-down recursion with hash cache or bottom-up iterative array table.'],
+        "analogy": "If you ask someone what 1 + 1 + 1 + 1 is, they count to 4. If you then add another + 1 at the end, they don't count from zero again—they remember 4 and just add 1 to get 5. That is Dynamic Programming.",
+        "pitfalls": 'Defining state representations that depend on non-local history, violating the Markov property required for state caching.',
+        "confidence": '100% Algorithm Design Standard'
+    },
+    'distributed_systems_cap': {
+        "title": 'Distributed Systems: CAP Theorem & Raft Consensus',
+        "keywords": ['cap theorem', 'distributed systems', 'raft consensus', 'eventual consistency', 'partition tolerance', 'two phase commit', 'pacelc'],
+        "core": 'Foundational principles governing multi-node networked computing, stating that any distributed data store can guarantee at most two of: Consistency, Availability, and Partition Tolerance.',
+        "formulas": [
+            r'\text{CAP Theorem: } \text{Choose } 2 \text{ of } \{C, A, P\} \implies \text{Network Partition } (P) \text{ forces trade-off between } C \text{ and } A',
+            r'\text{Quorum Rule: } Q_R + Q_W > N \quad \text{and } Q_W > N/2'
+        ],
+        "steps": ['1. **Accept Network Partitioning (P)**: Network cables can and will drop; in the presence of split networks, systems must make an architectural choice.', '2. **CP System (Consistency over Availability)**: If nodes cannot communicate, refuse requests or throw errors to prevent stale or conflicting reads (e.g. HBase, Zookeeper).', '3. **AP System (Availability over Consistency)**: Keep accepting reads and writes on all partitions, resolving divergent records later via eventual consistency (e.g. Cassandra, DynamoDB).', '4. **Raft Consensus Protocol**: Elect a unique leader via randomized timeouts to sequence all state machine log replications across a quorum.'],
+        "analogy": 'Imagine you and your friend each hold a synchronized calendar. If your phone connection cuts out (partition), you must either refuse to book appointments until reconnected (Consistency) or keep booking anyway and risk double-booking later (Availability).',
+        "pitfalls": 'Thinking you can choose CA (Consistency + Availability without Partition Tolerance); in real physical distributed networks, partitions are an unavoidable physical reality, meaning you must choose CP or AP during network faults.',
+        "confidence": '100% Distributed Systems Standard'
+    },
+    'operating_systems_concurrency': {
+        "title": 'Operating Systems: Concurrency, Deadlocks & Synchronization',
+        "keywords": ['deadlock', 'mutex', 'semaphore', 'concurrency', 'race condition', 'critical section', 'banker algorithm'],
+        "core": 'Operating system primitives that coordinate concurrent threads sharing memory resources, preventing race conditions and mitigating resource starvation or deadlocks.',
+        "formulas": [
+            r'\text{Coffman Deadlock Conditions: } \text{Mutual Exclusion} \land \text{Hold and Wait} \land \text{No Preemption} \land \text{Circular Wait}',
+            r'P(S): S \leftarrow S - 1 \quad (\text{wait}), \quad V(S): S \leftarrow S + 1 \quad (\text{signal})'
+        ],
+        "steps": ['1. **Identify Critical Sections**: Isolate code regions where multiple threads access mutable shared state.', '2. **Apply Mutual Exclusion**: Guard critical sections using atomic mutex locks or counting semaphores.', '3. **Enforce Global Lock Ordering**: Always acquire multiple locks in an identical predetermined sequence across all threads to break Circular Wait.', '4. **Use Atomic Hardware Primitives**: Leverage Compare-And-Swap (CAS) instructions for non-blocking lock-free data structures.'],
+        "analogy": 'A single-lane bridge where two cars enter from opposite ends at the same time: neither car can proceed forward and neither can reverse, creating a deadlock. Breaking circular wait is like requiring all cars to check the bridge direction before crossing.',
+        "pitfalls": 'Failing to release locks inside error or exception handling branches, leading to permanent system freezes.',
+        "confidence": '100% Operating Systems Standard'
+    },
+    'cryptography_rsa': {
+        "title": 'Cryptography: RSA Public-Key Encryption & SHA Hashing',
+        "keywords": ['rsa', 'public key', 'rsa encryption', 'public key cryptography', 'public key cryptography', 'cryptography', 'sha256', 'diffie hellman', 'modular arithmetic', 'asymmetric encryption'],
+        "core": 'Mathematical techniques ensuring confidentiality, data integrity, and authenticity across open networks, utilizing trapdoor one-way functions like prime factorization.',
+        "formulas": [
+            r'c \equiv m^e \pmod{n} \quad \text{(Encryption)}, \quad m \equiv c^d \pmod{n} \quad \text{(Decryption)}',
+            r'n = p \cdot q, \quad \phi(n) = (p-1)(q-1), \quad e \cdot d \equiv 1 \pmod{\phi(n)}'
+        ],
+        "steps": ['1. **Key Generation**: Select two large distinct prime numbers p and q; compute modulus n = pq and totient phi(n) = (p-1)(q-1).', '2. **Determine Exponents**: Choose public exponent e coprime to phi(n), then compute private exponent d via modular inverse d = e^-1 mod phi(n).', "3. **Public Encryption**: Sender computes ciphertext c = m^e mod n using the recipient's public key (e, n).", '4. **Private Decryption**: Recipient recovers original plaintext m = c^d mod n using confidential private key d.'],
+        "analogy": 'An open padlock: anyone can take your open padlock and click it shut around a lockbox (public key encryption). But once shut, only you possess the unique physical key capable of opening it (private key decryption).',
+        "pitfalls": 'Encrypting raw text with textbook RSA without randomized padding (such as OAEP); deterministic encryption without padding allows frequency analysis and chosen-ciphertext attacks.',
+        "confidence": '100% Information Security Standard'
+    },
+    'organic_reaction_mechanisms': {
+        "title": 'Organic Reaction Mechanisms: SN1 vs SN2 & Elimination',
+        "keywords": ['sn1', 'sn2', 'organic chemistry', 'nucleophilic substitution', 'reaction mechanism', 'carbocation', 'elimination reaction'],
+        "core": 'The step-by-step pathway describing how chemical bonds break and form in organic molecules, dominated by steric hindrance and carbocation stability in substitution and elimination reactions.',
+        "formulas": [
+            r'\text{S}_\text{N}2: \text{Rate} = k[\text{Substrate}][\text{Nucleophile}] \quad (\text{Bimolecular, Inversion of Stereochemistry})',
+            r'\text{S}_\text{N}1: \text{Rate} = k[\text{Substrate}] \quad (\text{Unimolecular via Carbocation, Racemization})'
+        ],
+        "steps": ['1. **Analyze Substrate**: Methyl and primary (1°) carbons favor SN2; tertiary (3°) carbons favor SN1 due to steric clash and tertiary carbocation hyperconjugation.', '2. **Evaluate Nucleophile/Base**: Strong, charged nucleophiles (OH-, CN-) drive SN2/E2; weak neutral nucleophiles (H2O, EtOH) facilitate SN1/E1.', '3. **Check Solvent Effects**: Polar aprotic solvents (acetone, DMSO) accelerate SN2; polar protic solvents (water, alcohols) stabilize carbocations for SN1.', '4. **Determine Stereochemical Outcome**: SN2 yields 100% Walden inversion (backside attack); SN1 yields racemic mixture (attack from either planar carbocation face).'],
+        "analogy": 'SN2 is like an umbrella flipping inside-out in a sudden gust of wind as a person grabs the handle from behind in a single fluid motion. SN1 is like a passenger getting off a bus first, leaving an empty seat that anyone can take from either side.',
+        "pitfalls": 'Attempting an SN2 reaction on a tertiary alkyl halide; extreme steric hindrance from three bulky methyl groups completely blocks backside nucleophilic attack.',
+        "confidence": '100% Organic Chemistry Standard'
+    },
+    'electrochemistry_nernst': {
+        "title": 'Electrochemistry: Galvanic Cells, Redox & The Nernst Equation',
+        "keywords": ['electrochemistry', 'nernst equation', 'galvanic cell', 'redox', 'standard reduction potential', 'gibbs free energy', 'faraday constant'],
+        "core": 'The study of chemical reactions that generate or consume electrical energy, quantitatively relating non-standard cell potentials to reaction quotients and Gibbs free energy.',
+        "formulas": [
+            r'E_\text{cell} = E^\circ_\text{cell} - \frac{RT}{nF} \ln Q = E^\circ_\text{cell} - \frac{0.0592}{n}\log_{10} Q \quad (\text{at } 298 \text{ K})',
+            r'\Delta G^\circ = -n F E^\circ_\text{cell} = -RT \ln K'
+        ],
+        "steps": ['1. **Identify Half-Reactions**: Separate overall redox equation into oxidation at anode and reduction at cathode (mnemonic: AN OX and RED CAT).', '2. **Calculate Standard Potential E°**: E°_cell = E°_cathode - E°_anode using standard reduction potential tables.', '3. **Determine Transferred Electrons (n)**: Balance electrons exchanged between half-reactions.', '4. **Apply Nernst Equation**: Calculate reaction quotient Q = [Products]^c / [Reactants]^a to evaluate actual cell voltage under non-standard concentrations.'],
+        "analogy": 'A galvanic cell is like water flowing between two reservoirs: the height difference is the voltage (potential). As water flows, the levels equalize (Q increases toward K), until the height difference reaches zero (the battery goes dead).',
+        "pitfalls": 'Multiplying standard reduction potentials E° when multiplying a half-reaction by stoichiometric coefficients; E° is an intensive property and does NOT scale with coefficients.',
+        "confidence": '100% Physical Chemistry Standard'
+    },
+    'chemical_kinetics_arrhenius': {
+        "title": 'Chemical Kinetics: Reaction Rates, Rate Laws & Arrhenius Equation',
+        "keywords": ['chemical kinetics', 'rate law', 'arrhenius equation', 'activation energy', 'reaction rate', 'order of reaction', 'catalyst'],
+        "core": 'The branch of chemistry addressing reaction speeds and molecular collision pathways, formulated mathematically through differential rate laws and thermal activation barriers.',
+        "formulas": [
+            r'k = A e^{-\frac{E_a}{RT}} \implies \ln k = -\frac{E_a}{R}\left(\frac{1}{T}\right) + \ln A \quad \text{(Arrhenius Equation)}',
+            r'\text{Rate} = k [A]^m [B]^n \quad (\text{Overall Order} = m + n)'
+        ],
+        "steps": ['1. **Determine Reaction Orders Experimentally**: Compare initial rates when varying reactant concentrations; order cannot be determined from balanced stoichiometric coefficients.', '2. **Integrate Rate Law**: Apply zero-order ([A] vs t), first-order (ln[A] vs t), or second-order (1/[A] vs t) linear fits.', '3. **Calculate Activation Energy E_a**: Plot ln(k) versus 1/T; the slope is equal to -E_a / R.', '4. **Role of Catalysts**: Catalysts provide an alternative reaction pathway with lower activation energy without shifting thermodynamic equilibrium K_eq.'],
+        "analogy": 'Activation energy is like a steep mountain pass between two valleys: heating the reactants gives more cars enough horsepower to make it over the pass, while a catalyst builds a tunnel straight through the mountain.',
+        "pitfalls": 'Assuming reaction orders match balanced equation coefficients; reaction orders depend exclusively on the slowest elementary step in the mechanism, not the overall equation.',
+        "confidence": '100% Chemical Kinetics Standard'
+    },
+    'molecular_orbital_theory': {
+        "title": 'Molecular Orbital Theory, Hybridization & VSEPR Geometry',
+        "keywords": ['molecular orbital theory', 'hybridization', 'vsepr', 'bond order', 'sigma bond', 'pi bond', 'paramagnetism'],
+        "core": 'Quantum models of chemical bonding where atomic orbitals combine into delocalized molecular orbitals (bonding and antibonding), explaining molecular geometry, bond order, and magnetism.',
+        "formulas": [
+            r'\text{Bond Order} = \frac{N_\text{bonding} - N_\text{antibonding}}{2}',
+            r'\text{Steric Number} = (\text{Lone Pairs}) + (\text{Bonded Atoms}) \implies \text{Geometry}'
+        ],
+        "steps": ['1. **Count Valence Electrons**: Sum all valence electrons from bonded atoms.', '2. **Determine Steric Number**: Steric 2 = sp (linear, 180°); Steric 3 = sp2 (trigonal planar, 120°); Steric 4 = sp3 (tetrahedral, 109.5°).', '3. **Construct MO Diagram**: Combine atomic orbitals into lower-energy bonding (sigma, pi) and higher-energy antibonding (sigma*, pi*) orbitals.', '4. **Predict Magnetic Properties**: Unpaired electrons in MOs create paramagnetism (attracted to magnets, like liquid O2); fully paired electrons create diamagnetism.'],
+        "analogy": 'Atomic orbitals are like individual solo singers; when they join together in a molecular orbital, their voices either harmonize constructively (bonding orbital holds them together) or clash destructively (antibonding orbital pushes them apart).',
+        "pitfalls": 'Relying on Lewis structures to predict oxygen magnetism; Lewis structures predict O2 is diamagnetic, but MO theory accurately shows two unpaired electrons in pi* orbitals explaining why liquid oxygen sticks to strong magnets.',
+        "confidence": '100% Inorganic Chemistry Standard'
+    },
+    'immunology_adaptive': {
+        "title": 'Immunology: Innate vs Adaptive Immunity, Antibodies & Vaccines',
+        "keywords": ['immunology', 'immune system', 'antibodies', 't cells', 'b cells', 'adaptive immunity', 'innate immunity', 'vaccines', 'antigen'],
+        "core": 'The biological defense network consisting of rapid non-specific innate barriers and highly specific adaptive responses mediated by antibodies, B-lymphocytes, and T-lymphocytes.',
+        "formulas": [
+            r'\text{Immune Response: } \text{Innate (0-12h)} \to \text{Antigen Presentation (MHC I/II)} \to \text{Clonal Expansion (T/B Cells)} \to \text{Memory}'
+        ],
+        "steps": ['1. **Innate Barrier Activation**: Physical barriers (skin, mucosa) and phagocytes (macrophages, neutrophils) engulf pathogens non-specifically.', '2. **Antigen Presentation**: Dendritic cells display pathogen peptide fragments on MHC-II molecules to helper T-cells (CD4+).', '3. **Humoral & Cell-Mediated Response**: Helper T-cells stimulate B-cells to secrete hyper-targeted antibodies, and activate cytotoxic T-cells (CD8+) to destroy infected cells.', '4. **Immunological Memory**: Memory B and T cells persist for decades, conferring rapid sterilizing immunity upon re-exposure or following vaccination.'],
+        "analogy": "Innate immunity is like local police arriving at an emergency in minutes; adaptive immunity is like specialized detectives analyzing the villain's unique fingerprint, mass-producing custom handcuffs (antibodies), and filing the case into the permanent archive.",
+        "pitfalls": 'Confusing antibodies with antigens; an antigen is the foreign pathogen marker, while an antibody is the Y-shaped defense protein synthesized by your body to neutralize it.',
+        "confidence": '100% Cellular Immunology Standard'
+    },
+    'neurobiology_action_potential': {
+        "title": 'Neurobiology: Action Potentials & Synaptic Transmission',
+        "keywords": ['action potential', 'neuron', 'synapse', 'neurotransmitters', 'depolarization', 'myelin sheath', 'sodium potassium pump'],
+        "core": 'Rapid, all-or-nothing electrical membrane impulses by which neurons transmit signals across biological axons via voltage-gated ion channels.',
+        "formulas": [
+            r'V_m = \frac{RT}{F} \ln \left( \frac{P_{\text{K}}[\text{K}^+]_o + P_{\text{Na}}[\text{Na}^+]_o + P_{\text{Cl}}[\text{Cl}^-]_i}{P_{\text{K}}[\text{K}^+]_i + P_{\text{Na}}[\text{Na}^+]_i + P_{\text{Cl}}[\text{Cl}^-]_o} \right) \quad \text{(Goldman Equation)}'
+        ],
+        "steps": ['1. **Resting State (-70 mV)**: Maintained by Na+/K+ ATPase pump (3 Na+ out, 2 K+ in) and passive K+ leak channels.', '2. **Depolarization (+30 mV)**: Threshold stimulus (-55 mV) opens voltage-gated Na+ channels; rapid sodium influx drives membrane potential positive.', '3. **Repolarization & Hyperpolarization**: Na+ channels inactivate, voltage-gated K+ channels open; potassium efflux restores negative potential.', '4. **Saltatory Conduction**: Impulses jump between Nodes of Ranvier along myelin sheaths, accelerating conduction velocity up to 120 m/s.'],
+        "analogy": 'A line of falling dominos: knocking over the first domino past the balance point triggers the entire chain reaction with identical force all the way down, regardless of how hard the initial push was.',
+        "pitfalls": 'Believing stronger stimuli create larger action potentials; action potentials are strictly all-or-nothing—stronger stimuli increase the frequency of firings, not the amplitude.',
+        "confidence": '100% Neurophysiology Standard'
+    },
+    'mendelian_genetics': {
+        "title": 'Mendelian Genetics: Punnett Squares, Alleles & Pedigrees',
+        "keywords": ['genetics', 'mendelian genetics', 'punnett square', 'alleles', 'dominant recessive', 'phenotype genotype', 'hardy weinberg'],
+        "core": 'The foundational laws of biological inheritance formulated by Gregor Mendel, describing how discrete genetic factors (genes) segregate and assort into offspring.',
+        "formulas": [
+            r'\text{Monohybrid Heterozygous Cross: } Bb \times Bb \implies 1 \, BB : 2 \, Bb : 1 \, bb \quad (3:1 \text{ Phenotypic Ratio})',
+            r'p^2 + 2pq + q^2 = 1 \quad \text{and } p + q = 1 \quad \text{(Hardy-Weinberg Equilibrium)}'
+        ],
+        "steps": ['1. **Identify Parental Genotypes**: Assign dominant (capital letter) and recessive (lowercase letter) alleles for both parents.', '2. **Draw Punnett Square**: Place maternal gametes on one axis and paternal gametes on the other.', '3. **Calculate Offspring Ratios**: Combine alleles in each grid cell to find genotypic (1:2:1) and phenotypic (3:1) probabilities.', '4. **Examine Pedigree Inheritance**: Distinguish autosomal dominant (present in every generation), autosomal recessive (skips generations), and X-linked traits.'],
+        "analogy": 'Inheriting genes is like dealing two cards from a deck: you receive one card from mom and one from dad; having an Ace of Spades (dominant allele) displays the ace, but you can still pass your hidden number card to your child.',
+        "pitfalls": 'Confusing phenotype (observable physical expression, e.g. brown eyes) with genotype (underlying genetic code, e.g. Bb).',
+        "confidence": '100% Classical Genetics Standard'
+    },
+    'mitosis_meiosis': {
+        "title": 'Cell Division: Mitosis vs Meiosis & Genetic Recombination',
+        "keywords": ['mitosis', 'meiosis', 'cell cycle', 'cell division', 'crossing over', 'chromosomes', 'gametogenesis'],
+        "core": 'The eukaryotic cellular duplication processes: mitosis produces two genetically identical diploid somatic cells, while meiosis produces four genetically diverse haploid gametes.',
+        "formulas": [
+            r'\text{Mitosis: } 2n \to 2n \quad (\text{1 division, 2 identical daughter cells})',
+            r'\text{Meiosis: } 2n \to 1n \quad (\text{2 divisions, 4 unique haploid gametes via Crossing Over})'
+        ],
+        "steps": ['1. **Interphase (S-phase)**: Chromosomes replicate into sister chromatids joined at the centromere.', '2. **Mitosis (PMAT)**: Prophase (condensation) -> Metaphase (equatorial alignment) -> Anaphase (chromatid separation) -> Telophase & Cytokinesis.', '3. **Meiosis I & Crossing Over**: Homologous chromosome pairs undergo synapsis and exchange genetic fragments in Prophase I, generating non-parental allele combinations.', '4. **Meiosis II**: Sister chromatids separate without intermediate DNA replication, producing four haploid daughter cells.'],
+        "analogy": 'Mitosis is like running an exact document through an office photocopier twice. Meiosis is like taking two decks of cards, shuffling half of each together, and dealing out four unique hands.',
+        "pitfalls": 'Thinking sister chromatids separate during Meiosis I; in Meiosis I, homologous chromosome pairs separate; sister chromatids only separate during Meiosis II.',
+        "confidence": '100% Cell Biology Standard'
+    },
+    'feynman_technique': {
+        "title": 'The Feynman Technique: 4-Step Mental Model for Concept Mastery',
+        "keywords": ['feynman technique', 'richard feynman', 'learning technique', 'mental models', 'study mastery', 'concept mastery'],
+        "core": 'A cognitive mastery methodology developed by Nobel laureate Richard Feynman that eliminates the illusion of competence by translating complex jargon into simple, foundational explanations.',
+        "formulas": [
+            r'\text{Feynman Mastery: } \text{Target Concept} \to \text{ELIF Explanation} \to \text{Locate Knowledge Gaps} \to \text{Synthesize \& Simplify}'
+        ],
+        "steps": ['1. **Choose a Target Concept**: Write the title of the concept at the top of a blank sheet of paper.', '2. **Explain to a 6-Year-Old**: Write an explanation using simple, plain words without academic jargon, acronyms, or circular definitions.', '3. **Pinpoint Where You Get Stuck**: Whenever you hesitate or resort to textbook buzzwords, open source textbooks to fill that exact conceptual gap.', '4. **Simplify with Analogies**: Craft an intuitive physical analogy to test whether you truly grasp the underlying mechanism.'],
+        "analogy": 'If you cannot explain why an airplane flies without using words like Bernoulli or circulation theorem, you have memorized names rather than understanding physics. True knowledge is when you can explain it using air molecules hitting a tilted cardboard sheet.',
+        "pitfalls": 'Using technical jargon to mask shallow comprehension; Feynman noted that knowing the name of something is fundamentally different from knowing something.',
+        "confidence": '100% Cognitive Learning Science Standard'
+    },
+    'cognitive_load_dual_coding': {
+        "title": 'Cognitive Load Theory, Dual Coding & Visual Mind Mapping',
+        "keywords": ['cognitive load', 'dual coding', 'mind mapping', 'working memory', 'sweller', 'paivio', 'learning science'],
+        "core": 'Educational psychology frameworks that optimize human working memory limits (4±1 chunks) by presenting complementary verbal and visual representations simultaneously.',
+        "formulas": [
+            r'\text{Total Load} = \text{Intrinsic Load} + \text{Germane Load} + \text{Extraneous Load} \le \text{Working Memory Capacity}'
+        ],
+        "steps": ['1. **Minimize Extraneous Load**: Eliminate distracting background music, irrelevant decorative graphics, and split-attention layouts.', '2. **Leverage Dual Coding**: Pair visual diagrams with concise verbal labels rather than huge walls of monolithic text.', '3. **Optimize Intrinsic Load**: Chunk complex multi-variable problems into progressive scaffolded sub-skills.', '4. **Maximize Germane Load**: Direct mental energy toward building long-term schemas, structural concept maps, and cross-discipline links.'],
+        "analogy": 'Your working memory is like a desk that only holds 4 books at once; if it is cluttered with junk mail (extraneous load), you cannot open your actual textbook. Dual coding is like having a second monitor beside your desk so your eyes and ears share the workload.',
+        "pitfalls": 'Believing in mythical learning styles (e.g. I am only a visual learner); extensive cognitive science demonstrates that all human brains learn dramatically better when verbal and visual channels are combined.',
+        "confidence": '100% Educational Psychology Standard'
     }
 }
 

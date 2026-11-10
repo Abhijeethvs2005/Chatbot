@@ -19,7 +19,7 @@
   </script>
 
   <!-- Robot System Stylesheet -->
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css?v=5.6.0">
 </head>
 <body class="theme-cyber">
   <div class="app-shell">
@@ -97,26 +97,29 @@
           <div class="subsystem-node">STAGE LIGHTS: <span id="frame-lights-status">ACTIVE</span></div>
         </div>
 
-        <!-- Wardrobe / Outfits Selector -->
-        <div class="hud-wardrobe-bar">
-          <span class="wardrobe-label">👗 OUTFIT:</span>
-          <button class="outfit-pill active" data-outfit="suit" title="Disciplined Bespoke Tailored Suit, Shoulder Epaulettes, Gold Crest, Crisp Poplin Shirt, Silk Tie, Belt & Oxford Shoes">👔 Disciplined Suit</button>
-          <button class="outfit-pill" data-outfit="cyber" title="Cyber Exoskeleton Mecha Armor Plates & Glowing Neon Conduits">⚡ Cyber Mecha</button>
-          <button class="outfit-pill" data-outfit="student" title="Navy Uniform Blazer, White Collared Shirt, Red Tie & Academic Shield Crest">🎓 Student Uniform</button>
-          <button class="outfit-pill" data-outfit="scientist" title="White Lab Coat, ID Badge, Stethoscope, Pens & Smart Spectacles">🥼 Scientist Coat</button>
-          <button class="outfit-pill" data-outfit="hoodie" title="Streetwear Hoodie, Pouch, Drawstrings, Neon Symbol & Denim Jeans">🧥 Streetwear Hoodie</button>
-          <button class="outfit-pill" data-outfit="astronaut" title="Pressurized Lunar EVA Suit, Mission Patch, O2 Valves & Backpack">🚀 Astronaut Suit</button>
-          <button class="outfit-pill" data-outfit="physique" title="Pure Muscular Physique (Chiseled Natural Skin, Sculpted Pectorals, 6-Pack Abs & Quad Hypertrophy)">💪 Muscular Physique</button>
-        </div>
+        <!-- Unified Top HUD Controls: Outfits & Muscle Hypertrophy (Non-overlapping) -->
+        <div class="hud-top-controls">
+          <!-- Wardrobe / Outfits Selector -->
+          <div class="hud-wardrobe-bar">
+            <span class="wardrobe-label">👗 OUTFIT:</span>
+            <button class="outfit-pill active" data-outfit="suit" title="Disciplined Bespoke Tailored Suit">👔 Suit</button>
+            <button class="outfit-pill" data-outfit="cyber" title="Cyber Exoskeleton Mecha Armor">⚡ Cyber</button>
+            <button class="outfit-pill" data-outfit="student" title="Student Uniform Blazer & Tie">🎓 Student</button>
+            <button class="outfit-pill" data-outfit="scientist" title="White Research Lab Coat">🥼 Scientist</button>
+            <button class="outfit-pill" data-outfit="hoodie" title="Urban Streetwear Hoodie">🧥 Hoodie</button>
+            <button class="outfit-pill" data-outfit="astronaut" title="Pressurized Lunar Space Suit">🚀 Space</button>
+            <button class="outfit-pill" data-outfit="physique" title="Pure Muscular Physique">💪 Physique</button>
+          </div>
 
-        <!-- Dynamic Muscle Hypertrophy Control Bar -->
-        <div class="hud-muscle-bar">
-          <span class="muscle-label">💪 MUSCLE:</span>
-          <button class="muscle-pill" data-level="lean" title="Lean / Calisthenics Physique (0.75x)">Lean</button>
-          <button class="muscle-pill active" data-level="athletic" title="Athletic / Natural Physique (1.0x)">Athletic</button>
-          <button class="muscle-pill" data-level="muscular" title="Muscular / Gym Fit Physique (1.38x)">Muscular</button>
-          <button class="muscle-pill" data-level="bodybuilder" title="Heavyweight Bodybuilder / Superhero Physique (1.75x)">Bodybuilder</button>
-          <button class="muscle-gain-btn" id="gain-muscle-btn" title="Progressively Gain Muscle (Level Up Hypertrophy)">⚡ GAIN MUSCLE</button>
+          <!-- Dynamic Muscle Hypertrophy Control Bar -->
+          <div class="hud-muscle-bar">
+            <span class="muscle-label">💪 MUSCLE:</span>
+            <button class="muscle-pill" data-level="lean" title="Lean / Calisthenics Physique (0.75x)">Lean</button>
+            <button class="muscle-pill active" data-level="athletic" title="Athletic / Natural Physique (1.0x)">Athletic</button>
+            <button class="muscle-pill" data-level="muscular" title="Muscular / Gym Fit Physique (1.38x)">Muscular</button>
+            <button class="muscle-pill" data-level="bodybuilder" title="Heavyweight Bodybuilder (1.75x)">Bodybuilder</button>
+            <button class="muscle-gain-btn" id="gain-muscle-btn" title="Progressively Gain Muscle">⚡ GAIN MUSCLE</button>
+          </div>
         </div>
 
         <!-- 3D Orbit & Zoom Control Hint -->
@@ -426,17 +429,160 @@
               <code>R = e^(-t/S) • Active Recall SRS</code>
               <span style="color: var(--accent);">Study Lesson ➔</span>
             </div>
+
+          <!-- Resource Card 7 -->
+          <div class="resource-card" data-prompt="Explain Ordinary Differential Equations and separation of variables" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">📐 Ordinary Differential Equations (ODEs)</span>
+              <span class="badge" style="font-size: 10px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8;">Mathematics</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Relates unknown functions to their rates of change. Solves dynamic systems using separation of variables and integrating factors.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #38bdf8;">
+              <code>dy/dx = g(x)h(y) ➔ ∫(1/h(y))dy = ∫g(x)dx</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 8 -->
+          <div class="resource-card" data-prompt="Explain Schrödinger Wave Equation and quantum wavefunctions" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🌌 Schrödinger Equation & Wave Mechanics</span>
+              <span class="badge" style="font-size: 10px; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #c084fc;">Physics</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Governs the time evolution of a quantum particle's probability amplitude Ψ(r,t) and spatial standing wave energy eigenstates.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #c084fc;">
+              <code>iℏ ∂Ψ/∂t = ĤΨ = [-ℏ²/(2m)∇² + V]Ψ</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 9 -->
+          <div class="resource-card" data-prompt="What are Maxwell's Equations in classical electrodynamics?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">⚡ Maxwell's Equations & Electrodynamics</span>
+              <span class="badge" style="font-size: 10px; background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid #c084fc;">Physics</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Unifies electricity, magnetism, and optics into four fundamental laws governing electromagnetic radiation at speed c.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #c084fc;">
+              <code>∇·E=ρ/ε₀ • ∇·B=0 • ∇×E=-∂B/∂t</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 10 -->
+          <div class="resource-card" data-prompt="How does Dynamic Programming optimize algorithms with memoization?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">⚙️ Dynamic Programming, Memoization & Tabulation</span>
+              <span class="badge" style="font-size: 10px; background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;">Comp Sci</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Breaks complex problems into overlapping subproblems, trading memory for speed to drop exponential O(2ⁿ) runtimes to linear O(n).</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #4ade80;">
+              <code>DP[i] = optimize(DP[i-1], DP[i-2]) • O(2ⁿ) ➔ O(n)</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 11 -->
+          <div class="resource-card" data-prompt="Explain RSA public key cryptography and prime factorization" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🛡️ Public-Key Cryptography & RSA Encryption</span>
+              <span class="badge" style="font-size: 10px; background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;">Comp Sci</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Asymmetric encryption securing internet commerce using modular exponentiation and prime factorization trapdoor functions.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #4ade80;">
+              <code>c ≡ mᵉ (mod n) • m ≡ cᵈ (mod n)</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 12 -->
+          <div class="resource-card" data-prompt="What is the difference between SN1 and SN2 reaction mechanisms?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🧪 Organic Mechanisms: SN1 vs SN2 Reactions</span>
+              <span class="badge" style="font-size: 10px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #fbbf24;">Chemistry</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Bimolecular backside attack (SN2) with 100% inversion vs unimolecular carbocation pathway (SN1) with racemization.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #fbbf24;">
+              <code>Rate_SN2 = k[Sub][Nuc] • Rate_SN1 = k[Sub]</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 13 -->
+          <div class="resource-card" data-prompt="Explain the Nernst Equation and Galvanic Cells" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🔋 Electrochemistry & The Nernst Equation</span>
+              <span class="badge" style="font-size: 10px; background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #fbbf24;">Chemistry</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Calculates exact non-standard battery voltage from Gibbs free energy ΔG° and the reaction quotient Q.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #fbbf24;">
+              <code>E_cell = E°_cell - (0.0592/n) log₁₀ Q</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 14 -->
+          <div class="resource-card" data-prompt="How does a neuronal action potential propagate?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🧠 Neurobiology & Action Potential Propagation</span>
+              <span class="badge" style="font-size: 10px; background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid #f472b6;">Biology</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">All-or-nothing electrical nerve impulses powered by rapid voltage-gated Na⁺ influx (+30mV) followed by K⁺ repolarization.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #f472b6;">
+              <code>-70mV (Rest) ➔ -55mV (Threshold) ➔ +30mV (Peak)</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 15 -->
+          <div class="resource-card" data-prompt="Explain Mendelian Genetics and Punnett Squares" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🌱 Mendelian Genetics & Punnett Squares</span>
+              <span class="badge" style="font-size: 10px; background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid #f472b6;">Biology</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Laws of segregation and independent assortment calculating genotype and phenotype ratios (3:1 and 9:3:3:1).</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #f472b6;">
+              <code>Aa × Aa ➔ 1 AA : 2 Aa : 1 aa (3:1 Phenotype)</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 16 -->
+          <div class="resource-card" data-prompt="How to use the Feynman Technique to master complex topics?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">🎯 The Feynman Technique for Deep Mastery</span>
+              <span class="badge" style="font-size: 10px; background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #38bdf8;">Study Strategy</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">4-step learning framework: teach in simple words to a 12-year-old, identify intuition gaps, return to sources, and refine analogies.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #38bdf8;">
+              <code>Mastery = Clarity / Jargon • 4-Step Model</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
+          </div>
+
+          <!-- Resource Card 17 -->
+          <div class="resource-card" data-prompt="What is Cognitive Load Theory and Dual Coding in learning?" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 14px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">💡 Cognitive Load Theory & Dual Coding</span>
+              <span class="badge" style="font-size: 10px; background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid #38bdf8;">Study Strategy</span>
+            </div>
+            <p style="font-size: 12px; color: #94a3b8; margin: 6px 0 4px 0;">Maximizes working memory throughput by eliminating extraneous friction and pairing complementary verbal and visual diagrams.</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: #38bdf8;">
+              <code>Working Memory (4±1 chunks) • Paivio Dual Coding</code>
+              <span style="color: var(--accent);">Study Lesson ➔</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Scripts -->
-  <script src="/static/js/knowledge.js?v=5.5.3"></script>
-  <script src="/static/js/audio.js?v=5.5.3"></script>
-  <script src="/static/js/mathgraph.js?v=5.5.3"></script>
-  <script src="/static/js/robot3d.js?v=5.5.3"></script>
-  <script src="/static/js/app.js?v=5.5.3"></script>
+  <script src="/static/js/knowledge.js?v=5.6.0"></script>
+  <script src="/static/js/audio.js?v=5.6.0"></script>
+  <script src="/static/js/mathgraph.js?v=5.6.0"></script>
+  <script src="/static/js/robot3d.js?v=5.6.0"></script>
+  <script src="/static/js/app.js?v=5.6.0"></script>
 </body>
 </html>
