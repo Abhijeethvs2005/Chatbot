@@ -472,11 +472,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Wardrobe / Clothes Outfit Selector
   const outfitPills = document.querySelectorAll(".outfit-pill");
+  const syncOutfitUI = (outfitKey) => {
+    outfitPills.forEach((p) => {
+      if (p.dataset.outfit === outfitKey) p.classList.add("active");
+      else p.classList.remove("active");
+    });
+  };
+
   outfitPills.forEach((pill) => {
     pill.addEventListener("click", () => {
-      outfitPills.forEach((p) => p.classList.remove("active"));
-      pill.classList.add("active");
       const outfit = pill.dataset.outfit;
+      syncOutfitUI(outfit);
       if (robot) robot.setOutfit(outfit);
     });
   });
@@ -639,30 +645,431 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 8. Microphone Input
+  // ── VOICE COMMAND OPERATION SYSTEM ──────────────────────────────────────────
+  const voiceToast = document.getElementById("voice-toast");
+  const voiceToastText = document.getElementById("voice-toast-text");
+  const voiceCmdBtn = document.getElementById("voice-cmd-btn");
+  let voiceToastTimer = null;
+  let isVoiceCommandModeActive = false;
+
+  const showVoiceToast = (message, mode = "listening", autoHideMs = 3500) => {
+    if (!voiceToast || !voiceToastText) return;
+    if (voiceToastTimer) clearTimeout(voiceToastTimer);
+
+    voiceToastText.textContent = message;
+    voiceToast.classList.remove("hidden", "listening", "executing");
+    voiceToast.classList.add(mode);
+
+    if (autoHideMs > 0) {
+      voiceToastTimer = setTimeout(() => {
+        if (isVoiceCommandModeActive && mode === "executing") {
+          showVoiceToast("🎙️ Listening... Say 'Wear suit', 'Salute', 'Zoom face', 'Flex'...", "listening", 0);
+        } else if (!isVoiceCommandModeActive) {
+          voiceToast.classList.add("hidden");
+        }
+      }, autoHideMs);
+    }
+  };
+
+  const matchAndExecuteVoiceCommand = (rawText) => {
+    if (!rawText || typeof rawText !== "string") return null;
+    const text = rawText.trim().toLowerCase();
+
+    // 1. WARDROBE / DRESSES COMMANDS
+    if (/\b(?:wear|put on|equip|change to|switch to|dress in|show)?\s*(?:the\s*)?(?:disciplined\s*)?(?:bespoke\s*)?(?:tailored\s*)?suit\b/i.test(text) ||
+        /\b(?:formal|executive|officer)\s*(?:suit|dress)\b/i.test(text)) {
+      if (robot) robot.setOutfit("suit");
+      syncOutfitUI("suit");
+      return {
+        label: "Disciplined Suit",
+        spoken: "Wearing disciplined bespoke tailored suit, shoulder epaulettes, and gold cufflinks.",
+        feedback: "👔 Equipped: Disciplined Bespoke Suit"
+      };
+    }
+
+    if (/\b(?:wear|put on|equip|change to|switch to|dress in|show)?\s*(?:the\s*)?(?:cyber|mecha|exoskeleton|armor)\b/i.test(text)) {
+      if (robot) robot.setOutfit("cyber");
+      syncOutfitUI("cyber");
+      return {
+        label: "Cyber Mecha",
+        spoken: "Equipping titanium cyber exoskeleton armor and glowing neon conduits.",
+        feedback: "⚡ Equipped: Cyber Mecha Exoskeleton"
+      };
+    }
+
+    if (/\b(?:wear|put on|equip|change to|switch to|dress in|show)?\s*(?:the\s*)?(?:student|school|uniform|blazer)\b/i.test(text)) {
+      if (robot) robot.setOutfit("student");
+      syncOutfitUI("student");
+      return {
+        label: "Student Uniform",
+        spoken: "Wearing student academic uniform blazer and crest.",
+        feedback: "🎓 Equipped: Student Uniform"
+      };
+    }
+
+    if (/\b(?:wear|put on|equip|change to|switch to|dress in|show)?\s*(?:the\s*)?(?:scientist|lab coat|researcher|doctor coat)\b/i.test(text)) {
+      if (robot) robot.setOutfit("scientist");
+      syncOutfitUI("scientist");
+      return {
+        label: "Scientist Lab Coat",
+        spoken: "Donning research scientist lab coat and smart spectacles.",
+        feedback: "🥼 Equipped: Scientist Lab Coat"
+      };
+    }
+
+    if (/\b(?:wear|put on|equip|change to|switch to|dress in|show)?\s*(?:the\s*)?(?:hoodie|streetwear|jacket|casual)\b/i.test(text)) {
+      if (robot) robot.setOutfit("hoodie");
+      syncOutfitUI("hoodie");
+      return {
+        label: "Streetwear Hoodie",
+        spoken: "Wearing urban streetwear hoodie and denim.",
+        feedback: "🧥 Equipped: Streetwear Hoodie"
+      };
+    }
+
+    if (/\b(?:wear|put on|equip|change to|switch to|dress in|show)?\s*(?:the\s*)?(?:astronaut|space\s*suit|lunar|cosmonaut)\b/i.test(text)) {
+      if (robot) robot.setOutfit("astronaut");
+      syncOutfitUI("astronaut");
+      return {
+        label: "Astronaut Suit",
+        spoken: "Pressurizing cosmic lunar extravehicular space suit.",
+        feedback: "🚀 Equipped: Pressurized Astronaut Suit"
+      };
+    }
+
+    if (/\b(?:show|reveal|display|switch to)?\s*(?:pure\s*)?(?:muscular\s*)?physique\b/i.test(text) ||
+        /\b(?:remove|take off)\s*(?:clothes|dresses|outfit|suit)\b/i.test(text) ||
+        /\b(?:no|without)\s*(?:clothes|dresses)\b/i.test(text)) {
+      if (robot) robot.setOutfit("physique");
+      syncOutfitUI("physique");
+      return {
+        label: "Muscular Physique",
+        spoken: "Displaying pure muscular physique and sculpted anatomy.",
+        feedback: "💪 Equipped: Pure Muscular Physique"
+      };
+    }
+
+    // 2. GESTURES & ACTIONS
+    if (/\b(?:flex|show muscles?|biceps?|workout pose|double bicep)\b/i.test(text)) {
+      if (robot) robot.flex();
+      return {
+        label: "Double-Biceps Flex",
+        spoken: "Executing front double-biceps flex! Peak hypertrophy engaged!",
+        feedback: "💪 Action: Double-Biceps Flex"
+      };
+    }
+
+    if (/\b(?:high[\s-]*five|hifi|give me five|clap hands?|slap hand)\b/i.test(text)) {
+      if (robot) robot.hifi();
+      return {
+        label: "High-Five",
+        spoken: "High five ready! Tap my hand or screen!",
+        feedback: "✋ Action: High-Five"
+      };
+    }
+
+    if (/\b(?:military\s+)?(?:salute|attention|at attention)\b/i.test(text)) {
+      if (robot) robot.salute();
+      return {
+        label: "Military Salute",
+        spoken: "Standing at attention! System fully operational!",
+        feedback: "🫡 Action: Military Salute"
+      };
+    }
+
+    if (/\b(?:blow\s+)?(?:kiss|flying kiss|send love)\b/i.test(text)) {
+      if (robot) robot.kiss();
+      return {
+        label: "Flying Kiss",
+        spoken: "Sending you love and positive energy!",
+        feedback: "💋 Action: Flying Kiss & Hearts"
+      };
+    }
+
+    if (/\b(?:say\s+)?(?:hello|wave|hi|hey|greet|greeting)\b/i.test(text)) {
+      if (robot) robot.hello();
+      return {
+        label: "Wave Hello",
+        spoken: "Hello there! Wonderful to see you!",
+        feedback: "👋 Action: Friendly Wave"
+      };
+    }
+
+    if (/\b(?:say\s+)?(?:bye|goodbye|farewell|see you)\b/i.test(text)) {
+      if (robot) robot.bye();
+      return {
+        label: "Farewell Bye",
+        spoken: "Goodbye! Have an extraordinary session!",
+        feedback: "👋 Action: Farewell Wave"
+      };
+    }
+
+    if (/\b(?:nod|nod head|agree)\b/i.test(text)) {
+      if (robot) robot.nod();
+      return {
+        label: "Nod Head",
+        spoken: "Affirmative!",
+        feedback: "✅ Action: Affirmative Nod"
+      };
+    }
+
+    if (/\b(?:shake head|disagree)\b/i.test(text)) {
+      if (robot) robot.shakeHead();
+      return {
+        label: "Shake Head",
+        spoken: "Understood, negative.",
+        feedback: "❌ Action: Shake Head"
+      };
+    }
+
+    if (/\b(?:celebrate|victory|cheer|congratulate)\b/i.test(text)) {
+      if (robot) robot.celebrate();
+      return {
+        label: "Celebrate Victory",
+        spoken: "Outstanding victory! Goal achieved!",
+        feedback: "🎉 Action: Celebrate Victory"
+      };
+    }
+
+    // 3. MUSCLE HYPERTROPHY
+    if (/\b(?:gain|grow|build|level up|increase)\s+muscles?\b/i.test(text) || /\bhypertrophy\b/i.test(text)) {
+      let nextName = "athletic";
+      if (robot) nextName = robot.gainMuscle();
+      syncMuscleUI(nextName);
+      return {
+        label: "Gain Muscle",
+        spoken: `Muscle hypertrophy advanced to ${nextName} build!`,
+        feedback: `⚡ Hypertrophy: ${nextName.toUpperCase()}`
+      };
+    }
+
+    if (/\blean(?:\s+physique|\s+body|\s+level)?\b/i.test(text)) {
+      if (robot) robot.setMuscleLevel("lean");
+      syncMuscleUI("lean");
+      return { label: "Lean Physique", spoken: "Set to lean athletic build.", feedback: "⚡ Level: LEAN (0.75x)" };
+    }
+    if (/\bathletic(?:\s+physique|\s+body|\s+level)?\b/i.test(text)) {
+      if (robot) robot.setMuscleLevel("athletic");
+      syncMuscleUI("athletic");
+      return { label: "Athletic Physique", spoken: "Set to canonical athletic physique.", feedback: "⚡ Level: ATHLETIC (1.0x)" };
+    }
+    if (/\bmuscular(?:\s+physique|\s+body|\s+level)?\b/i.test(text)) {
+      if (robot) robot.setMuscleLevel("muscular");
+      syncMuscleUI("muscular");
+      return { label: "Muscular Physique", spoken: "Set to muscular bodybuilder physique.", feedback: "⚡ Level: MUSCULAR (1.38x)" };
+    }
+    if (/\bbodybuilder(?:\s+physique|\s+mode|\s+level)?\b/i.test(text)) {
+      if (robot) robot.setMuscleLevel("bodybuilder");
+      syncMuscleUI("bodybuilder");
+      return { label: "Bodybuilder Physique", spoken: "Maximum heavyweight bodybuilder physique activated!", feedback: "⚡ Level: BODYBUILDER (1.75x)" };
+    }
+
+    // 4. CAMERA & PERSPECTIVES
+    if (/\b(?:zoom\s+in|zoom\s+to|focus\s+(?:on\s+)?|look\s+at\s+|show\s+|view\s+)?(?:the\s*)?(?:face|eyes|head|facial)\b/i.test(text) ||
+        /\b(?:face|eyes)\s*view\b/i.test(text) || /\bzoom\s+in\b/i.test(text)) {
+      if (robot) {
+        if (robot.isOrbiting) robot.toggleOrbit();
+        robot.setCameraView("eyes");
+      }
+      return {
+        label: "Focus Face & Eyes",
+        spoken: "Focusing on realistic human face, eyes, nose, teeth, and tongue.",
+        feedback: "👁️ Camera: Face & Eyes Close-Up"
+      };
+    }
+
+    if (/\b(?:look at|focus on|show|view)\s*(?:the\s*)?(?:legs|boots|feet)\b/i.test(text) ||
+        /\blegs\s*view\b/i.test(text)) {
+      if (robot) {
+        if (robot.isOrbiting) robot.toggleOrbit();
+        robot.setCameraView("legs");
+      }
+      return {
+        label: "Inspect Legs",
+        spoken: "Inspecting articulated mechanical legs, kneecaps, and boots.",
+        feedback: "🦵 Camera: Legs & Boots View"
+      };
+    }
+
+    if (/\b(?:full\s*(?:body|view|chassis)|zoom out|reset camera|default view|command view)\b/i.test(text)) {
+      if (robot) {
+        if (robot.isOrbiting) robot.toggleOrbit();
+        robot.setCameraView("command");
+      }
+      return {
+        label: "Full Body View",
+        spoken: "Framing full athletic humanoid body and two legs.",
+        feedback: "🎥 Camera: Full Body Chassis"
+      };
+    }
+
+    if (/\b(?:rotate|orbit|spin|360|turn around)\b/i.test(text)) {
+      let isOrbiting = false;
+      if (robot) isOrbiting = robot.toggleOrbit();
+      const orbitBtn = document.getElementById("cam-orbit-btn");
+      if (orbitBtn) {
+        if (isOrbiting) {
+          orbitBtn.classList.add("active");
+          orbitBtn.innerHTML = "⏹️ STOP ORBIT";
+        } else {
+          orbitBtn.classList.remove("active");
+          orbitBtn.innerHTML = "🔄 ORBIT";
+        }
+      }
+      return {
+        label: "360 Orbit",
+        spoken: isOrbiting ? "Engaging 360-degree cinematic orbit." : "Stopping orbit rotation.",
+        feedback: isOrbiting ? "🔄 360° Orbit: ACTIVE" : "🔄 360° Orbit: STOPPED"
+      };
+    }
+
+    // 5. EXPRESSIONS
+    if (/\b(?:smile|be happy|look happy)\b/i.test(text)) {
+      if (robot) robot.setExpression("happy");
+      return { label: "Happy Expression", spoken: "Warm charismatic smile activated.", feedback: "😊 Expression: Happy" };
+    }
+    if (/\b(?:think|ponder|contemplate)\b/i.test(text)) {
+      if (robot) robot.setExpression("thinking");
+      return { label: "Thinking Expression", spoken: "Deep analytical thinking mode.", feedback: "🤔 Expression: Thinking" };
+    }
+    if (/\b(?:surprise|look surprised|gasp)\b/i.test(text)) {
+      if (robot) robot.setExpression("surprised");
+      return { label: "Surprised Expression", spoken: "Inquisitive surprised expression.", feedback: "😮 Expression: Surprised" };
+    }
+    if (/\b(?:neutral|calm|relax face|idle)\b/i.test(text)) {
+      if (robot) robot.setExpression("idle");
+      return { label: "Neutral Expression", spoken: "Resting natural expression.", feedback: "😐 Expression: Neutral" };
+    }
+
+    // 6. THEMES & STAGE
+    if (/\b(?:next theme|change theme|switch theme)\b/i.test(text)) {
+      const btn = document.getElementById("frame-theme-btn");
+      if (btn) btn.click();
+      return { label: "Next Theme", spoken: "Color theme switched.", feedback: "🎨 Theme: Cycled" };
+    }
+
+    if (/\b(?:overdrive|turbo|supercharge)\b/i.test(text)) {
+      if (robot) robot.triggerOverdrive(3500);
+      return { label: "Overdrive", spoken: "Overdrive mode supercharged!", feedback: "⚡ System: OVERDRIVE ACTIVATED" };
+    }
+
+    if (/\b(?:toggle stage|platform|holo)\b/i.test(text)) {
+      if (robot) robot.toggleHoloStage();
+      return { label: "Toggle Platform", spoken: "Hologram stage toggled.", feedback: "🛸 Stage: Toggled" };
+    }
+
+    return null;
+  };
+
+  const handleVoiceInput = (transcript, isFromVoiceCmdMode = false) => {
+    if (!transcript) return;
+    const cmd = matchAndExecuteVoiceCommand(transcript);
+
+    if (cmd) {
+      if (window.AudioEngine.playVoiceCommandChime) {
+        window.AudioEngine.playVoiceCommandChime();
+      }
+      showVoiceToast(`✨ ${cmd.feedback}`, "executing", 3200);
+
+      if (window.AudioEngine.voiceEnabled) {
+        window.AudioEngine.speak(cmd.spoken, () => {
+          if (robot) robot.setExpression("speaking");
+        }, () => {
+          if (robot) robot.setExpression("idle");
+        });
+      }
+
+      appendMessage("user", `🎙️ "${transcript}"`);
+      appendMessage("bot", `<div class="voice-cmd-confirmation"><span class="voice-cmd-pill">${cmd.feedback}</span><p>${cmd.spoken}</p></div>`);
+      return true;
+    }
+
+    // Not a direct robot command: forward as conversational/academic inquiry
+    if (isFromVoiceCmdMode) {
+      showVoiceToast(`🔍 Academic query: "${transcript}"`, "executing", 2500);
+    }
+    chatInput.value = transcript;
+    sendMessage();
+    return false;
+  };
+
+  // Continuous Hands-Free Voice Command Mode Toggle
+  if (voiceCmdBtn) {
+    voiceCmdBtn.addEventListener("click", () => {
+      if (isVoiceCommandModeActive) {
+        // Deactivate Voice Command Mode
+        isVoiceCommandModeActive = false;
+        voiceCmdBtn.classList.remove("listening");
+        voiceCmdBtn.innerHTML = "🎙️ VOICE CMD";
+        window.AudioEngine.stopListening();
+        showVoiceToast("Voice command mode deactivated.", "listening", 1800);
+        setTimeout(() => { if (voiceToast) voiceToast.classList.add("hidden"); }, 1800);
+      } else {
+        // Activate Voice Command Mode
+        isVoiceCommandModeActive = true;
+        voiceCmdBtn.classList.add("listening");
+        voiceCmdBtn.innerHTML = "🔴 LISTENING...";
+        showVoiceToast("🎙️ Listening... Say 'Wear suit', 'Salute', 'Zoom face', 'Flex'...", "listening", 0);
+
+        if (window.AudioEngine.voiceEnabled) {
+          window.AudioEngine.speak("Voice command mode active. Ready for your command.");
+        }
+
+        window.AudioEngine.startListening(
+          (transcript) => {
+            handleVoiceInput(transcript, true);
+          },
+          () => {
+            if (!isVoiceCommandModeActive) {
+              voiceCmdBtn.classList.remove("listening");
+              voiceCmdBtn.innerHTML = "🎙️ VOICE CMD";
+              if (voiceToast) voiceToast.classList.add("hidden");
+            }
+          },
+          (err) => {
+            console.warn("Voice command recognition error:", err);
+            if (!isVoiceCommandModeActive) {
+              voiceCmdBtn.classList.remove("listening");
+              voiceCmdBtn.innerHTML = "🎙️ VOICE CMD";
+              if (voiceToast) voiceToast.classList.add("hidden");
+            }
+          },
+          true // continuous = true
+        );
+      }
+    });
+  }
+
+  // 8. Microphone Input (Quick single-shot speech input in chat box)
   if (micBtn) {
     micBtn.addEventListener("click", () => {
       if (window.AudioEngine.isListening) {
         window.AudioEngine.stopListening();
         micBtn.classList.remove("listening");
+        if (voiceToast) voiceToast.classList.add("hidden");
       } else {
         micBtn.classList.add("listening");
+        showVoiceToast("🎙️ Listening for speech input...", "listening", 0);
         if (robot) robot.setExpression("surprised");
+
         window.AudioEngine.startListening(
           (transcript) => {
-            chatInput.value = transcript;
             micBtn.classList.remove("listening");
-            sendMessage();
+            if (robot) robot.setExpression("idle");
+            handleVoiceInput(transcript, false);
           },
           () => {
             micBtn.classList.remove("listening");
             if (robot) robot.setExpression("idle");
+            if (voiceToast) voiceToast.classList.add("hidden");
           },
           (err) => {
             micBtn.classList.remove("listening");
             if (robot) robot.setExpression("idle");
+            if (voiceToast) voiceToast.classList.add("hidden");
             console.warn("Speech error:", err);
-          }
+          },
+          false
         );
       }
     });
@@ -688,28 +1095,28 @@ document.addEventListener("DOMContentLoaded", () => {
     // Render User Message
     appendMessage("user", text);
 
-    // Robot Reacts: Thinking & Overdrive State or Gesture Trigger
-    const lower = text.toLowerCase();
-    if (robot) {
-      if (lower.includes("gain muscle") || lower.includes("grow muscle") || lower.includes("hypertrophy")) {
-        if (gainMuscleBtn) gainMuscleBtn.click();
-        else { robot.gainMuscle(); robot.flex(); }
-      } else if (lower.includes("flex") || lower.includes("bicep") || lower.includes("workout") || lower.includes("muscle")) {
-        robot.flex();
-      } else if (lower.includes("high five") || lower.includes("hifi") || lower.includes("high-five")) {
-        robot.hifi();
-      } else if (lower.includes("salute")) {
-        robot.salute();
-      } else if (lower.includes("flying kiss") || lower.includes("blow kiss") || lower === "kiss") {
-        robot.kiss();
-      } else if (lower.includes("bye") || lower.includes("goodbye") || lower.includes("see you")) {
-        robot.bye();
-      } else if (lower.includes("hello") || lower.includes("hey") || lower === "hi" || lower.startsWith("hi ") || lower.startsWith("hello ")) {
-        robot.hello();
-      } else {
-        robot.setExpression("thinking");
-        robot.triggerOverdrive(2200);
+    // Check if message is a direct voice / text robot operation command
+    const directCmd = matchAndExecuteVoiceCommand(text);
+    if (directCmd) {
+      if (window.AudioEngine.playVoiceCommandChime) {
+        window.AudioEngine.playVoiceCommandChime();
       }
+      showVoiceToast(`✨ ${directCmd.feedback}`, "executing", 3200);
+      if (window.AudioEngine.voiceEnabled) {
+        window.AudioEngine.speak(directCmd.spoken, () => {
+          if (robot) robot.setExpression("speaking");
+        }, () => {
+          if (robot) robot.setExpression("idle");
+        });
+      }
+      appendMessage("bot", `<div class="voice-cmd-confirmation"><span class="voice-cmd-pill">${directCmd.feedback}</span><p>${directCmd.spoken}</p></div>`);
+      return;
+    }
+
+    // Robot Reacts: Thinking & Overdrive State
+    if (robot) {
+      robot.setExpression("thinking");
+      robot.triggerOverdrive(2200);
     }
     window.AudioEngine.playThinking();
 

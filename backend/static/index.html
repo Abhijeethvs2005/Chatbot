@@ -19,7 +19,7 @@
   </script>
 
   <!-- Robot System Stylesheet -->
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css?v=5.8.0">
 </head>
 <body class="theme-cyber">
   <div class="app-shell">
@@ -127,6 +127,12 @@
         <!-- Three.js 3D Canvas -->
         <div id="robot-viewport"></div>
 
+        <!-- Floating Voice Command Live HUD Toast -->
+        <div id="voice-toast" class="voice-toast hidden">
+          <span class="voice-toast-dot"></span>
+          <span class="voice-toast-text" id="voice-toast-text">🎙️ Say "Wear Suit", "Salute", "Zoom Face", "Flex"...</span>
+        </div>
+
         <!-- Robot Interactive Actions & Gestures -->
         <div class="hud-actions-bar">
           <button class="action-btn" id="act-flex-btn" title="Front Double-Biceps Flex Pose & Maximum Muscle Contraction">💪 Flex</button>
@@ -139,6 +145,7 @@
 
         <!-- Robot HUD Interactive Controls -->
         <div class="hud-bottom-bar">
+          <button class="hud-btn voice-cmd-btn" id="voice-cmd-btn" title="Toggle Hands-Free Voice Command Operation (speak commands to control robot)">🎙️ VOICE CMD</button>
           <button class="hud-btn overdrive-btn" id="overdrive-btn" title="Trigger high-speed thinking mode">⚡ OVERDRIVE</button>
           <button class="hud-btn" id="cam-command-btn" title="Full chassis & legs view">🎥 FULL</button>
           <button class="hud-btn" id="cam-legs-btn" title="Inspect articulated mechanical legs & boots">🦵 LEGS</button>
@@ -433,10 +440,10 @@
   </div>
 
   <!-- Scripts -->
-  <script src="/static/js/knowledge.js?v=5.5.3"></script>
-  <script src="/static/js/audio.js?v=5.5.3"></script>
-  <script src="/static/js/mathgraph.js?v=5.5.3"></script>
-  <script src="/static/js/robot3d.js?v=5.7.0"></script>
-  <script src="/static/js/app.js?v=5.5.3"></script>
+  <script src="/static/js/knowledge.js?v=5.8.0"></script>
+  <script src="/static/js/audio.js?v=5.8.0"></script>
+  <script src="/static/js/mathgraph.js?v=5.8.0"></script>
+  <script src="/static/js/robot3d.js?v=5.8.0"></script>
+  <script src="/static/js/app.js?v=5.8.0"></script>
 </body>
 </html>

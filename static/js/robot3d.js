@@ -3639,12 +3639,15 @@ class Robot3D {
   }
 
   setOutfit(outfitKey) {
-    if (!["cyber", "student", "scientist", "hoodie", "astronaut"].includes(outfitKey)) return;
-    this.currentOutfit = outfitKey;
+    if (!outfitKey) return this.currentOutfit;
+    const cleanKey = outfitKey.toLowerCase().trim();
+    const validOutfits = ["suit", "cyber", "student", "scientist", "hoodie", "astronaut", "physique", "none"];
+    if (!validOutfits.includes(cleanKey)) return this.currentOutfit;
+    this.currentOutfit = cleanKey;
 
     if (this.wardrobeParts) {
       Object.keys(this.wardrobeParts).forEach((key) => {
-        const isSelected = (key === outfitKey);
+        const isSelected = (key === cleanKey);
         this.wardrobeParts[key].forEach((part) => {
           part.visible = isSelected;
         });
@@ -3656,6 +3659,46 @@ class Robot3D {
       if (window.AudioEngine.playChime) window.AudioEngine.playChime();
       else if (window.AudioEngine.playRobotChirp) window.AudioEngine.playRobotChirp();
     }
+    return this.currentOutfit;
+  }
+
+  setMuscleLevel(level) {
+    const levels = {
+      lean: 0.75,
+      athletic: 1.0,
+      muscular: 1.38,
+      bodybuilder: 1.75
+    };
+    if (typeof level === "string") {
+      const key = level.toLowerCase().trim();
+      if (levels[key] !== undefined) {
+        this.targetMuscleLevel = levels[key];
+        this.muscleLevel = levels[key];
+        this.muscleLevelName = key;
+      }
+    } else if (typeof level === "number") {
+      this.targetMuscleLevel = level;
+      this.muscleLevel = level;
+    }
+    return this.getMuscleLevelName();
+  }
+
+  getMuscleLevelName() {
+    if (this.muscleLevelName) return this.muscleLevelName;
+    const val = this.targetMuscleLevel || this.muscleLevel || 1.0;
+    if (val < 0.88) return "lean";
+    if (val < 1.18) return "athletic";
+    if (val < 1.55) return "muscular";
+    return "bodybuilder";
+  }
+
+  gainMuscle() {
+    const cycle = ["lean", "athletic", "muscular", "bodybuilder"];
+    const current = this.getMuscleLevelName();
+    const nextIdx = (cycle.indexOf(current) + 1) % cycle.length;
+    const next = cycle[nextIdx];
+    this.setMuscleLevel(next);
+    return next;
   }
 
   buildHoloPlatform() {
@@ -3766,6 +3809,12 @@ class Robot3D {
           else if (window.AudioEngine.playChime) window.AudioEngine.playChime();
           window.AudioEngine.speak("Outstanding job! Goal achieved!");
         }
+      } else if (actionName === "flex") {
+        this.setExpression("happy");
+        if (window.AudioEngine) {
+          if (window.AudioEngine.playServoHum) window.AudioEngine.playServoHum();
+          window.AudioEngine.speak("Front double-biceps flex! Peak muscle hypertrophy engaged!");
+        }
       }
     });
   }
@@ -3818,6 +3867,10 @@ class Robot3D {
 
   celebrate(onComplete) {
     return this.doAction("celebrate", onComplete);
+  }
+
+  flex(onComplete) {
+    return this.doAction("flex", onComplete, 3.2);
   }
 
   stopAction() {
@@ -4169,6 +4222,10 @@ class Robot3D {
           // Standing rigid at attention: heels aligned, zero sway
           targetLeftLeg = { thighX: 0, thighZ: 0, kneeX: 0 };
           targetRightLeg = { thighX: 0, thighZ: 0, kneeX: 0 };
+        } else if (this.currentAction === "flex") {
+          // Broad athletic power stance during front double-biceps flex
+          targetLeftLeg = { thighX: 0.08, thighZ: 0.08, kneeX: -0.10 };
+          targetRightLeg = { thighX: 0.08, thighZ: -0.08, kneeX: -0.10 };
         } else if (this.currentAction === "hifi") {
           // Athletic grounded stance
           targetLeftLeg = { thighX: 0.10, thighZ: -0.04, kneeX: -0.12 };
@@ -4536,6 +4593,26 @@ class Robot3D {
         targetHead.x = -0.14; // head lifted high in victory
 
         if (this.actionTimer > 2.4) {
+          this.endAction();
+        }
+      } else if (this.currentAction === "flex") {
+        this.actionTimer += delta;
+        // Front Double-Biceps Bodybuilding Pose:
+        // Upper arms abducted 90°, elbows flexed, fists clenched, chest high!
+        targetRight.upper = { x: 0.15, y: -0.20, z: 1.55 };
+        targetRight.fore = { x: -1.45, y: 0.35, z: 0.20 };
+        targetRight.hand = { x: 0.20, y: -0.35, z: 0.10 };
+        rightFingersTarget = 0.95; // Clenched fist
+
+        targetLeft.upper = { x: 0.15, y: 0.20, z: -1.55 };
+        targetLeft.fore = { x: -1.45, y: -0.35, z: -0.20 };
+        targetLeft.hand = { x: 0.20, y: 0.35, z: -0.10 };
+        leftFingersTarget = 0.95; // Clenched fist
+
+        targetHead.y = 0;
+        targetHead.x = -0.06;
+
+        if (this.actionTimer > 3.2) {
           this.endAction();
         }
       } else if (this.expression === "speaking") {

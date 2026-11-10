@@ -342,6 +342,31 @@ class AudioEngine {
     }
   }
 
+  playVoiceCommandChime() {
+    if (!this.soundEnabled) return;
+    try {
+      const ctx = this.getAudioContext();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.exponentialRampToValueAtTime(880.0, now + 0.12); // A5
+
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch (err) {
+      // AudioContext unavailable
+    }
+  }
+
   initSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return;
@@ -352,27 +377,53 @@ class AudioEngine {
     this.recognition.lang = "en-US";
   }
 
-  startListening(onResult, onEnd, onError) {
-    if (!this.recognition) {
-      if (onError) onError("Speech recognition not supported in this browser.");
+  startListening(onResult, onEnd, onError, continuous = false) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      if (onError) onError("Speech recognition not supported in this browser. Please use Google Chrome, Edge, or Safari.");
       return;
     }
 
+    if (!this.recognition) {
+      this.initSpeechRecognition();
+    }
+
     this.isListening = true;
+    this.isContinuous = !!continuous;
+    this.recognition.continuous = !!continuous;
+    this.recognition.interimResults = false;
+    this.recognition.lang = "en-US";
     this.playClick();
 
     this.recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      if (onResult) onResult(transcript);
+      const results = event.results;
+      const last = results[results.length - 1];
+      const transcript = last[0].transcript;
+      if (onResult) onResult(transcript, last.isFinal);
     };
 
     this.recognition.onerror = (e) => {
+      if (this.isContinuous && (e.error === "no-speech" || e.error === "network")) {
+        // Suppress non-fatal quiet errors in continuous voice mode
+        return;
+      }
       this.isListening = false;
+      this.isContinuous = false;
       if (onError) onError(e.error);
     };
 
     this.recognition.onend = () => {
+      if (this.isContinuous && this.isListening) {
+        // Auto-reconnect in continuous voice mode
+        try {
+          this.recognition.start();
+          return;
+        } catch (err) {
+          // Fall through
+        }
+      }
       this.isListening = false;
+      this.isContinuous = false;
       if (onEnd) onEnd();
     };
 
@@ -384,8 +435,11 @@ class AudioEngine {
   }
 
   stopListening() {
+    this.isContinuous = false;
     if (this.recognition && this.isListening) {
-      this.recognition.stop();
+      try {
+        this.recognition.stop();
+      } catch (e) {}
       this.isListening = false;
     }
   }

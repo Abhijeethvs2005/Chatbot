@@ -676,6 +676,116 @@ body.theme-matrix .robot-hud-stage {
   box-shadow: 0 0 12px rgba(236, 72, 153, 0.6);
 }
 
+.hud-btn.voice-cmd-btn {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hud-btn.voice-cmd-btn:hover {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.65);
+}
+
+.hud-btn.voice-cmd-btn.listening {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.7);
+  animation: pulse-voice-glow 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse-voice-glow {
+  0% { transform: scale(1); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  50% { transform: scale(1.06); box-shadow: 0 0 22px rgba(239, 68, 68, 0.85); }
+  100% { transform: scale(1); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+}
+
+/* Floating Voice Command Live HUD Toast */
+.voice-toast {
+  position: absolute;
+  top: 118px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 18, 36, 0.94);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #f8fafc;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.25);
+  z-index: 25;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  max-width: 90%;
+  text-align: center;
+}
+
+.voice-toast.hidden {
+  opacity: 0;
+  transform: translate(-50%, -10px);
+}
+
+.voice-toast-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.voice-toast.listening .voice-toast-dot {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+  animation: pulse-dot 0.9s infinite alternate;
+}
+
+.voice-toast.executing {
+  border-color: #10b981;
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.6);
+  color: #34d399;
+}
+
+.voice-toast.executing .voice-toast-dot {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.voice-cmd-confirmation {
+  padding: 4px 0;
+}
+
+.voice-cmd-pill {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+}
+
+@keyframes pulse-dot {
+  from { opacity: 0.4; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1.25); }
+}
+
 /* Right: Study Terminal Console */
 .study-terminal {
   display: flex;
