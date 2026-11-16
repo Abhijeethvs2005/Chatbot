@@ -1720,6 +1720,31 @@ function lookupFactualKnowledge(query) {
   const q = query.toLowerCase().trim();
 
   const FACTS = [
+    // 1A. OWNER & CREATOR: ABHIJEETH V S
+    {
+      pattern: /(?:who\s+(?:is\s+)?(?:the\s+|your\s+)?(?:owner|creator|maker|author|founder|boss)|who\s+(?:created|built|made|developed|designed|owns|coded)\s+(?:you|this|chatbot|robot|axiom)|(?:owner|creator|maker)\s+of\s+(?:this|you|chatbot|robot|axiom)|who\s+is\s+abhijeeth|who\s+is\s+abhijeeth\s+v\s+s)/i,
+      data: {
+        id: "owner_abhijeeth",
+        title: "Creator & Owner: Abhijeeth V S",
+        subject: "General",
+        core: "The owner, founder, and creator of this chatbot and 3D robot system is **Abhijeeth V S**! He designed and built Axiom from the ground up, engineering its real-time 3D humanoid biomechanics, procedural graphics, and sub-10ms multimodal AI intelligence.",
+        formulas: [],
+        steps: [
+          "1. **Owner & Lead Architect**: **Abhijeeth V S** owns and developed the entire Chatbot Axiom platform.",
+          "2. **Humanoid Robotics**: Features an anatomically sculpted male android avatar with full facial articulation, photorealistic corneas, dynamic expressions, and five interactive wardrobe outfits.",
+          "3. **Hands-Free Operation**: Activated by the voice wake command **'Hey Axiom'** with zero-latency responses.",
+          "4. **Full Sovereign Control**: Welcomes Abhijeeth V S upon arrival and operates in loyal service to its creator."
+        ],
+        analogy: "Like Tony Stark engineering J.A.R.V.I.S.—Axiom is custom-crafted by and for Abhijeeth V S!",
+        pitfalls: "Axiom belongs exclusively to **Abhijeeth V S**.",
+        quiz: {
+          question: "Who is the owner and creator of Axiom?",
+          options: ["Abhijeeth V S", "OpenAI", "Google", "Microsoft"],
+          correct: 0,
+          explanation: "Abhijeeth V S is the visionary creator, lead engineer, and owner of Axiom."
+        }
+      }
+    },
     // 1. PERSONA: AXIOM
     {
       pattern: /^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+axiom|who\s+is\s+chatbot\s+abhi|hey\s+axiom)/i,
@@ -1743,6 +1768,28 @@ function lookupFactualKnowledge(query) {
           correct: 0,
           explanation: "Axiom was designed and developed by Abhijeeth V S, and activates via the voice command 'Hey Axiom'."
         }
+      }
+    },
+    // 1A2. DANCE STEPS & ROBOTIC BIOMECHANICS
+    {
+      pattern: /(?:dance\s+steps?|robotic\s+dance|how\s+do\s+you\s+dance|dance\s+moves?)/i,
+      data: {
+        id: "dance_steps_robot",
+        title: "Robotic Biomechanics: Dynamic Dance Steps",
+        subject: "Physics & Robotics",
+        core: "Axiom features a real-time choreographed dance routine comprising four dynamic steps: **The Robot Pop & Lock**, **The Disco Fever Sky Point**, **The Electric Wave Ripple**, and **The Hip-Hop Bounce & Slide**!",
+        formulas: [
+          "\\text{BPM} = 120 \\implies T_{\\text{beat}} = \\frac{60}{120} = 0.50\\text{ s}",
+          "y_{\\text{bounce}}(t) = |\\sin(2\\pi f t)| \\cdot A_{\\text{vertical}}"
+        ],
+        steps: [
+          "1. **Step 1: Pop & Lock**: High-speed angular 90-degree staccato arm shifts with crisp head isolations and chest pulses.",
+          "2. **Step 2: Disco Sky Point**: Diagonal Travolta sky point pumping up into the stratosphere and down across the hip with pelvis roll.",
+          "3. **Step 3: Electric Arm Wave**: Continuous sinusoidal harmonic ripple undulating across both outstretched arms.",
+          "4. **Step 4: Hip-Hop Bounce**: Dual arm pumping with synchronized knee flexion and rhythmic head nodding."
+        ],
+        analogy: "Like a professional dancer synchronizing rhythmic inverse kinematics with a 120-BPM electro-funk bassline!",
+        pitfalls: "Dance moves require active physics damping to avoid sudden angular momentum overshoots."
       }
     },
     // 1B. 3D ROBOT ACTION HAND CONFIGURATION / REVERSE HAND

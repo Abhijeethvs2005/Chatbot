@@ -7,12 +7,31 @@ class AudioEngine {
   constructor() {
     this.audioCtx = null;
     this.soundEnabled = true;
-    this.voiceEnabled = false;
+    this.voiceEnabled = true; // Voice speech synthesis enabled by default
     this.isListening = false;
     this.recognition = null;
     this.currentUtterance = null;
     this.waveformListener = null;
+    this.danceBeatInterval = null;
 
+    // Soothing Female Voice Engine (Anti-Harsh Filtering)
+    this.selectedVoice = null;
+    this.voicePitch = 1.0;
+    this.voiceRate = 0.98;
+    this.preferredVoiceName = "";
+    if (typeof localStorage !== "undefined") {
+      const storedVoice = localStorage.getItem("axiom_voice_enabled");
+      if (storedVoice !== null) {
+        this.voiceEnabled = storedVoice === "true";
+      } else {
+        this.voiceEnabled = true;
+      }
+      this.voicePitch = parseFloat(localStorage.getItem("axiom_voice_pitch") || "1.0");
+      this.voiceRate = parseFloat(localStorage.getItem("axiom_voice_rate") || "0.98");
+      this.preferredVoiceName = localStorage.getItem("axiom_voice_name") || "";
+    }
+
+    this.initVoices();
     this.initSpeechRecognition();
   }
 
@@ -45,6 +64,9 @@ class AudioEngine {
 
   toggleVoice() {
     this.voiceEnabled = !this.voiceEnabled;
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("axiom_voice_enabled", this.voiceEnabled ? "true" : "false");
+    }
     if (!this.voiceEnabled && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
@@ -53,6 +75,9 @@ class AudioEngine {
 
   setVoiceEnabled(enabled) {
     this.voiceEnabled = !!enabled;
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("axiom_voice_enabled", this.voiceEnabled ? "true" : "false");
+    }
     if (!this.voiceEnabled && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
@@ -332,14 +357,133 @@ class AudioEngine {
 
   // --- Web Speech API (TTS & Speech-to-Text) ---
 
+  isMaleOrHarshVoice(voice) {
+    if (!voice || !voice.name) return true;
+    const name = voice.name.toLowerCase();
+    const badTokens = [
+      "male", "man", "boy", "guy", "david", "daniel", "alex", "fred", "albert",
+      "junior", "ralph", "eddy", "reed", "rocko", "rishi", "aman", "george",
+      "oliver", "james", "tom", "bruce", "zarvox", "trinoids", "whisper",
+      "bad news", "bahh", "bells", "boing", "bubbles", "cellos", "wobble",
+      "organ", "jester", "superstar", "grandpa", "mark", "paul", "ryan",
+      "steve", "charles", "richard", "arthur", "kurt", "boris", "deranged",
+      "hysterical"
+    ];
+    return badTokens.some((t) => name.includes(t));
+  }
+
+  getAvailableFemaleVoices() {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
+    const all = window.speechSynthesis.getVoices() || [];
+    return all.filter((v) => {
+      const isEn = v.lang && v.lang.toLowerCase().startsWith("en");
+      return isEn && !this.isMaleOrHarshVoice(v);
+    });
+  }
+
+  pickBestFemaleVoice(voices) {
+    if (!voices || voices.length === 0) return null;
+
+    // Respect saved preference if valid non-male voice
+    if (this.preferredVoiceName) {
+      const saved = voices.find((v) => v.name === this.preferredVoiceName && !this.isMaleOrHarshVoice(v));
+      if (saved) return saved;
+    }
+
+    // Filter strictly against male and harsh novelty voices
+    const enVoices = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith("en"));
+    const nonMaleVoices = (enVoices.length > 0 ? enVoices : voices).filter((v) => !this.isMaleOrHarshVoice(v));
+    const pool = nonMaleVoices.length > 0 ? nonMaleVoices : voices;
+
+    // Highest-rated soothing, warm, articulate female voices
+    const topFemaleNames = [
+      "samantha",          // Apple macOS / iOS standard natural warm female
+      "karen",              // Apple macOS soft Australian female
+      "moira",              // Apple macOS gentle Irish female
+      "tessa",              // Apple macOS crisp South African female
+      "google us english",  // Google Chrome natural female assistant
+      "google uk english female",
+      "ava",                // Apple modern neural female
+      "victoria",           // Apple classic clear female
+      "jenny",              // Microsoft Edge / Windows Natural female
+      "aria",               // Microsoft Edge / Windows Natural female
+      "sonia",              // Microsoft Natural female
+      "zira",               // Microsoft Windows female
+      "tara",               // Apple Indian English female
+      "sandy",              // Apple natural female
+      "shelley",            // Apple natural female
+      "flo",                // Apple natural female
+      "allison",            // Natural female
+      "susan",              // Natural female
+      "kathy"               // Apple natural female
+    ];
+
+    for (const name of topFemaleNames) {
+      const found = pool.find((v) => v.name.toLowerCase().includes(name));
+      if (found) return found;
+    }
+
+    // Fall back to any voice that explicitly includes "female"
+    const femaleMatch = pool.find((v) => v.name.toLowerCase().includes("female"));
+    if (femaleMatch) return femaleMatch;
+
+    return pool[0] || null;
+  }
+
+  initVoices() {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const updateVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        this.selectedVoice = this.pickBestFemaleVoice(voices);
+      }
+    };
+    updateVoice();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = updateVoice;
+    }
+  }
+
+  setVoice(voiceName) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const voices = window.speechSynthesis.getVoices();
+    const match = voices.find((v) => v.name === voiceName && !this.isMaleOrHarshVoice(v));
+    if (match) {
+      this.selectedVoice = match;
+      this.preferredVoiceName = match.name;
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem("axiom_voice_name", match.name);
+      }
+    }
+  }
+
+  setPitch(pitch) {
+    this.voicePitch = Math.max(0.7, Math.min(1.3, parseFloat(pitch) || 1.0));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("axiom_voice_pitch", this.voicePitch.toString());
+    }
+  }
+
+  setRate(rate) {
+    this.voiceRate = Math.max(0.7, Math.min(1.3, parseFloat(rate) || 0.98));
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("axiom_voice_rate", this.voiceRate.toString());
+    }
+  }
+
   speak(text, onStart, onEnd) {
-    if (!this.voiceEnabled || !("speechSynthesis" in window)) {
+    if (!this.voiceEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) {
       return;
     }
 
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    } catch (e) {}
 
-    const cleanText = text
+    let cleanText = text
       .replace(/#+/g, "")
       .replace(/\*\*([^*]+)\*\*/g, "$1")
       .replace(/\*([^*]+)\*/g, "$1")
@@ -348,41 +492,149 @@ class AudioEngine {
       .replace(/`[^`]+`/g, "")
       .replace(/>/g, "")
       .replace(/---/g, "")
+      .replace(/[\u{1F300}-\u{1FAFF}|\u{2600}-\u{26FF}|\u{2700}-\u{27BF}]/gu, "")
       .trim();
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 1.05;
-    utterance.pitch = 1.15;
+    if (!cleanText) return;
 
-    const voices = window.speechSynthesis.getVoices();
-    const preferredVoice = voices.find((v) => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Samantha")));
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    // Relaxed, calm cadence and warm natural pitch - zero harsh or shrill robotic artifacts
+    utterance.rate = this.voiceRate || 0.98;
+    utterance.pitch = this.voicePitch || 1.0;
+    utterance.volume = 1.0;
+
+    if (!this.selectedVoice) {
+      const voices = window.speechSynthesis.getVoices();
+      this.selectedVoice = this.pickBestFemaleVoice(voices);
     }
 
+    if (this.selectedVoice) {
+      utterance.voice = this.selectedVoice;
+    }
+
+    const voiceDisplayName = (this.selectedVoice && this.selectedVoice.name) ? this.selectedVoice.name : "Warm Female AI";
+
+    const setRobotSpeaking = (isSpeaking) => {
+      const bot = window.robot3d || window.robotInstance;
+      if (bot && typeof bot.setExpression === "function") {
+        bot.setExpression(isSpeaking ? "speaking" : "idle");
+      }
+    };
+
     utterance.onstart = () => {
-      this.notifyWaveform("speaking", "NEURAL AUDIO: SYNTHESIZING SPEECH...");
+      this.notifyWaveform("speaking", `NEURAL AUDIO: SPEAKING (${voiceDisplayName})...`);
+      setRobotSpeaking(true);
       if (onStart) onStart();
     };
     utterance.onend = () => {
       this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
+      setRobotSpeaking(false);
       if (onEnd) onEnd();
     };
     utterance.onerror = () => {
       this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
+      setRobotSpeaking(false);
       if (onEnd) onEnd();
     };
 
-    window.speechSynthesis.speak(utterance);
     this.currentUtterance = utterance;
-    this.notifyWaveform("speaking", "NEURAL AUDIO: SYNTHESIZING SPEECH...");
+    window.speechSynthesis.speak(utterance);
+    this.notifyWaveform("speaking", `NEURAL AUDIO: SPEAKING (${voiceDisplayName})...`);
   }
 
   stopSpeaking() {
-    if (window.speechSynthesis) {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
       window.speechSynthesis.cancel();
     }
+    const bot = window.robot3d || window.robotInstance;
+    if (bot && typeof bot.setExpression === "function") {
+      bot.setExpression("idle");
+    }
     this.notifyWaveform("idle", "NEURAL AUDIO ENGINE: READY");
+  }
+
+  playDanceBeat(durationSec = 10.5) {
+    if (!this.soundEnabled) return;
+    this.ensureContext();
+    if (!this.audioCtx) return;
+
+    this.stopDanceBeat();
+    if (this.audioCtx.state === "suspended") {
+      this.audioCtx.resume();
+    }
+
+    const bpm = 120;
+    const intervalMs = (60 / bpm) * 1000; // 500ms per beat
+    let currentBeat = 0;
+    const totalBeats = Math.ceil(durationSec / (intervalMs / 1000));
+    const melodyNotes = [261.63, 329.63, 392.00, 523.25, 440.00, 392.00, 329.63, 293.66]; // C-E-G-C-A-G-E-D
+
+    const step = () => {
+      if (currentBeat >= totalBeats) {
+        this.stopDanceBeat();
+        return;
+      }
+      if (!this.soundEnabled || !this.audioCtx) return;
+
+      const now = this.audioCtx.currentTime;
+
+      // 1. Kick Bass (Punchy 140Hz -> 42Hz drop)
+      try {
+        const kick = this.audioCtx.createOscillator();
+        const kickGain = this.audioCtx.createGain();
+        kick.type = "sine";
+        kick.frequency.setValueAtTime(140, now);
+        kick.frequency.exponentialRampToValueAtTime(42, now + 0.18);
+        kickGain.gain.setValueAtTime(0.28, now);
+        kickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        kick.connect(kickGain);
+        kickGain.connect(this.audioCtx.destination);
+        kick.start(now);
+        kick.stop(now + 0.23);
+      } catch (e) {}
+
+      // 2. Off-beat Synth Snare / Hi-Hat
+      try {
+        const offTime = now + 0.25;
+        const hat = this.audioCtx.createOscillator();
+        const hatGain = this.audioCtx.createGain();
+        hat.type = "triangle";
+        hat.frequency.setValueAtTime(1800 + (currentBeat % 4) * 250, offTime);
+        hatGain.gain.setValueAtTime(0.08, offTime);
+        hatGain.gain.exponentialRampToValueAtTime(0.001, offTime + 0.08);
+        hat.connect(hatGain);
+        hatGain.connect(this.audioCtx.destination);
+        hat.start(offTime);
+        hat.stop(offTime + 0.09);
+      } catch (e) {}
+
+      // 3. Catchy Electro Synth Lead
+      try {
+        const mel = this.audioCtx.createOscillator();
+        const melGain = this.audioCtx.createGain();
+        mel.type = "sine";
+        mel.frequency.setValueAtTime(melodyNotes[currentBeat % melodyNotes.length], now);
+        melGain.gain.setValueAtTime(0.12, now);
+        melGain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+        mel.connect(melGain);
+        melGain.connect(this.audioCtx.destination);
+        mel.start(now);
+        mel.stop(now + 0.33);
+      } catch (e) {}
+
+      currentBeat++;
+    };
+
+    // First beat immediate
+    step();
+    this.danceBeatInterval = setInterval(step, intervalMs);
+  }
+
+  stopDanceBeat() {
+    if (this.danceBeatInterval) {
+      clearInterval(this.danceBeatInterval);
+      this.danceBeatInterval = null;
+    }
   }
 
   playVoiceCommandChime() {

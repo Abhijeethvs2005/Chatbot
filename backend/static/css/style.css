@@ -861,7 +861,8 @@ input:checked + .slider:before { transform: translateX(16px); }
   border-color: rgba(99, 102, 241, 0.4);
 }
 
-.sender-tag {
+.sender-tag,
+.sender-header {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -873,6 +874,29 @@ input:checked + .slider:before { transform: translateX(16px); }
 .sender-name {
   font-weight: 700;
   color: var(--accent);
+}
+
+.msg-speak-btn {
+  margin-left: auto;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  padding: 2px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.msg-speak-btn:hover {
+  background: rgba(56, 189, 248, 0.28);
+  border-color: #38bdf8;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
 /* Academic Topic Layout */

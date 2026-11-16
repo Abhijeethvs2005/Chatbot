@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof Robot3D !== "undefined") {
       robot = new Robot3D("robot-viewport");
       window.robotInstance = robot;
+      window.robot3d = robot;
     }
   } catch (err) {
     console.warn("3D Robot System loaded in fallback mode:", err);
@@ -270,6 +271,92 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Voice Persona Settings (Feminine / Soothing Audio Model Controls)
+  const voiceModelSelect = document.getElementById("voice-model-select");
+  const voicePitchSlider = document.getElementById("voice-pitch-slider");
+  const voiceRateSlider = document.getElementById("voice-rate-slider");
+  const pitchValLabel = document.getElementById("pitch-val-label");
+  const rateValLabel = document.getElementById("rate-val-label");
+  const testVoiceBtn = document.getElementById("test-voice-btn");
+
+  function populateVoiceDropdown() {
+    if (!voiceModelSelect || !window.AudioEngine) return;
+    const femaleVoices = window.AudioEngine.getAvailableFemaleVoices();
+    voiceModelSelect.innerHTML = "";
+    
+    const autoOpt = document.createElement("option");
+    autoOpt.value = "";
+    autoOpt.textContent = "Auto-Detect Best Soothing Voice (Default: Samantha / Calm Female)";
+    voiceModelSelect.appendChild(autoOpt);
+
+    femaleVoices.forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = v.name;
+      opt.textContent = `${v.name} (${v.lang})`;
+      if (window.AudioEngine.preferredVoiceName === v.name) {
+        opt.selected = true;
+      }
+      voiceModelSelect.appendChild(opt);
+    });
+  }
+
+  populateVoiceDropdown();
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      if (window.AudioEngine && window.AudioEngine.initVoices) {
+        window.AudioEngine.initVoices();
+      }
+      populateVoiceDropdown();
+    };
+  }
+
+  if (voiceModelSelect) {
+    voiceModelSelect.addEventListener("change", () => {
+      if (window.AudioEngine) {
+        window.AudioEngine.setVoice(voiceModelSelect.value);
+      }
+    });
+  }
+
+  if (voicePitchSlider) {
+    voicePitchSlider.value = window.AudioEngine ? window.AudioEngine.voicePitch : 1.0;
+    if (pitchValLabel) pitchValLabel.textContent = `${voicePitchSlider.value}x`;
+    voicePitchSlider.addEventListener("input", () => {
+      if (pitchValLabel) pitchValLabel.textContent = `${voicePitchSlider.value}x`;
+      if (window.AudioEngine) {
+        window.AudioEngine.setPitch(voicePitchSlider.value);
+      }
+    });
+  }
+
+  if (voiceRateSlider) {
+    voiceRateSlider.value = window.AudioEngine ? window.AudioEngine.voiceRate : 0.98;
+    if (rateValLabel) rateValLabel.textContent = `${voiceRateSlider.value}x`;
+    voiceRateSlider.addEventListener("input", () => {
+      if (rateValLabel) rateValLabel.textContent = `${voiceRateSlider.value}x`;
+      if (window.AudioEngine) {
+        window.AudioEngine.setRate(voiceRateSlider.value);
+      }
+    });
+  }
+
+  if (testVoiceBtn) {
+    testVoiceBtn.addEventListener("click", () => {
+      if (window.AudioEngine) {
+        const wasVoiceEnabled = window.AudioEngine.voiceEnabled;
+        window.AudioEngine.voiceEnabled = true;
+        window.AudioEngine.speak(
+          "Hello! I am Axiom, your AI voice assistant. My voice is soft, smooth, and ready to assist you!",
+          () => { if (robot) robot.setExpression("speaking"); },
+          () => {
+            if (robot) robot.setExpression("idle");
+            if (!wasVoiceEnabled) window.AudioEngine.voiceEnabled = false;
+          }
+        );
+      }
+    });
+  }
+
   // 3D Animation Frame & Multi-Theme System
   const THEME_DATA = {
     cyber_cyan: {
@@ -483,6 +570,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Robot Interactive Actions & Gestures
   const actionConfigs = [
+    { id: "act-dance-btn", action: "dance" },
     { id: "act-hifi-btn", action: "hifi" },
     { id: "act-hello-btn", action: "hello" },
     { id: "act-bye-btn", action: "bye" },
@@ -522,6 +610,8 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (action === "outfit-suit") {
         syncOutfitUI("suit");
         if (robot) robot.setOutfit("suit");
+      } else if (action === "gesture-dance") {
+        if (robot) robot.doAction("dance");
       } else if (action === "gesture-wave") {
         if (robot) robot.doAction("hello");
       } else if (action === "gesture-salute") {
@@ -620,9 +710,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (voiceToggleBtn) {
+    const isVoiceOn = window.AudioEngine ? window.AudioEngine.voiceEnabled : true;
+    voiceToggleBtn.classList.toggle("active", isVoiceOn);
+    voiceToggleBtn.textContent = isVoiceOn ? "🗣️ VOICE: ON" : "🗣️ VOICE: OFF";
+    voiceToggleBtn.title = isVoiceOn ? "Robot Voice: ON" : "Robot Voice: OFF";
+
     voiceToggleBtn.addEventListener("click", () => {
       const enabled = window.AudioEngine.toggleVoice();
       voiceToggleBtn.classList.toggle("active", enabled);
+      voiceToggleBtn.textContent = enabled ? "🗣️ VOICE: ON" : "🗣️ VOICE: OFF";
       voiceToggleBtn.title = enabled ? "Robot Voice: ON" : "Robot Voice: OFF";
       window.AudioEngine.playClick();
       if (enabled) {
@@ -653,7 +749,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (autoHideMs > 0) {
       voiceToastTimer = setTimeout(() => {
         if (isVoiceCommandModeActive && mode === "executing") {
-          showVoiceToast("🎙️ Listening... Say 'Wear suit', 'Salute', 'Zoom face', 'Flex'...", "listening", 0);
+          showVoiceToast("🎙️ Listening... Say 'Hey Axiom', 'Wear suit', 'Salute', 'Wave hello'...", "listening", 0);
         } else if (!isVoiceCommandModeActive) {
           voiceToast.classList.add("hidden");
         }
@@ -740,6 +836,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // 2. GESTURES & ACTIONS
+    if (/\b(?:dance|dance steps?|start dancing|do a dance|groove|breakdance|disco|dance moves?|show dance|show me some dance steps|robot dance)\b/i.test(text)) {
+      if (robot) robot.dance();
+      return {
+        label: "Dance Steps",
+        spoken: "Turning up the rhythm! Watch these robot dance steps!",
+        feedback: "🕺🏻 Action: Dance Steps & Rhythm Groove"
+      };
+    }
+
+    if (/\b(?:speak|talk|say something|speak to me|talk to me|introduce yourself)\b/i.test(text)) {
+      const speechIntro = "Hello! I am Axiom, your AI companion. My speech engine and 3D facial articulation are fully active!";
+      if (window.AudioEngine) {
+        window.AudioEngine.speak(speechIntro);
+      }
+      return {
+        label: "Robot Speech",
+        spoken: speechIntro,
+        feedback: "🗣️ Action: Robot Speaking"
+      };
+    }
+
     if (/\b(?:high[\s-]*five|hifi|give me five|clap hands?|slap hand)\b/i.test(text)) {
       if (robot) robot.hifi();
       return {
@@ -935,9 +1052,10 @@ document.addEventListener("DOMContentLoaded", () => {
       showVoiceToast("✨ AXIOM AWAKE: Listening for your command or query...", "listening", 3500);
 
       const greetings = [
-        "Yes, I am Axiom! I am listening. How can I help you?",
-        "Hello! Axiom online. What would you like to explore or solve?",
-        "Axiom at your service! Ready for your question or command."
+        "Yes, Abhijeeth! I am listening. How can I help you?",
+        "Greetings, Abhijeeth! Axiom online. What would you like to explore or command?",
+        "Axiom at your service, Abhijeeth! Ready for your question or action.",
+        "Online and ready, Abhijeeth! All systems operational."
       ];
       const greeting = greetings[Math.floor(Math.random() * greetings.length)];
 
@@ -1090,7 +1208,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Speak welcome confirmation
     window.AudioEngine.speak(
-      "Voice assistant access granted! I can hear you clearly. Ask me any question or tell me what to do!",
+      "Voice assistant access granted, Abhijeeth! I can hear you clearly. Ask me any question or tell me what to do!",
       () => { if (robot) robot.setExpression("speaking"); },
       () => { if (robot) robot.setExpression("idle"); }
     );
@@ -1322,7 +1440,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
               if (data.done) {
                 updateNeuralWaveform("idle", "NEURAL AUDIO ENGINE: READY");
-                if (robot) {
+                if (window.AudioEngine && window.AudioEngine.voiceEnabled && fullText) {
+                  const sentences = fullText
+                    .replace(/###[^\n]*\n/g, "")
+                    .replace(/[*_#`$]/g, "")
+                    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+                    .split(/(?<=[.!?])\s+/)
+                    .filter(s => s.trim().length > 0);
+                  const spokenCore = sentences.slice(0, 2).join(" ").trim();
+                  if (spokenCore) {
+                    window.AudioEngine.speak(spokenCore, () => {
+                      if (robot) robot.setExpression("speaking");
+                    }, () => {
+                      if (robot) {
+                        robot.setExpression("happy");
+                        setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
+                      }
+                    });
+                  } else if (robot) {
+                    robot.setExpression("happy");
+                    setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1500);
+                  }
+                } else if (robot) {
                   robot.setExpression("happy");
                   setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1500);
                 }
@@ -1573,13 +1712,29 @@ Always double check starting assumptions, sign conventions, and ensure units are
           <div class="sender-header">
             <span class="sender-name">NOVA-AI v2.0</span>
             <span class="model-tag">Gen-2 Quantum AI Core</span>
+            <button class="msg-speak-btn" title="Speak this response aloud">🔊 Speak</button>
           </div>
           <div class="message-content">${text}</div>
         </div>
       `;
 
-      // Delegate Quiz Trigger Button
+      // Delegate Quiz Trigger Button and Speak Button
       msgDiv.addEventListener("click", (e) => {
+        if (e.target.classList.contains("msg-speak-btn")) {
+          const contentEl = msgDiv.querySelector(".message-content");
+          if (contentEl && window.AudioEngine) {
+            const rawText = contentEl.innerText || contentEl.textContent || "";
+            const cleanSnippet = rawText.slice(0, 350).trim();
+            if (cleanSnippet) {
+              window.AudioEngine.speak(cleanSnippet, () => {
+                if (robot) robot.setExpression("speaking");
+              }, () => {
+                if (robot) robot.setExpression("idle");
+              });
+            }
+          }
+        }
+
         if (e.target.classList.contains("quiz-trigger-btn")) {
           const topicId = e.target.dataset.topicId;
           const topic = window.ACADEMIC_TOPICS.find((t) => t.id === topicId) || rawTopic;
@@ -1875,4 +2030,63 @@ Always double check starting assumptions, sign conventions, and ensure units are
       .replace(/\n\n/g, "<br><br>");
     return html;
   }
+
+  // 19. Creator & Owner Entrance Welcome (Abhijeeth V S)
+  function welcomeOwnerOnEnter() {
+    // 1. Visual HUD Welcome Toast
+    showVoiceToast("👑 Welcome, Abhijeeth V S! Axiom System Core Online • Say 'Hey Axiom'", "executing", 5000);
+
+    // 2. 3D Robot Welcoming Greeting (Polite wave hello with smiling face)
+    setTimeout(() => {
+      if (robot) {
+        robot.setExpression("happy");
+        robot.doAction("hello");
+      }
+    }, 700);
+
+    // 3. Audio & Voice Welcome Sequence
+    let welcomedAudio = false;
+    const playWelcomeAudio = () => {
+      if (welcomedAudio) return;
+      welcomedAudio = true;
+
+      if (window.AudioEngine) {
+        // Futuristic Axiom chord chime
+        if (window.AudioEngine.playAxiomWakeChime) {
+          window.AudioEngine.playAxiomWakeChime();
+        } else if (window.AudioEngine.playVoiceCommandChime) {
+          window.AudioEngine.playVoiceCommandChime();
+        }
+
+        // Soothing feminine voice greeting
+        if (window.AudioEngine.voiceEnabled) {
+          window.AudioEngine.speak(
+            "Welcome back, Abhijeeth! Axiom 3D robot system is online and ready for your command.",
+            () => { if (robot) robot.setExpression("speaking"); },
+            () => {
+              if (robot) {
+                robot.setExpression("happy");
+                setTimeout(() => { if (robot) robot.setExpression("idle"); }, 1200);
+              }
+            }
+          );
+        }
+      }
+    };
+
+    // Attempt direct audio welcome (works if browser permits autoplay)
+    setTimeout(playWelcomeAudio, 1000);
+
+    // If browser suspended audio context awaiting user gesture, trigger on first interaction
+    const onFirstUserAction = () => {
+      playWelcomeAudio();
+      window.removeEventListener("pointerdown", onFirstUserAction);
+      window.removeEventListener("keydown", onFirstUserAction);
+    };
+    window.addEventListener("pointerdown", onFirstUserAction, { once: true });
+    window.addEventListener("keydown", onFirstUserAction, { once: true });
+  }
+
+  // Trigger entrance welcome for Abhijeeth V S
+  welcomeOwnerOnEnter();
 });

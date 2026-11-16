@@ -973,6 +973,22 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
     q = query.lower().strip()
     
     FACTS_CATALOG = [
+    # 1A. OWNER & CREATOR: ABHIJEETH V S
+    (r'(?:who\s+(?:is\s+)?(?:the\s+|your\s+)?(?:owner|creator|maker|author|founder|boss)|who\s+(?:created|built|made|developed|designed|owns|coded)\s+(?:you|this|chatbot|robot|axiom)|(?:owner|creator|maker)\s+of\s+(?:this|you|chatbot|robot|axiom)|who\s+is\s+abhijeeth|who\s+is\s+abhijeeth\s+v\s+s)', {
+        "title": "Creator & Owner: Abhijeeth V S",
+        "core": "The owner, founder, and creator of this chatbot and 3D humanoid robot system is **Abhijeeth V S**! He designed and built Axiom from the ground up, engineering its real-time 3D biomechanics, procedural graphics, and sub-10ms multimodal AI intelligence.",
+        "formulas": [],
+        "steps": [
+            "1. **Owner & Lead Architect**: **Abhijeeth V S** owns and developed the entire Chatbot Axiom platform.",
+            "2. **Humanoid Robotics**: Features an anatomically sculpted male android avatar with full facial articulation, photorealistic corneas, dynamic expressions, and five interactive wardrobe outfits.",
+            "3. **Hands-Free Operation**: Activated by the voice wake command **'Hey Axiom'** with zero-latency responses.",
+            "4. **Full Sovereign Control**: Welcomes Abhijeeth V S upon arrival and operates in loyal service to its creator."
+        ],
+        "analogy": "Like Tony Stark engineering J.A.R.V.I.S.—Axiom is custom-crafted by and for Abhijeeth V S!",
+        "pitfalls": "Axiom belongs exclusively to **Abhijeeth V S**.",
+        "confidence": "100% Core Identity Verified"
+    }),
+
     # 1. PERSONA & IDENTITY: AXIOM
     (r'^(?:who\s+are\s+you|what\s+is\s+your\s+name|who\s+(?:made|created|built|developed)\s+you|tell\s+me\s+about\s+yourself|who\s+is\s+axiom|who\s+is\s+chatbot\s+abhi|hey\s+axiom)', {
         "title": "Voice-Controlled 3D Assistant: Axiom",
@@ -988,6 +1004,25 @@ def lookup_factual_knowledge(query: str) -> Optional[Dict[str, Any]]:
         "analogy": "Like having an enthusiastic, personal futuristic robot tutor sitting right beside you at your study desk, ready to tackle any problem together!",
         "pitfalls": "I am **Axiom**, activated by **'Hey Axiom'**, created by **Abhijeeth V S**—never a generic template bot or standard off-the-shelf chatbot!",
         "confidence": "100% Core Identity Verified"
+    }),
+
+    # 1A2. DANCE STEPS & ROBOTIC BIOMECHANICS
+    (r'(?:dance\s+steps?|robotic\s+dance|how\s+do\s+you\s+dance|dance\s+moves?|show\s+dance)', {
+        "title": "Robotic Biomechanics: Dynamic Dance Steps",
+        "core": "Axiom features a real-time choreographed dance routine comprising four dynamic steps: **The Robot Pop & Lock**, **The Disco Fever Sky Point**, **The Electric Wave Ripple**, and **The Hip-Hop Bounce & Slide**!",
+        "formulas": [
+            r"\text{BPM} = 120 \implies T_{\text{beat}} = \frac{60}{120} = 0.50\text{ s}",
+            r"y_{\text{bounce}}(t) = |\sin(2\pi f t)| \cdot A_{\text{vertical}}"
+        ],
+        "steps": [
+            "1. **Step 1: Pop & Lock**: High-speed angular 90-degree staccato arm shifts with crisp head isolations and chest pulses.",
+            "2. **Step 2: Disco Sky Point**: Diagonal Travolta sky point pumping up into the stratosphere and down across the hip with pelvis roll.",
+            "3. **Step 3: Electric Arm Wave**: Continuous sinusoidal harmonic ripple undulating across both outstretched arms.",
+            "4. **Step 4: Hip-Hop Bounce**: Dual arm pumping with synchronized knee flexion and rhythmic head nodding."
+        ],
+        "analogy": "Like a professional dancer synchronizing rhythmic inverse kinematics with a 120-BPM electro-funk bassline!",
+        "pitfalls": "Dance moves require active physics damping to avoid sudden angular momentum overshoots.",
+        "confidence": "100% Verified Feature"
     }),
 
     # 1B. 3D ROBOT ACTION HAND CONFIGURATION / REVERSE HAND
@@ -3045,6 +3080,7 @@ async def health_check():
         "status": "operational",
         "name": "Axiom",
         "creator": "Abhijeeth V S",
+        "owner": "Abhijeeth V S",
         "version": "6.1.0",
         "openai_configured": has_key,
         "features": [
